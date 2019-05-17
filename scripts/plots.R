@@ -1,245 +1,162 @@
-### annual plots ##############
 
-###  run simulation
-  # no drift
-    annual1_nodrift0 <- run_annual1(n = 10000, years = 17, vac_coverage = 0, mydelta = 0, mygamma = 0)
-    annual1_nodrift25 <- run_annual1(n = 10000, years = 17, vac_coverage = 0.25, mydelta = 0, mygamma = 0)
-    annual1_nodrift50 <- run_annual1(n = 10000, years = 17, vac_coverage = 0.5, mydelta = 0, mygamma = 0)
-    annual1_nodrift75 <- run_annual1(n = 10000, years = 17, vac_coverage = 0.75, mydelta = 0, mygamma = 0)
-    annual1_nodrift100 <- run_annual1(n = 10000, years = 17, vac_coverage = 1, mydelta = 0, mygamma = 0)
+library(ggplot2)
+library(cowplot)
 
-### create plot
-nodrift_ar <- data.frame(year = c(rep(1:17,5)),
-                         attack_rate = c(annual1_nodrift0[[1]]$attack_rate,
-                                         annual1_nodrift25[[1]]$attack_rate,
-                                         annual1_nodrift50[[1]]$attack_rate,
-                                         annual1_nodrift75[[1]]$attack_rate,
-                                         annual1_nodrift100[[1]]$attack_rate),
-                          vac_coverage = c(rep(0,17),rep(0.25,17),rep(0.50,17),
-                                          rep(0.75,17),rep(1,17)))
+test <- multiannual2(n=5000)
+# plot attack rate by age
+ar_dat <- test[[1]]$attack_rate_by_age
+age_dat <- cbind(as.numeric(rownames(ar_dat)),apply(ar_dat[,1:10], 1, mean),apply(ar_dat[,11:20], 1, mean),
+                 apply(ar_dat[,21:30], 1, mean),apply(ar_dat[,31:40], 1, mean),apply(ar_dat[,41:50], 1, mean),
+                 apply(ar_dat[,51:60], 1, mean),apply(ar_dat[,61:70], 1, mean),apply(ar_dat[,71:80], 1, mean))
+colnames(age_dat) <- c('Year','0-9','10-19','20-29','30-39','40-49','50-59','60-69','70-79')
 
-p_nodrift <- ggplot(data = nodrift_ar, aes(x = year, y = attack_rate, 
-                                           colour = as.factor(vac_coverage))) +       
-             geom_line()
+keycol <- "Age_Group"
+valuecol <- "Attack_Rate"
+gathercols <- c('0-9','10-19','20-29','30-39','40-49','50-59','60-69','70-79')
+age_dat1 <- gather_(as.data.frame(age_dat), keycol, valuecol, gathercols)
 
-pdf(file = "figures/annual_nodrift.pdf")
-p_nodrift
-dev.off()
 
-### drift
+p_age <- plot_attack_rates(dat=age_dat1,by_age = TRUE)
 
-annual1_drift0 <- run_annual1(n = 10000, years = 17, vac_coverage = 0, mydelta = 0)
-annual1_drift2 <- run_annual1(n = 10000, years = 17, vac_coverage = 0, mydelta = 0.2)
-annual1_drift4 <- run_annual1(n = 10000, years = 17, vac_coverage = 0, mydelta = 0.4)
-annual1_drift6 <- run_annual1(n = 10000, years = 17, vac_coverage = 0, mydelta = 0.6)
-annual1_drift8 <- run_annual1(n = 10000, years = 17, vac_coverage = 0, mydelta = 0.8)
-annual1_drift10 <- run_annual1(n = 10000, years = 17, vac_coverage = 0, mydelta = 1)
+# kids only
 
-drift_ar <- data.frame(year = c(rep(1:17,6)),
-                       attack_rate = c(annual1_drift0[[1]]$attack_rate,
-                                       annual1_drift2[[1]]$attack_rate,
-                                       annual1_drift4[[1]]$attack_rate,
-                                       annual1_drift6[[1]]$attack_rate,
-                                       annual1_drift8[[1]]$attack_rate,
-                                       annual1_drift10[[1]]$attack_rate),
-                       drift = c(rep(0,17),rep(0.2,17),rep(0.4,17),
-                                 rep(0.6,17),rep(0.8,17),rep(1.0,17)))
-p_drift <- ggplot(data = drift_ar, aes(x = year, y = attack_rate, colour = as.factor(drift))) +       
-           geom_line()
-pdf(file = "figures/annual_drift.pdf")
-plot(p_drift)
-dev.off()
+kids_only <- data.frame(as.numeric(rownames(ar_dat)),ar_dat[,1:10])
+colnames(kids_only) <- c('Year','0','1','2','3','4','5','6','7','8','9')
 
-#annual1_drift[[2]]
+keycol <- "Age_Group"
+valuecol <- "Attack_Rate"
+gathercols <- c('0','1','2','3','4','5','6','7','8','9')
+kids_only1 <- gather_(kids_only, keycol, valuecol, gathercols)
 
-### biannual plots ##############
+p_kids <- plot_attack_rates(dat=kids_only1[kids_only1$Year %in% (2000:2019),],by_age = TRUE)
 
-###  run simulation
+# follow a cohort from 2000 to 2019
+sim <- 100
+nindiv <- 5000
+year_range <- 2000:2019
+age_range <- 0:19
+vaccov <- c(0, 0.25, 0.5, 0.75, 1)
+#start_year <- 1820
 
-# no drift
-biannual1_nodrift0 <- run_annual1(n = 10000, years = 17, vac_coverage = 0, 
-                                  mydelta = 0, mygamma = 0, biannual = TRUE)
-biannual1_nodrift25 <- run_annual1(n = 10000, years = 17, vac_coverage = 0.25, 
-                                   mydelta = 0, mygamma = 0, biannual = TRUE)
-biannual1_nodrift50 <- run_annual1(n = 10000, years = 17, vac_coverage = 0.5, 
-                                   mydelta = 0, mygamma = 0, biannual = TRUE)
-biannual1_nodrift75 <- run_annual1(n = 10000, years = 17, vac_coverage = 0.75,
-                                   mydelta = 0, mygamma = 0, biannual = TRUE)
-biannual1_nodrift100 <- run_annual1(n = 10000, years = 17, vac_coverage = 1, 
-                                    mydelta = 0, mygamma = 0, biannual = TRUE)
+out0 <- array(NA,dim=c(200,80,sim))
+outa <- array(NA,dim=c(200,80,sim))
+outb <- array(NA,dim=c(200,80,sim))
+life_inf0 <- matrix(c(rep(NA,sim*length(age_range))),nrow=sim)
+life_infa <- life_inf0
+life_infb <- life_inf0
+ar_out0 <- matrix(c(rep(NA,sim*length(year_range))),nrow=length(year_range))
+ar_outa <- matrix(c(rep(NA,sim*length(year_range))),nrow=length(year_range))
+ar_outb <- matrix(c(rep(NA,sim*length(year_range))),nrow=length(year_range))
 
-### create plot
-bi_nodrift_ar <- data.frame(year = c(rep(1:17,5)),
-                         attack_rate = c(biannual1_nodrift0[[1]]$attack_rate,
-                                         biannual1_nodrift25[[1]]$attack_rate,
-                                         biannual1_nodrift50[[1]]$attack_rate,
-                                         biannual1_nodrift75[[1]]$attack_rate,
-                                         biannual1_nodrift100[[1]]$attack_rate),
-                         vac_coverage = c(rep(0,17),rep(0.25,17),rep(0.50,17),
-                                          rep(0.75,17),rep(1,17)))
+for (vc in vaccov){
+  print(paste('Simulating for vaccination coverage', vc))
+# create progress bar
+pb <- txtProgressBar(min = 0, max = sim, style = 3)
 
-p_bi_nodrift <- ggplot(data = bi_nodrift_ar, aes(x = year, y = attack_rate, 
-                                           colour = as.factor(vac_coverage))) +       
-  geom_line()
+for (s in 1:sim){
+  Sys.sleep(0.1)
+  # update progress bar
+  setTxtProgressBar(pb, s)
+  
+  # run model
+  test0 <- multiannual2(n=nindiv, vac_coverage = 0)
+  testa <- multiannual2(n=nindiv, vac_coverage = vc)
+  testb <- multiannual2(n=nindiv, vac_coverage = vc, biannual = TRUE)
+  # attack rate by age
+  out0[,,s] <- test0[[1]]$attack_rate_by_age
+  dimnames(out0)[[1]] <- rownames(test0[[1]]$attack_rate_by_age)
+  ar_out0[,s] <- diag(out0[rownames(out0) %in% year_range,(age_range+1),s])
+  
+  outa[,,s] <- testa[[1]]$attack_rate_by_age
+  dimnames(outa)[[1]] <- rownames(testa[[1]]$attack_rate_by_age)
+  ar_outa[,s] <- diag(outa[rownames(outa) %in% year_range,(age_range+1),s])
+  
+  outb[,,s] <- testb[[1]]$attack_rate_by_age
+  dimnames(outb)[[1]] <- rownames(testb[[1]]$attack_rate_by_age)
+  ar_outb[,s] <- diag(outb[rownames(outb) %in% year_range,(age_range+1),s])
+  # lifetime infections
+  tmp0 <- test0[[1]]$history$lifetime_infections[,,200]
+  life_inf0[s,] <- apply(tmp0[which(!is.na(tmp0[,20]) & is.na(tmp0[,21])),age_range + 1],2,mean,na.rm = TRUE)
+  tmpa <- testa[[1]]$history$lifetime_infections[,,200]
+  life_infa[s,] <- apply(tmpa[which(!is.na(tmpa[,20]) & is.na(tmpa[,21])),age_range + 1],2,mean,na.rm = TRUE)
+  tmpb <- testb[[1]]$history$lifetime_infections[,,200]
+  life_infb[s,] <- apply(tmpb[which(!is.na(tmpb[,20]) & is.na(tmpb[,21])),age_range + 1],2,mean,na.rm = TRUE)
+}
+close(pb)
 
-pdf(file = "figures/biannual_nodrift.pdf")
-p_bi_nodrift
-dev.off()
+cohort <- data.frame(Year = c(rep(year_range,3)), 
+                     Attack_Rate = c(apply(ar_out0,1,mean),
+                                     apply(ar_outa,1,mean),
+                                     apply(ar_outb,1,mean)),
+                     Lower = c(apply(ar_out0,1,FUN = function(x) quantile(x, c(0.025))),
+                               apply(ar_outa,1,FUN = function(x) quantile(x, c(0.025))),
+                               apply(ar_outb,1,FUN = function(x) quantile(x, c(0.025)))),
+                     Upper = c(apply(ar_out0,1,FUN = function(x) quantile(x, c(0.975))),
+                               apply(ar_outa,1,FUN = function(x) quantile(x, c(0.975))),
+                               apply(ar_outb,1,FUN = function(x) quantile(x, c(0.975)))),
+                     Age = c(rep(age_range,3)),
+                     Vac_Strategy = c(rep('No Vaccination',length(year_range)),
+                                      rep('Annual',length(year_range)),
+                                      rep('Biannual',length(year_range)))
+                     )
 
-### drift (no vaccination)
-
-biannual1_drift0 <- run_annual1(n = 10000, years = 17, vac_coverage = 0,
-                                mydelta = 0, biannual = TRUE)
-biannual1_drift2 <- run_annual1(n = 10000, years = 17, vac_coverage = 0,
-                                mydelta = 0.2, biannual = TRUE)
-biannual1_drift4 <- run_annual1(n = 10000, years = 17, vac_coverage = 0,
-                                mydelta = 0.4, biannual = TRUE)
-biannual1_drift6 <- run_annual1(n = 10000, years = 17, vac_coverage = 0,
-                                mydelta = 0.6, biannual = TRUE)
-biannual1_drift8 <- run_annual1(n = 10000, years = 17, vac_coverage = 0,
-                                mydelta = 0.8, biannual = TRUE)
-biannual1_drift10 <- run_annual1(n = 10000, years = 17, vac_coverage = 0,
-                                mydelta = 1, biannual = TRUE)
-
-bi_drift_ar <- data.frame(year = c(rep(1:17,6)),
-                       attack_rate = c(biannual1_drift0[[1]]$attack_rate,
-                                       biannual1_drift2[[1]]$attack_rate,
-                                       biannual1_drift4[[1]]$attack_rate,
-                                       biannual1_drift6[[1]]$attack_rate,
-                                       biannual1_drift8[[1]]$attack_rate,
-                                       biannual1_drift10[[1]]$attack_rate),
-                       drift = c(rep(0,17),rep(0.2,17),rep(0.4,17),
-                                 rep(0.6,17),rep(0.8,17),rep(1.0,17)))
-p_bi_drift <- ggplot(data = bi_drift_ar, aes(x = year, y = attack_rate,
-                                             colour = as.factor(drift))) +       
-  geom_line()
-pdf(file = "figures/biannual_drift.pdf")
-plot(p_bi_drift)
-dev.off()
-
-### drift and vaccination
-gam = 0.2
-delt = 0.2
-# annual
-annual1_vac0 <- run_annual1(n = 10000, years = 17, vac_coverage = 0, mydelta = delt, mygamma = gam)
-annual1_vac25 <- run_annual1(n = 10000, years = 17, vac_coverage = 0.25, mydelta = delt, mygamma = gam)
-annual1_vac50 <- run_annual1(n = 10000, years = 17, vac_coverage = 0.5, mydelta = delt, mygamma = gam)
-annual1_vac75 <- run_annual1(n = 10000, years = 17, vac_coverage = 0.75, mydelta = delt, mygamma = gam)
-annual1_vac100 <- run_annual1(n = 10000, years = 17, vac_coverage = 1, mydelta = delt, mygamma = gam)
-
-# biannual
-biannual1_vac0 <- run_annual1(n = 10000, years = 17, vac_coverage = 0,
-                              mydelta = delt, mygamma = gam, biannual = TRUE)
-biannual1_vac25 <- run_annual1(n = 10000, years = 17, vac_coverage = 0.25,
-                               mydelta = delt, mygamma = gam, biannual = TRUE)
-biannual1_vac50 <- run_annual1(n = 10000, years = 17, vac_coverage = 0.5,
-                               mydelta = delt, mygamma = gam, biannual = TRUE)
-biannual1_vac75 <- run_annual1(n = 10000, years = 17, vac_coverage = 0.75,
-                               mydelta = delt, mygamma = gam, biannual = TRUE)
-biannual1_vac100 <- run_annual1(n = 10000, years = 17, vac_coverage = 1,
-                                mydelta = delt, mygamma = gam, biannual = TRUE)
-
-drift_vac_ar <- data.frame(year = c(rep(1:17,10)),
-                          attack_rate = c(annual1_vac0[[1]]$attack_rate,
-                                          annual1_vac25[[1]]$attack_rate,
-                                          annual1_vac50[[1]]$attack_rate,
-                                          annual1_vac75[[1]]$attack_rate,
-                                          annual1_vac100[[1]]$attack_rate,
-                                          biannual1_vac0[[1]]$attack_rate,
-                                          biannual1_vac25[[1]]$attack_rate,
-                                          biannual1_vac50[[1]]$attack_rate,
-                                          biannual1_vac75[[1]]$attack_rate,
-                                          biannual1_vac100[[1]]$attack_rate),
-                          vac = c(rep(0,17),rep(0.25,17),rep(0.5,17),rep(0.75,17),rep(1,17),
-                                  rep(0,17),rep(0.25,17),rep(0.5,17),rep(0.75,17),rep(1,17)),
-                          strategy = c(rep('annual', 17*5),rep('biannual',17*5)))
-
-p1_vc0 <- ggplot(data = drift_vac_ar[drift_vac_ar$vac==0,], 
-                 aes(x = year, y = attack_rate,colour = strategy)) +       
-          geom_line() +
-          theme(panel.grid.major = element_blank(), 
-                panel.grid.minor = element_blank(),
-                panel.background = element_blank(), 
-                axis.line = element_line(colour = "black"),
-                legend.position = c(.95, .95),
-                legend.justification = c("right", "top"),
-                legend.box.just = "right",
-                legend.margin = margin(6, 6, 6, 6),
-                legend.key = element_rect(fill = "white")
-          )
-p1_vc25 <- ggplot(data = drift_vac_ar[drift_vac_ar$vac==0.25,], 
-                 aes(x = year, y = attack_rate,colour = strategy)) +       
-          geom_line() +
-          theme(panel.grid.major = element_blank(), 
-                panel.grid.minor = element_blank(),
-                panel.background = element_blank(), 
-                axis.line = element_line(colour = "black"),
-                legend.position = "none"
-          )
-p1_vc50 <- ggplot(data = drift_vac_ar[drift_vac_ar$vac==0.5,], 
-                  aes(x = year, y = attack_rate,colour = strategy)) +       
-           geom_line() +
-           theme(panel.grid.major = element_blank(), 
-                 panel.grid.minor = element_blank(),
-                 panel.background = element_blank(), 
-                 axis.line = element_line(colour = "black"),
-                 legend.position = "none"
-            )
-p1_vc75 <- ggplot(data = drift_vac_ar[drift_vac_ar$vac==0.75,], 
-                  aes(x = year, y = attack_rate,colour = strategy)) +       
-           geom_line() +
-           theme(panel.grid.major = element_blank(), 
-                 panel.grid.minor = element_blank(),
-                 panel.background = element_blank(), 
-                 axis.line = element_line(colour = "black"),
-                 legend.position = "none"
-            )
-p1_vc100 <- ggplot(data = drift_vac_ar[drift_vac_ar$vac==1,], 
-                  aes(x = year, y = attack_rate,colour = strategy)) +       
+p_cohort <- ggplot(data = cohort, aes(x = Year, y = Attack_Rate, colour= Vac_Strategy)) +       
             geom_line() +
+            geom_ribbon(aes(x=Year,ymin=Lower,ymax=Upper,linetype=NA,fill=Vac_Strategy),alpha=0.2)+
+            xlab('Year') +
+            ylab('Attack Rate') +
+            scale_y_continuous(limits = c(0,0.4), expand = c(0,0)) +
             theme(panel.grid.major = element_blank(), 
                   panel.grid.minor = element_blank(),
                   panel.background = element_blank(), 
                   axis.line = element_line(colour = "black"),
-                  legend.position = "none"
-            )
-#library(cowplot)
-theme_set(theme_cowplot(font_size=10)) # reduce default font size
-omg <- plot_grid(p1_vc0, p1_vc25, p1_vc50, p1_vc75, p1_vc100, labels = "AUTO", ncol = 2, 
-          align = 'v', axis = 'l') # aligning vertically along the left axis
-pdf(file = paste0("figures/ar_by_vac_strategy_gamma",gam,"_plot.pdf"))
-plot(omg)
+                  legend.position = c(.95, .95),
+                  legend.justification = c("right", "top"),
+                  legend.box.just = "right",
+                  legend.margin = margin(6, 6, 6, 6),
+                  legend.key = element_rect(fill = "white")
+               )
+pdf(file = paste0("figures/ar_by_strategy_",vc,".pdf"))
+plot(p_cohort)
 dev.off()
 
-p2a <- ggplot(data = drift_vac_ar[drift_vac_ar$strategy=='annual',], 
-              aes(x = year, y = attack_rate,colour = as.factor(vac))) +       
-        geom_line() +
-        theme(panel.grid.major = element_blank(), 
-              panel.grid.minor = element_blank(),
-              panel.background = element_blank(), 
-              axis.line = element_line(colour = "black"),
-              legend.position = c(.95, .95),
-              legend.justification = c("right", "top"),
-              legend.box.just = "right",
-              legend.margin = margin(6, 6, 6, 6),
-              legend.key = element_rect(fill = "white")
-  )
+# lifetime infections
+life_inf_dat <- data.frame(Sim = c(rep(1:sim,3)), 
+                           Vac_Strategy = c(rep('No Vaccination',sim),
+                                            rep('Annual',sim),
+                                            rep('Biannual',sim)),
+                           rbind(life_inf0,life_infa,life_infb)
+)
+names(life_inf_dat) <- c('Sim','Vac_Strategy',c(paste0("Age",age_range)))
+data_long <- gather(life_inf_dat, Age, Life_Inf, Age0:Age19, factor_key=TRUE)
+data_long$Age <- as.factor(str_remove(data_long$Age, 'Age'))
 
-p2b <- ggplot(data = drift_vac_ar[drift_vac_ar$strategy=='biannual',], 
-              aes(x = year, y = attack_rate,colour = as.factor(vac))) +       
-        geom_line() +
-        theme(panel.grid.major = element_blank(), 
-              panel.grid.minor = element_blank(),
-              panel.background = element_blank(), 
-              axis.line = element_line(colour = "black"),
-              legend.position = 'none'
-        )
-theme_set(theme_cowplot(font_size=10)) # reduce default font size
-wow <- plot_grid(p2a, p2b, labels = "AUTO", ncol = 2, 
-                 align = 'v', axis = 'l') # aligning vertically along the left axis
-pdf(file = paste0("figures/ar_by_vaccov_gamma",gam,"_plot.pdf"))
-plot(wow)
+data_long$Age = with(data_long, reorder(Age, Life_Inf, mean))
+# boxplot 
+p1 <- ggplot(data_long, aes(x = Age, y = Life_Inf,fill = Vac_Strategy)) + 
+      geom_boxplot() +
+      ylab('Number of Lifetime Infections') +
+      theme(panel.grid.major = element_blank(), 
+            panel.grid.minor = element_blank(),
+            panel.background = element_blank(), 
+            axis.line = element_line(colour = "black"),
+            legend.position = c(.25, .95),
+            legend.justification = c("right", "top"),
+            legend.box.just = "right",
+            legend.margin = margin(6, 6, 6, 6),
+            legend.key = element_rect(fill = "white")
+      )
+
+pdf(file = paste0("figures/life_inf_by_strategy_",vc,".pdf"))
+plot(p1)
 dev.off()
 
+#theme_set(theme_cowplot(font_size=10)) # reduce default font size
+#omg <- plot_grid(p_cohort, p1, labels = "AUTO", ncol = 2, 
+#                 align = 'v', axis = 'l') # aligning vertically along the left axis
+#pdf(file = paste0("figures/combined_plot_",vc,".pdf"))
+#plot(omg)
+#dev.off()
 
+}
 
