@@ -1,11 +1,23 @@
-### mulitannual model of infection and vaccination ###
+### MoReVac - Modelling Repeat Vaccination ###
+### Agent-based model of repeat vaccination in birth cohort
 
-#setwd("~/Google Drive/morevac")
-#setwd("C:/Users/kainslie/Google Drive/morevac")
-#source("R/morevac_functions.R")
-
-#library(ggplot2)
-
+#' Multi-annual model of infection and vaccination (version 1)
+#'
+#' This function initializes the population before running the model.
+#' @param n number of individuals to be simulated
+#' @param years number of years to run simulation over
+#' @param vac_threshold age at which an individual may be vaccinated
+#' @param vac_coverage vaccination coverage
+#' @param mybeta annual force of infection
+#' @param mydelta drift parameter
+#' @param mygamma protective effect of vaccine
+#' @param biannual logical. annual or biannual vaccination?
+#' @param same_indiv logical. are the same individuals vaccinated each year?
+#' @return list with three elements: 1) a list of infection histories and attack rates,
+#'         2) a plot of annual attack rates, and 3) a plot of annual attack rates by
+#'         vaccination scenario
+#' @keywords morevac
+#' @export
 multiannual1 <- function(n=100, years=5,vac_threshold=3,vac_coverage=0.5,
                         mybeta=0.15,mydelta=0.2,mygamma=0.4,biannual=FALSE,
                         same_indiv = FALSE){
