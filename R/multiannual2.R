@@ -1,12 +1,25 @@
 ### MoReVac - Modelling Repeat Vaccination ###
 ### Agent-based model of repeat vaccination in birth cohort
 
-#setwd("~/Google Drive/morevac")
-setwd("C:/Users/kainslie/Google Drive/morevac")
-source("R/initialize_pop.R")
-source("R/plot_attack_rates.R")
-library(ggplot2)
-
+#' Multi-annual model if infection and vaccination
+#'
+#' This function initializes the population before running the model.
+#' @param n number of individuals to be simulated
+#' @param years number of years to run simulation over
+#' @param maxage maximum age of an individual (removed from population after maxage)
+#' @param start_year year to start simulation
+#' @param vac_start_year year that vaccination starts
+#' @param start_vac_age age at which an individual may be vaccinated
+#' @param beta_pandemic force of infection when simulation starts
+#' @param beta_epidemic annual force of infection (after initialization of model)
+#' @param delta_x drift parameter from natural infection
+#' @param delta_v drift parameter from vaccination
+#' @param mygamma protective effect of vaccine
+#' @param biannual logical. annual or biannual vaccination?
+#' @return list with two elements: 1) a list of infection histories and attack rates and
+#'         2) a plot of annual attack rates by vaccination scenario
+#' @keywords morevac
+#' @export
 multiannual2 <- function(n = 100,
                          years = 200,
                          maxage = 80,
@@ -21,13 +34,13 @@ multiannual2 <- function(n = 100,
                          mygamma = 0.4,
                          biannual = FALSE
                          ){
-  
+
   init <- initialize_pop(n,years,maxage)
   x <- init$x; v <- x
   attack_rate <- init$ar
   attack_rate_by_age <- init$attack_rate_by_age
   ages <- init$age
-  
+
   # select matrix in array for current year
      suscept_mat <- init$susceptibility[,,1]
     vac_hist_mat <- init$vac_history[,,1]
@@ -36,7 +49,7 @@ multiannual2 <- function(n = 100,
   #if (same_indiv){
   #  vn <- sample(1:n,n*vc)
   #}
-  
+
   # year counter
     sim_year <- 1
     actual_year <- start_year
@@ -46,16 +59,16 @@ multiannual2 <- function(n = 100,
     inf_counter <- matrix(c(rep(0,maxage*2)),nrow=2)
     rownames(inf_counter) <- c('number_of_infections','n_age')
     colnames(inf_counter) <- c(paste0("Age",0:(maxage-1)))
-    
+
     # turn off vaccination until start_vac_year
     if (actual_year<start_vac_year){vc <- 0
     } else {vc <- vac_coverage}
-    
+
     # for first year have pandemic transmission rate
     if (year_counter==1){
       mybeta <-beta_pandemic
     } else {mybeta <- beta_epidemic}
-    
+
     # loop over individuals
     for(i in 1:n){
       #print(i)
@@ -76,23 +89,23 @@ multiannual2 <- function(n = 100,
               } else {vac_hist_mat[i,a] <- 0}
         } else {vac_hist_mat[i,a] <- 0}
         #print(vac_hist_mat[i,])
-       
+
       # generate random number for infection
         randnum_inf <- runif(1,0,1)
-        
+
       # calculate susceptibility function for person i
         if(is.na(x[i,a])){x[i,a]<-999}
-        
+
         # never infected
         #print(x[i,a])
         if (x[i,a] == 999){
           if (v[i,a] == 999 | v[i,a] > 1/delta_v){ # never vaccinated or vaccinated long enough ago for drift to have diminished protection
             suscept_mat[i,a] <- 1
-          } else if (v[i,a]==0 | v[i,a]<=1/delta_v){ # vaccinated this year or within last few year_counters 
+          } else if (v[i,a]==0 | v[i,a]<=1/delta_v){ # vaccinated this year or within last few year_counters
             suscept_mat[i,a] <- (vac_hist_mat[i,a]*mygamma) + (v[i,a]*delta_v)
-          } 
+          }
         }
-        
+
         # infected and delta>0
         if (x[i,a]>=0 & x[i,a]<999 & delta_x>0 & delta_v>0){
           if (v[i,a]==999 | v[i,a] > 1/delta_v){ # never vaccinated
@@ -100,17 +113,17 @@ multiannual2 <- function(n = 100,
               suscept_mat[i,a] <- x[i,a]*delta_x
             } else if (x[i,a]>= 1/delta_x) {
               suscept_mat[i,a] <- 1
-            } 
+            }
           } else if (v[i,a]==0 | v[i,a]<=1/delta_v){ # vaccinated
             suscept_mat[i,a] <- min(x[i,a]*delta_x,(vac_hist_mat[i,a]*mygamma)+(v[i,a]*delta_v))
-          } 
+          }
         }
-        
+
         # infected and delta=0
         if (x[i,a]>=0 & x[i,a]<999 & delta_x==0 & delta_v==0){
           suscept_mat[i,a] <- 0
         }
-        
+
       # infect person i if random number < beta*susceptability
         #print(suscept_mat[i,])
         if (randnum_inf<=mybeta*suscept_mat[i,a]) {
@@ -122,11 +135,11 @@ multiannual2 <- function(n = 100,
             inf_hist_mat[i,a] <- 0
             lifetime_inf[i,a] <- ifelse(a>1,lifetime_inf[i,a-1], 0)
           }
-        
+
       # update individual counters
         #if (year_counter<years){
         #  if (x[i,a] == 999){
-        #    x[i,a+1] <- 999 
+        #    x[i,a+1] <- 999
         #  } else if (x[i,a]<999){
         #    x[i,a+1] <- x[i,a]+1
         #  }
@@ -137,7 +150,7 @@ multiannual2 <- function(n = 100,
         ages[i] <- ages[i] + 1
         if (ages[i]==80){ages[i] <- 0}
     } # end loop over individuals
-    
+
   # calculate attack rate by age
     attack_rate[year_counter] <- sum(inf_counter[1,])/sum(inf_counter[2,])
     attack_rate_by_age[year_counter,] <- inf_counter[1,]/inf_counter[2,]
@@ -162,14 +175,14 @@ multiannual2 <- function(n = 100,
   mean_ar <- mean(dat[dat$Year%in% start_year:(start_vac_year-1),2])
   #cat('Mean attack rate prior to vaccination:',mean_ar,'\n')
   rownames(attack_rate_by_age) <- start_year:end_year
-    
+
   rtn <- list(history=init,
               attack_rate=dat,
-              attack_rate_by_age = attack_rate_by_age 
+              attack_rate_by_age = attack_rate_by_age
               )
 # plots
   p1 <- plot_attack_rates(dat, y_max = 0.5)
 
-  
+
   return(list(rtn,p1))
-}  
+}
