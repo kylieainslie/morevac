@@ -1,7 +1,7 @@
 ### MoReVac - Modelling Repeat Vaccination ###
 ### Agent-based model of repeat vaccination in birth cohort
 
-#' Multi-annual model if infection and vaccination
+#' Multi-annual model of infection and vaccination (version 2)
 #'
 #' This function initializes the population before running the model.
 #' @param n number of individuals to be simulated
@@ -10,6 +10,7 @@
 #' @param start_year year to start simulation
 #' @param vac_start_year year that vaccination starts
 #' @param start_vac_age age at which an individual may be vaccinated
+#' @param vac_coverage vaccination coverage
 #' @param beta_pandemic force of infection when simulation starts
 #' @param beta_epidemic annual force of infection (after initialization of model)
 #' @param delta_x drift parameter from natural infection
