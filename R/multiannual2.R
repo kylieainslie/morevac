@@ -52,10 +52,10 @@ multiannual2 <- function(n = 100,
   #}
 
   # year counter
-    sim_year <- 1
+    year_counter <- 1
     actual_year <- start_year
   # start loop over years
-  for (year_counter in 1:years){
+  while (year_counter < years+1){
     #print(year_counter)
     #print(lifetime_inf)
     inf_counter <- matrix(c(rep(0,maxage*2)),nrow=2)
@@ -72,7 +72,8 @@ multiannual2 <- function(n = 100,
     } else {mybeta <- beta_epidemic}
 
     # loop over individuals
-    for(i in 1:n){
+      i <- 1
+    while(i < n+1){
       #print(i)
       a <- ages[i] + 1
       #print(a)
@@ -153,6 +154,9 @@ multiannual2 <- function(n = 100,
         }
         ages[i] <- ages[i] + 1
         if (ages[i]==80){ages[i] <- 0}
+
+        # next person
+          i <- i + 1
     } # end loop over individuals
 
   # calculate attack rate by age
@@ -170,7 +174,7 @@ multiannual2 <- function(n = 100,
                x[which(ages==0),] <- c(999,rep(NA,maxage-1))
     lifetime_inf[which(ages==0),] <- c(0,rep(NA,maxage-1))
   # update counters
-    sim_year <- sim_year + 1
+    year_counter <- year_counter + 1
     actual_year <- actual_year + 1
  } # end loop over years
 # output
