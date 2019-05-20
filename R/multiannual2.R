@@ -36,12 +36,12 @@ multiannual2 <- function(n = 100,
                          biannual = FALSE
                          ){
 
-  init <- initialize_pop(n,years,maxage)
+  init <- initialize_pop(nindiv = n, years = years, maxage = maxage)
   x <- init$x; v <- x
   attack_rate <- init$ar
   attack_rate_by_age <- init$attack_rate_by_age
   ages <- init$age
-
+  #print(ages)
   # select matrix in array for current year
      suscept_mat <- init$susceptibility[,,1]
     vac_hist_mat <- init$vac_history[,,1]
@@ -56,11 +56,12 @@ multiannual2 <- function(n = 100,
     actual_year <- start_year
   # start loop over years
   for (year_counter in 1:years){
-
+    #print(year_counter)
+    #print(lifetime_inf)
     inf_counter <- matrix(c(rep(0,maxage*2)),nrow=2)
     rownames(inf_counter) <- c('number_of_infections','n_age')
     colnames(inf_counter) <- c(paste0("Age",0:(maxage-1)))
-
+    #print(dim(inf_counter))
     # turn off vaccination until start_vac_year
     if (actual_year<start_vac_year){vc <- 0
     } else {vc <- vac_coverage}
@@ -74,6 +75,8 @@ multiannual2 <- function(n = 100,
     for(i in 1:n){
       #print(i)
       a <- ages[i] + 1
+      #print(a)
+
       inf_counter[2,a] <- inf_counter[2,a] + 1
       # determine who will be vaccinated
         if (actual_year >= start_vac_year & ages[i] >= start_vac_age){
