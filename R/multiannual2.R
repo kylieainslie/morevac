@@ -16,12 +16,14 @@
 #' @param delta_x drift parameter from natural infection
 #' @param delta_v drift parameter from vaccination
 #' @param mygamma protective effect of vaccine
+#' @param suscept_func_version integer indicating which susceptibility version to use.
+#'        1 = either-or, 2 = multiplicative.
 #' @param biannual logical. annual or biannual vaccination?
 #' @return list with two elements: 1) a list of infection histories and attack rates and
 #'         2) a plot of annual attack rates by vaccination scenario
 #' @keywords morevac
 #' @export
-multiannual2 <- function(n = 100,
+multiannual2 <- function(n = 1000,
                          years = 200,
                          maxage = 80,
                          start_year = 1820,
@@ -33,6 +35,7 @@ multiannual2 <- function(n = 100,
                          delta_x = 0.2,
                          delta_v = 0.2,
                          mygamma = 0.4,
+                         suscept_func_version = 1,
                          biannual = FALSE
                          ){
 
@@ -99,35 +102,42 @@ multiannual2 <- function(n = 100,
         randnum_inf <- runif(1,0,1)
 
       # calculate susceptibility function for person i
-        if(is.na(x[i,a])){x[i,a]<-999}
+        suscept_mat[i,a] <- suscept_func(inf_history = x[i,a],
+                                         vac_history = v[i,a],
+                                         ve = mygamma,
+                                         drift_x = delta_x,
+                                         drift_v = delta_v,
+                                         version = suscept_func_version)
 
-        # never infected
-        #print(x[i,a])
-        if (x[i,a] == 999){
-          if (v[i,a] == 999 | v[i,a] > 1/delta_v){ # never vaccinated or vaccinated long enough ago for drift to have diminished protection
-            suscept_mat[i,a] <- 1
-          } else if (v[i,a]==0 | v[i,a]<=1/delta_v){ # vaccinated this year or within last few year_counters
-            suscept_mat[i,a] <- (vac_hist_mat[i,a]*mygamma) + (v[i,a]*delta_v)
-          }
-        }
-
-        # infected and delta>0
-        if (x[i,a]>=0 & x[i,a]<999 & delta_x>0 & delta_v>0){
-          if (v[i,a]==999 | v[i,a] > 1/delta_v){ # never vaccinated
-            if (x[i,a]< 1/delta_x){
-              suscept_mat[i,a] <- x[i,a]*delta_x
-            } else if (x[i,a]>= 1/delta_x) {
-              suscept_mat[i,a] <- 1
-            }
-          } else if (v[i,a]==0 | v[i,a]<=1/delta_v){ # vaccinated
-            suscept_mat[i,a] <- min(x[i,a]*delta_x,(vac_hist_mat[i,a]*mygamma)+(v[i,a]*delta_v))
-          }
-        }
-
-        # infected and delta=0
-        if (x[i,a]>=0 & x[i,a]<999 & delta_x==0 & delta_v==0){
-          suscept_mat[i,a] <- 0
-        }
+        # if(is.na(x[i,a])){x[i,a]<-999}
+        #
+        # # never infected
+        # #print(x[i,a])
+        # if (x[i,a] == 999){
+        #   if (v[i,a] == 999 | v[i,a] > 1/delta_v){ # never vaccinated or vaccinated long enough ago for drift to have diminished protection
+        #     suscept_mat[i,a] <- 1
+        #   } else if (v[i,a]==0 | v[i,a]<=1/delta_v){ # vaccinated this year or within last few year_counters
+        #     suscept_mat[i,a] <- (vac_hist_mat[i,a]*mygamma) + (v[i,a]*delta_v)
+        #   }
+        # }
+        #
+        # # infected and delta>0
+        # if (x[i,a]>=0 & x[i,a]<999 & delta_x>0 & delta_v>0){
+        #   if (v[i,a]==999 | v[i,a] > 1/delta_v){ # never vaccinated
+        #     if (x[i,a]< 1/delta_x){
+        #       suscept_mat[i,a] <- x[i,a]*delta_x
+        #     } else if (x[i,a]>= 1/delta_x) {
+        #       suscept_mat[i,a] <- 1
+        #     }
+        #   } else if (v[i,a]==0 | v[i,a]<=1/delta_v){ # vaccinated
+        #     suscept_mat[i,a] <- min(x[i,a]*delta_x,(vac_hist_mat[i,a]*mygamma)+(v[i,a]*delta_v))
+        #   }
+        # }
+        #
+        # # infected and delta=0
+        # if (x[i,a]>=0 & x[i,a]<999 & delta_x==0 & delta_v==0){
+        #   suscept_mat[i,a] <- 0
+        # }
 
       # infect person i if random number < beta*susceptability
         #print(suscept_mat[i,])
