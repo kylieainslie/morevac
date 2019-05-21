@@ -11,10 +11,8 @@
   devtools::load_all()
 
 # run multi-annual model
-  # either-or susceptibility version
-    out <- multiannual2()
-  # multiplicative susceptibility version
-    out2 <- multiannual2(suscept_func_version = 2)
+  out <- multiannual2()
+
 # outputs
   p1 <- plot_attack_rates(dat = out[[1]]$attack_rate)
 #  p_age <- plot_attack_rates(dat = out[[1]]$attack_rate_by_age, by = '')
