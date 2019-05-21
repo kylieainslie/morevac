@@ -66,13 +66,8 @@ multiannual2 <- function(n = 1000,
     colnames(inf_counter) <- c(paste0("Age",0:(maxage-1)))
     #print(dim(inf_counter))
     # turn off vaccination until start_vac_year
-    if (actual_year<start_vac_year){vc <- 0
-    } else {vc <- vac_coverage}
-
-    # for first year have pandemic transmission rate
-    if (year_counter==1){
-      mybeta <-beta_pandemic
-    } else {mybeta <- beta_epidemic}
+    #if (actual_year<start_vac_year){vc <- 0
+    #} else {vc <- vac_coverage}
 
     # loop over individuals
       i <- 1
@@ -84,18 +79,21 @@ multiannual2 <- function(n = 1000,
       inf_counter[2,a] <- inf_counter[2,a] + 1
       # determine who will be vaccinated
         if (actual_year >= start_vac_year & ages[i] >= start_vac_age){
-            randnum_vac <- runif(1,0,1)
-            # vaccinate
-            if (randnum_vac <= vc & actual_year >= start_vac_year){
-              if (biannual == FALSE) {
-                  vac_hist_mat[i,a] <- 1
-                  v[i,a] <- 0
-              } else if (biannual == TRUE & (year_counter %% 2) != 0){
-                        vac_hist_mat[i,a] <- 1
-                        v[i,a] <- 0
-              } else {vac_hist_mat[i,a] <- 0}
-              } else {vac_hist_mat[i,a] <- 0}
-        } else {vac_hist_mat[i,a] <- 0}
+          vac_hist_mat[i,a] <- vaccinate(year = year_counter, vc = vac_coverage, vac_strategy = biannual)
+          v[i,a] <- v[i,a]*(1-vac_hist_mat[i,a])
+        }
+        #     randnum_vac <- runif(1,0,1)
+        #     # vaccinate
+        #     if (randnum_vac <= vc & actual_year >= start_vac_year){
+        #       if (biannual == FALSE) {
+        #           vac_hist_mat[i,a] <- 1
+        #           v[i,a] <- 0
+        #       } else if (biannual == TRUE & (year_counter %% 2) != 0){
+        #                 vac_hist_mat[i,a] <- 1
+        #                 v[i,a] <- 0
+        #       } else {vac_hist_mat[i,a] <- 0}
+        #       } else {vac_hist_mat[i,a] <- 0}
+        # } else {vac_hist_mat[i,a] <- 0}
         #print(vac_hist_mat[i,])
 
       # calculate susceptibility function for person i
@@ -136,11 +134,16 @@ multiannual2 <- function(n = 1000,
         #   suscept_mat[i,a] <- 0
         # }
 
+        # for first year have pandemic transmission rate
+        if (year_counter==1){
+          mybeta <-beta_pandemic
+        } else {mybeta <- beta_epidemic}
+
       # infect person i if random number < beta*susceptability
         inf_hist_mat[i,a] <- infect(susceptibility = suscept_mat[i,a], foi = mybeta)
         x[i,a] <- x[i,a]*(1-inf_hist_mat[i,a])
         inf_counter[1,a] <- inf_counter[1,a] + inf_hist_mat[i,a]
-        lifetime_inf[i,a] <- lifetime_inf[i,a-1] + inf_hist_mat[i,a]
+        lifetime_inf[i,a] <- ifelse(a>1,lifetime_inf[i,a-1] + inf_hist_mat[i,a],inf_hist_mat[i,a])
         # generate random number for infection
         # randnum_inf <- runif(1,0,1)
         #
@@ -190,7 +193,8 @@ multiannual2 <- function(n = 1000,
     year_counter <- year_counter + 1
     actual_year <- actual_year + 1
  } # end loop over years
-# output
+
+### output
   end_year <- start_year + years - 1
   dat <- data.frame(Year=start_year:end_year,Attack_Rate=attack_rate)
   mean_ar <- mean(dat[dat$Year%in% start_year:(start_vac_year-1),2])
