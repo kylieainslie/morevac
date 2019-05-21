@@ -57,7 +57,7 @@ for (s in 1:sim){
   Sys.sleep(0.1)
   # update progress bar
   setTxtProgressBar(pb, s)
-  
+
   # run model
   test0 <- multiannual2(n=nindiv, vac_coverage = 0)
   testa <- multiannual2(n=nindiv, vac_coverage = vc)
@@ -66,11 +66,11 @@ for (s in 1:sim){
   out0[,,s] <- test0[[1]]$attack_rate_by_age
   dimnames(out0)[[1]] <- rownames(test0[[1]]$attack_rate_by_age)
   ar_out0[,s] <- diag(out0[rownames(out0) %in% year_range,(age_range+1),s])
-  
+
   outa[,,s] <- testa[[1]]$attack_rate_by_age
   dimnames(outa)[[1]] <- rownames(testa[[1]]$attack_rate_by_age)
   ar_outa[,s] <- diag(outa[rownames(outa) %in% year_range,(age_range+1),s])
-  
+
   outb[,,s] <- testb[[1]]$attack_rate_by_age
   dimnames(outb)[[1]] <- rownames(testb[[1]]$attack_rate_by_age)
   ar_outb[,s] <- diag(outb[rownames(outb) %in% year_range,(age_range+1),s])
@@ -84,7 +84,7 @@ for (s in 1:sim){
 }
 close(pb)
 
-cohort <- data.frame(Year = c(rep(year_range,3)), 
+cohort <- data.frame(Year = c(rep(year_range,3)),
                      Attack_Rate = c(apply(ar_out0,1,mean),
                                      apply(ar_outa,1,mean),
                                      apply(ar_outb,1,mean)),
@@ -100,15 +100,15 @@ cohort <- data.frame(Year = c(rep(year_range,3)),
                                       rep('Biannual',length(year_range)))
                      )
 
-p_cohort <- ggplot(data = cohort, aes(x = Year, y = Attack_Rate, colour= Vac_Strategy)) +       
+p_cohort <- ggplot(data = cohort, aes(x = Year, y = Attack_Rate, colour= Vac_Strategy)) +
             geom_line() +
             geom_ribbon(aes(x=Year,ymin=Lower,ymax=Upper,linetype=NA,fill=Vac_Strategy),alpha=0.2)+
             xlab('Year') +
             ylab('Attack Rate') +
             scale_y_continuous(limits = c(0,0.4), expand = c(0,0)) +
-            theme(panel.grid.major = element_blank(), 
+            theme(panel.grid.major = element_blank(),
                   panel.grid.minor = element_blank(),
-                  panel.background = element_blank(), 
+                  panel.background = element_blank(),
                   axis.line = element_line(colour = "black"),
                   legend.position = c(.95, .95),
                   legend.justification = c("right", "top"),
@@ -116,12 +116,13 @@ p_cohort <- ggplot(data = cohort, aes(x = Year, y = Attack_Rate, colour= Vac_Str
                   legend.margin = margin(6, 6, 6, 6),
                   legend.key = element_rect(fill = "white")
                )
-pdf(file = paste0("figures/ar_by_strategy_",vc,".pdf"))
+pdf(file = paste0("figures/ar_by_strategy_mult",vc,".pdf"))
 plot(p_cohort)
 dev.off()
 
 # lifetime infections
-life_inf_dat <- data.frame(Sim = c(rep(1:sim,3)), 
+library(stringr)
+life_inf_dat <- data.frame(Sim = c(rep(1:sim,3)),
                            Vac_Strategy = c(rep('No Vaccination',sim),
                                             rep('Annual',sim),
                                             rep('Biannual',sim)),
@@ -132,13 +133,13 @@ data_long <- gather(life_inf_dat, Age, Life_Inf, Age0:Age19, factor_key=TRUE)
 data_long$Age <- as.factor(str_remove(data_long$Age, 'Age'))
 
 data_long$Age = with(data_long, reorder(Age, Life_Inf, mean))
-# boxplot 
-p1 <- ggplot(data_long, aes(x = Age, y = Life_Inf,fill = Vac_Strategy)) + 
+# boxplot
+p1 <- ggplot(data_long, aes(x = Age, y = Life_Inf,fill = Vac_Strategy)) +
       geom_boxplot() +
       ylab('Number of Lifetime Infections') +
-      theme(panel.grid.major = element_blank(), 
+      theme(panel.grid.major = element_blank(),
             panel.grid.minor = element_blank(),
-            panel.background = element_blank(), 
+            panel.background = element_blank(),
             axis.line = element_line(colour = "black"),
             legend.position = c(.25, .95),
             legend.justification = c("right", "top"),
@@ -147,12 +148,12 @@ p1 <- ggplot(data_long, aes(x = Age, y = Life_Inf,fill = Vac_Strategy)) +
             legend.key = element_rect(fill = "white")
       )
 
-pdf(file = paste0("figures/life_inf_by_strategy_",vc,".pdf"))
+pdf(file = paste0("figures/life_inf_by_strategy_mult",vc,".pdf"))
 plot(p1)
 dev.off()
 
 #theme_set(theme_cowplot(font_size=10)) # reduce default font size
-#omg <- plot_grid(p_cohort, p1, labels = "AUTO", ncol = 2, 
+#omg <- plot_grid(p_cohort, p1, labels = "AUTO", ncol = 2,
 #                 align = 'v', axis = 'l') # aligning vertically along the left axis
 #pdf(file = paste0("figures/combined_plot_",vc,".pdf"))
 #plot(omg)
