@@ -14,7 +14,7 @@
 #' @examples
 #' vaccinate()
 vaccinate <- function(year = 1, vc = 0.5, vac_strategy = FALSE){
-  # determine who will be vaccinated
+
     randnum_vac <- runif(1,0,1)
     # vaccinate
     if (randnum_vac <= vc){
