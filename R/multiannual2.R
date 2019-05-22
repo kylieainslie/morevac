@@ -169,7 +169,7 @@ multiannual2 <- function(n = 1000,
           v[i,a+1] <- ifelse(v[i,a]<999,v[i,a]+1,999)
         }
         ages[i] <- ages[i] + 1
-        if (ages[i]==80){ages[i] <- 0}
+        if (ages[i]==maxage){ages[i] <- 0}
 
         # next person
           i <- i + 1
