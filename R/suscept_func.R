@@ -21,6 +21,7 @@ suscept_func <- function(inf_history, vac_history = 999, ve = 0.4, drift_x = 0.2
   # version = 2 is multiplicative
 
   if(is.na(inf_history)){inf_history<-999}
+  if(is.na(vac_history)){vac_history<-999}
 
   vac_ind <- 0
   if(vac_history == 0){vac_ind <- 1}
