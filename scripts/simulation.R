@@ -9,8 +9,8 @@ library(doParallel)
 
 #registerDoParallel(cores=2)
 # load morevac package
-setwd("C:/Users/kainslie/Google Drive/morevac")
-# setwd("~/Google Drive/morevac")
+#setwd("C:/Users/kainslie/Google Drive/morevac")
+setwd("~/Google Drive/morevac")
 devtools::load_all()
 
 # follow a cohort from 2000 to 2019
@@ -32,8 +32,8 @@ ar_out0 <- matrix(c(rep(NA,sim*length(year_range))),nrow=length(year_range))
 ar_outa <- matrix(c(rep(NA,sim*length(year_range))),nrow=length(year_range))
 ar_outb <- matrix(c(rep(NA,sim*length(year_range))),nrow=length(year_range))
 
-foreach (vc=1:length(vaccov)) %dopar% {
-  print(paste('Simulating for vaccination coverage', vaccov[vc]))
+#foreach (vc=1:length(vaccov)) %dopar% {
+#  print(paste('Simulating for vaccination coverage', vaccov[vc]))
   # create progress bar
   pb <- txtProgressBar(min = 0, max = sim, style = 3)
 
@@ -44,8 +44,8 @@ foreach (vc=1:length(vaccov)) %dopar% {
 
     # run model
     test0 <- multiannual2(n=nindiv, vac_coverage = 0, suscept_func_version = 2)
-    testa <- multiannual2(n=nindiv, vac_coverage = vaccov[vc], suscept_func_version = 2)
-    testb <- multiannual2(n=nindiv, vac_coverage = vaccov[vc],suscept_func_version = 2, biannual = TRUE)
+    testa <- multiannual2(n=nindiv, vac_coverage = vaccov, suscept_func_version = 2)
+    testb <- multiannual2(n=nindiv, vac_coverage = vaccov,suscept_func_version = 2, biannual = TRUE)
     # attack rate by age
     out0[,,s] <- test0[[1]]$attack_rate_by_age
     dimnames(out0)[[1]] <- rownames(test0[[1]]$attack_rate_by_age)
@@ -104,7 +104,7 @@ foreach (vc=1:length(vaccov)) %dopar% {
 
   #plot_attack_rates(dat = cohort, by = 'Vac_Strategy', c_bands = TRUE)
 
-  pdf(file = paste0("figures/ar_by_strategy_mult",vaccov[vc],".pdf"))
+  pdf(file = paste0("figures/ar_by_strategy_mult",vaccov,".pdf"))
   plot(p_cohort)
   dev.off()
   #
@@ -136,18 +136,11 @@ foreach (vc=1:length(vaccov)) %dopar% {
            legend.key = element_rect(fill = "white")
      )
   # plot_lifetime_infections(dat = data_long, by = 'Vac_Strategy')
-  pdf(file = paste0("figures/life_inf_by_strategy_mult",vaccov[vc],".pdf"))
+  pdf(file = paste0("figures/life_inf_by_strategy_mult",vaccov,".pdf"))
   plot(p1)
   dev.off()
 
-  #theme_set(theme_cowplot(font_size=10)) # reduce default font size
-  #omg <- plot_grid(p_cohort, p1, labels = "AUTO", ncol = 2,
-  #                 align = 'v', axis = 'l') # aligning vertically along the left axis
-  #pdf(file = paste0("figures/combined_plot_",vc,".pdf"))
-  #plot(omg)
-  #dev.off()
-
-}
+#}
 
 
 
