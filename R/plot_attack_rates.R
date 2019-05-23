@@ -45,7 +45,7 @@ plot_attack_rates <- function(dat, by_vac = FALSE, c_bands = FALSE, y_max = 0.5)
       if (c_bands){
         p1 <- ggplot(data = dat, aes(x = Year, y = Attack_Rate, colour= Vac_Strategy)) +
               geom_line() +
-              geom_ribbon(aes(x=Year,ymin=Lower,ymax=Upper,linetype=NA,fill=by),alpha=0.2)+
+              geom_ribbon(aes(x=Year,ymin=Lower,ymax=Upper,linetype=NA,fill=Vac_Strategy),alpha=0.2)+
               xlab('Year') +
               ylab('Attack Rate') +
               scale_y_continuous(limits = c(0,y_max), expand = c(0,0)) +
