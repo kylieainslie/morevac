@@ -38,9 +38,9 @@ run_sim <- function(sim = 100, nindiv = 1000, year_range, age_range, vaccov = 0.
     setTxtProgressBar(pb, s)
 
     # run model
-    test0 <- multiannual2(n=nindiv, vac_coverage = 0, suscept_func_version = 2)
-    testa <- multiannual2(n=nindiv, vac_coverage = vaccov, suscept_func_version = 2)
-    testb <- multiannual2(n=nindiv, vac_coverage = vaccov,suscept_func_version = 2, biannual = TRUE)
+    test0 <- multiannual2(n=nindiv, vac_coverage = 0, suscept_func_version = version)
+    testa <- multiannual2(n=nindiv, vac_coverage = vaccov, suscept_func_version = version)
+    testb <- multiannual2(n=nindiv, vac_coverage = vaccov,suscept_func_version = version, biannual = TRUE)
     # attack rate by age
     out0[,,s] <- test0[[1]]$attack_rate_by_age
     dimnames(out0)[[1]] <- rownames(test0[[1]]$attack_rate_by_age)
