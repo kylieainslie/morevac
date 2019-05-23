@@ -5,8 +5,8 @@
 #'
 #' This function initializes the population before running the model.
 #' @param dat data frame of annual attack rates. Should have two colums: Year and Attack_Rate.
-#'             If by_age=TRUE, dat should have a third column: Age_Group.
-#' @param by Name of variable you want to plot attack rates by.
+#'             If by_vac=TRUE, dat should have a third column: Vac_Strategy.
+#' @param by_vac logical. if TRUE then plot by vaccination strategy.
 #' @param c_bands logical. Plot confidence bands or not. Must have columns named Lower and Upper.
 #' @param y_max maximum value for y-axis.
 #' @return plot of multi-annual attack rates with vertical dashed line indicating year of start of
@@ -14,11 +14,11 @@
 #' @keywords morevac
 #' @export
 
-plot_attack_rates <- function(dat, by = NULL, c_bands = FALSE, y_max = 0.5){
+plot_attack_rates <- function(dat, by_vac = FALSE, c_bands = FALSE, y_max = 0.5){
 
   years <- unique(dat$Year)
 
-  if (is.null(by)){
+  if (by_vac == FALSE){
     if (c_bands) {
       p1 <- ggplot(data = dat, aes(x = Year, y = Attack_Rate)) +
             geom_line() +
@@ -41,9 +41,9 @@ plot_attack_rates <- function(dat, by = NULL, c_bands = FALSE, y_max = 0.5){
                   panel.background = element_blank(),
                   axis.line = element_line(colour = "black"))
         }
-  } else if (!is.null(by)) {
+  } else if (by_vac == TRUE) {
       if (c_bands){
-        p1 <- ggplot(data = dat, aes(x = Year, y = Attack_Rate, colour= by)) +
+        p1 <- ggplot(data = dat, aes(x = Year, y = Attack_Rate, colour= Vac_Strategy)) +
               geom_line() +
               geom_ribbon(aes(x=Year,ymin=Lower,ymax=Upper,linetype=NA,fill=by),alpha=0.2)+
               xlab('Year') +
@@ -59,7 +59,7 @@ plot_attack_rates <- function(dat, by = NULL, c_bands = FALSE, y_max = 0.5){
                     legend.margin = margin(6, 6, 6, 6),
                     legend.key = element_rect(fill = "white"))
       } else {
-        p1 <- ggplot(data = dat, aes(x = Year, y = Attack_Rate, colour= by)) +
+        p1 <- ggplot(data = dat, aes(x = Year, y = Attack_Rate, colour= Vac_Strategy)) +
               geom_line() +
               xlab('Year') +
               ylab('Attack Rate') +
