@@ -1,42 +1,22 @@
-### simulation
 
-library(ggplot2)
-library(tidyr)
-library(reshape2)
-library(cowplot)
-library(stringr)
-library(doParallel)
 
-#registerDoParallel(cores=2)
-# load morevac package
-#setwd("C:/Users/kainslie/Google Drive/morevac")
-setwd("~/Google Drive/morevac")
-devtools::load_all()
+run_sim <- function(sim = 100, nindiv = 1000, year_range, age_range, vaccov = 0.5,filename = "test"){
+### create empty arrays for storing information about each simulation
+  out0 <- array(NA,dim=c(200,80,sim))
+  outa <- array(NA,dim=c(200,80,sim))
+  outb <- array(NA,dim=c(200,80,sim))
 
-# follow a cohort from 2000 to 2019
-sim <- 10
-nindiv <- 5000
-year_range <- 2000:2019
-age_range <- 0:19
-vaccov <- c(0, 0.25, 0.5, 0.75, 1)
-#vaccov= 0.5
-#start_year <- 1820
+  life_inf0 <- matrix(c(rep(NA,sim*length(age_range))),nrow=sim)
+  life_infa <- life_inf0
+  life_infb <- life_inf0
 
-out0 <- array(NA,dim=c(200,80,sim))
-outa <- array(NA,dim=c(200,80,sim))
-outb <- array(NA,dim=c(200,80,sim))
-life_inf0 <- matrix(c(rep(NA,sim*length(age_range))),nrow=sim)
-life_infa <- life_inf0
-life_infb <- life_inf0
-ar_out0 <- matrix(c(rep(NA,sim*length(year_range))),nrow=length(year_range))
-ar_outa <- matrix(c(rep(NA,sim*length(year_range))),nrow=length(year_range))
-ar_outb <- matrix(c(rep(NA,sim*length(year_range))),nrow=length(year_range))
+  ar_out0 <- matrix(c(rep(NA,sim*length(year_range))),nrow=length(year_range))
+  ar_outa <- matrix(c(rep(NA,sim*length(year_range))),nrow=length(year_range))
+  ar_outb <- matrix(c(rep(NA,sim*length(year_range))),nrow=length(year_range))
 
-#foreach (vc=1:length(vaccov)) %dopar% {
-#  print(paste('Simulating for vaccination coverage', vaccov[vc]))
-  # create progress bar
+### create progress bar
   pb <- txtProgressBar(min = 0, max = sim, style = 3)
-
+### start simulations
   for (s in 1:sim){
     Sys.sleep(0.1)
     # update progress bar
@@ -68,6 +48,7 @@ ar_outb <- matrix(c(rep(NA,sim*length(year_range))),nrow=length(year_range))
   }
   close(pb)
 
+### output
   cohort <- data.frame(Year = c(rep(year_range,3)),
                        Attack_Rate = c(apply(ar_out0,1,mean),
                                        apply(ar_outa,1,mean),
@@ -104,7 +85,7 @@ ar_outb <- matrix(c(rep(NA,sim*length(year_range))),nrow=length(year_range))
 
   #plot_attack_rates(dat = cohort, by = 'Vac_Strategy', c_bands = TRUE)
 
-  pdf(file = paste0("figures/ar_by_strategy_mult",vaccov,".pdf"))
+  pdf(file = paste0(filename,"_ar.pdf"))
   plot(p_cohort)
   dev.off()
   #
@@ -136,11 +117,11 @@ ar_outb <- matrix(c(rep(NA,sim*length(year_range))),nrow=length(year_range))
            legend.key = element_rect(fill = "white")
      )
   # plot_lifetime_infections(dat = data_long, by = 'Vac_Strategy')
-  pdf(file = paste0("figures/life_inf_by_strategy_mult",vaccov,".pdf"))
+  pdf(file = paste0(filname,"_life_inf.pdf"))
   plot(p1)
   dev.off()
 
-#}
+}
 
 
 
