@@ -134,7 +134,7 @@ run_sim <- function(sim = 100, nindiv = 1000, year_range, age_range, vaccov = 0.
 
   p1 <- plot_lifetime_infections(dat = data_long, by_vac = TRUE)
 
-  pdf(file = paste0(filname,"_life_inf.pdf"))
+  pdf(file = paste0(filename,"_life_inf.pdf"))
   plot(p1)
   dev.off()
 
