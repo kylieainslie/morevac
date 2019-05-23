@@ -98,7 +98,7 @@ run_sim <- function(sim = 100, nindiv = 1000, year_range, age_range, vaccov = 0.
   #          legend.key = element_rect(fill = "white")
   #    )
 
-  plot_attack_rates(dat = cohort, by_vac = TRUE, c_bands = TRUE)
+  p_cohort <- plot_attack_rates(dat = cohort, by_vac = TRUE, c_bands = TRUE)
 
   pdf(file = paste0(filename,"_ar.pdf"))
   plot(p_cohort)
@@ -131,7 +131,8 @@ run_sim <- function(sim = 100, nindiv = 1000, year_range, age_range, vaccov = 0.
   #          legend.margin = margin(6, 6, 6, 6),
   #          legend.key = element_rect(fill = "white")
   #    )
-  plot_lifetime_infections(dat = data_long, by_vac = TRUE)
+
+  p1 <- plot_lifetime_infections(dat = data_long, by_vac = TRUE)
 
   pdf(file = paste0(filname,"_life_inf.pdf"))
   plot(p1)
