@@ -4,14 +4,17 @@
 \alias{plot_attack_rates}
 \title{Plot multi-annual attack rates}
 \usage{
-plot_attack_rates(dat, mean_ar = NULL, vac_start_year = NULL,
-  y_max = 0.5, by = NULL)
+plot_attack_rates(dat, by_vac = FALSE, c_bands = FALSE, y_max = 0.5)
 }
 \arguments{
-\item{by}{Name of variable you want to plot attack rates by.}
+\item{dat}{data frame of annual attack rates. Should have two colums: Year and Attack_Rate.
+If by_vac=TRUE, dat should have a third column: Vac_Strategy.}
 
-\item{data}{data frame of annual attack rates. Should have two colums: Year and Attack_Rate.
-If by_age=TRUE, dat should have a third column: Age_Group.}
+\item{by_vac}{logical. if TRUE then plot by vaccination strategy.}
+
+\item{c_bands}{logical. Plot confidence bands or not. Must have columns named Lower and Upper.}
+
+\item{y_max}{maximum value for y-axis.}
 }
 \value{
 plot of multi-annual attack rates with vertical dashed line indicating year of start of

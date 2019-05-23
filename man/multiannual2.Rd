@@ -4,10 +4,11 @@
 \alias{multiannual2}
 \title{Multi-annual model of infection and vaccination (version 2)}
 \usage{
-multiannual2(n = 100, years = 200, maxage = 80, start_year = 1820,
+multiannual2(n = 1000, years = 200, maxage = 80, start_year = 1820,
   start_vac_year = 2000, start_vac_age = 3, vac_coverage = 0.5,
-  beta_pandemic = 0.4, beta_epidemic = 0.2, delta_x = 0.2,
-  delta_v = 0.2, mygamma = 0.4, biannual = FALSE)
+  beta_pandemic = 0.4, beta_epidemic = 0.15, delta_x = 0.2,
+  delta_v = 0.2, mygamma = 0.4, suscept_func_version = 1,
+  biannual = FALSE)
 }
 \arguments{
 \item{n}{number of individuals to be simulated}
@@ -31,6 +32,9 @@ multiannual2(n = 100, years = 200, maxage = 80, start_year = 1820,
 \item{delta_v}{drift parameter from vaccination}
 
 \item{mygamma}{protective effect of vaccine}
+
+\item{suscept_func_version}{integer indicating which susceptibility version to use.
+1 = either-or, 2 = multiplicative.}
 
 \item{biannual}{logical. annual or biannual vaccination?}
 
