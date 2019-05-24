@@ -15,7 +15,7 @@
 #' @keywords morevac
 #' @export
 
-run_sim <- function(sim = 100, nindiv = 1000, year_range, age_range, vaccov = 0.5,filename = "test", version = 1){
+run_sim <- function(sim = 100, nindiv = 1000, year_range, age_range, vaccov = 0.5,filename = "test", version = 1, rho = 0){
 ### create empty arrays for storing information about each simulation
   out0 <- array(NA,dim=c(200,80,sim))
   outa <- array(NA,dim=c(200,80,sim))
@@ -38,9 +38,9 @@ run_sim <- function(sim = 100, nindiv = 1000, year_range, age_range, vaccov = 0.
     setTxtProgressBar(pb, s)
 
     # run model
-    test0 <- multiannual2(n=nindiv, vac_coverage = 0, suscept_func_version = version)
-    testa <- multiannual2(n=nindiv, vac_coverage = vaccov, suscept_func_version = version)
-    testb <- multiannual2(n=nindiv, vac_coverage = vaccov,suscept_func_version = version, biannual = TRUE)
+    test0 <- multiannual2(n=nindiv, vac_coverage = 0, suscept_func_version = version, rho = rho)
+    testa <- multiannual2(n=nindiv, vac_coverage = vaccov, suscept_func_version = version,  rho = rho)
+    testb <- multiannual2(n=nindiv, vac_coverage = vaccov,suscept_func_version = version, biannual = TRUE,  rho = rho)
     # attack rate by age
     out0[,,s] <- test0[[1]]$attack_rate_by_age
     dimnames(out0)[[1]] <- rownames(test0[[1]]$attack_rate_by_age)
@@ -80,24 +80,6 @@ run_sim <- function(sim = 100, nindiv = 1000, year_range, age_range, vaccov = 0.
                                         rep('Biannual',length(year_range)))
   )
 
-  # p_cohort <-
-  #    ggplot(data = cohort, aes(x = Year, y = Attack_Rate, colour= Vac_Strategy)) +
-  #    geom_line() +
-  #    geom_ribbon(aes(x=Year,ymin=Lower,ymax=Upper,linetype=NA,fill=Vac_Strategy),alpha=0.2)+
-  #    xlab('Year') +
-  #    ylab('Attack Rate') +
-  #    scale_y_continuous(limits = c(0,0.4), expand = c(0,0)) +
-  #    theme(panel.grid.major = element_blank(),
-  #          panel.grid.minor = element_blank(),
-  #          panel.background = element_blank(),
-  #          axis.line = element_line(colour = "black"),
-  #          legend.position = c(.95, .95),
-  #          legend.justification = c("right", "top"),
-  #          legend.box.just = "right",
-  #          legend.margin = margin(6, 6, 6, 6),
-  #          legend.key = element_rect(fill = "white")
-  #    )
-
   p_cohort <- plot_attack_rates(dat = cohort, by_vac = TRUE, c_bands = TRUE)
 
   pdf(file = paste0(filename,"_ar.pdf"))
@@ -116,21 +98,6 @@ run_sim <- function(sim = 100, nindiv = 1000, year_range, age_range, vaccov = 0.
   data_long$Age <- as.factor(str_remove(data_long$Age, 'Age'))
 
   data_long$Age = with(data_long, reorder(Age, Life_Inf, mean))
-  # boxplot
-  # p1 <-
-  #    ggplot(data_long, aes(x = Age, y = Life_Inf,fill = Vac_Strategy)) +
-  #    geom_boxplot() +
-  #    ylab('Number of Lifetime Infections') +
-  #    theme(panel.grid.major = element_blank(),
-  #          panel.grid.minor = element_blank(),
-  #          panel.background = element_blank(),
-  #          axis.line = element_line(colour = "black"),
-  #          legend.position = c(.25, .95),
-  #          legend.justification = c("right", "top"),
-  #          legend.box.just = "right",
-  #          legend.margin = margin(6, 6, 6, 6),
-  #          legend.key = element_rect(fill = "white")
-  #    )
 
   p1 <- plot_lifetime_infections(dat = data_long, by_vac = TRUE)
 
