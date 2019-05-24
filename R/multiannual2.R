@@ -36,7 +36,8 @@ multiannual2 <- function(n = 1000,
                          delta_v = 0.2,
                          mygamma = 0.4,
                          suscept_func_version = 1,
-                         biannual = FALSE
+                         biannual = FALSE,
+                         rho = 0
                          ){
 
   init <- initialize_pop(nindiv = n, years = years, maxage = maxage)
@@ -87,6 +88,8 @@ multiannual2 <- function(n = 1000,
 
         # v[i,a] <- v[i,a]*(1-vac_hist_mat[i,a])
           randnum_vac <- runif(1,0,1)
+        # incorporate prior vaccination
+          if (a > 1 & vac_hist_mat[i,a-1] == 1){randnum_vac <- randnum_vac * (1-rho)}
          # vaccinate
            if (randnum_vac <= vc & actual_year >= start_vac_year){
              if (biannual == FALSE) {
