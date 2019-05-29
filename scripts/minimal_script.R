@@ -23,7 +23,7 @@
     out2a <- multiannual2(biannual = TRUE, rho = 0.9)
 
 # outputs
-  p1 <- plot_attack_rates(dat = out[[1]]$attack_rate)
+  p1 <- plot_attack_rates(dat = out$attack_rate)
 #  p_age <- plot_attack_rates(dat = out[[1]]$attack_rate_by_age, by = '')
 
 # run simulations

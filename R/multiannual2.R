@@ -217,9 +217,6 @@ multiannual2 <- function(n = 1000,
               attack_rate=dat,
               attack_rate_by_age = attack_rate_by_age
               )
-# plots
-  p1 <- plot_attack_rates(dat, y_max = 0.5)
 
-
-  return(list(rtn,p1))
+  return(rtn)
 }
