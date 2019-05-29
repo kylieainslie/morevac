@@ -73,8 +73,9 @@ multiannual2 <- function(n = 1000,
     if (actual_year<start_vac_year){vc <- 0
     } else {vc <- vac_coverage}
 
-    # generate random numbers for infection
+    # generate random numbers for infection and vaccination
     rn_inf <- runif(n,0,1)
+    rn_vac <- runif(n,0,1)
     # loop over individuals
       i <- 1
     while(i < n+1){
@@ -89,11 +90,10 @@ multiannual2 <- function(n = 1000,
         # } else {vac_hist_mat[i,a] <- 0} # set vaccination status to 0 for current year
 
         # v[i,a] <- v[i,a]*(1-vac_hist_mat[i,a])
-          randnum_vac <- runif(1,0,1)
         # incorporate prior vaccination
-          if (a > 1 & vac_hist_mat[i,a-1] == 1){randnum_vac <- randnum_vac * (1-rho)}
+          if (a > 1 & vac_hist_mat[i,a-1] == 1){rn_vac[i] <- rn_vac[i] * (1-rho)}
          # vaccinate
-           if (randnum_vac <= vc & actual_year >= start_vac_year){
+           if (rn_vac[i] <= vc & actual_year >= start_vac_year){
              if (biannual == FALSE) {
                 vac_hist_mat[i,a] <- 1
                 v[i,a] <- 0
