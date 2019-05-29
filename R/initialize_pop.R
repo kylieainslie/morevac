@@ -14,13 +14,12 @@
 #' initialize_pop()
 initialize_pop <- function(nindiv=1000,maxage=80){
   # ages
-    ages <- sample(0:(maxage-1),nindiv,replace = TRUE)
-    ages <- sort(ages)
+    ages <- sort(sample(0:(maxage-1),nindiv,replace = TRUE))
 
   # initial array
     init <- array(NA,dim=c(nindiv,maxage,6))
     colnames(init) <- c(paste0("Age",0:(maxage-1)))
-
+    rownames(init) <- ages
   # # infection status matrix
   #   inf_stat_mat <- matrix(c(rep(NA, maxage*nindiv)),nrow=nindiv)
   #   colnames(inf_stat_mat) <- c(paste0("Age",0:(maxage-1)))
