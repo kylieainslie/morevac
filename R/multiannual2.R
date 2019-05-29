@@ -104,12 +104,12 @@ multiannual2 <- function(n = 1000,
         #print(vac_hist_mat[i,])
 
       # calculate susceptibility function for person i
-        suscept_mat[i,a] <- suscept_func(inf_history = x[i,a],
-                                         vac_history = v[i,a],
-                                         ve = mygamma,
-                                         drift_x = delta_x,
-                                         drift_v = delta_v,
-                                         version = suscept_func_version)
+        suscept_mat[i,a] <- suscept_func_cpp(inf_history = x[i,a],
+                                             vac_history = v[i,a],
+                                             gamma = mygamma,
+                                             drift_x = delta_x,
+                                             drift_v = delta_v,
+                                             version = suscept_func_version)
 
         # if(is.na(x[i,a])){x[i,a]<-999}
         #
@@ -147,11 +147,16 @@ multiannual2 <- function(n = 1000,
         } else {mybeta <- beta_epidemic}
 
       # infect person i if random number < beta*susceptability
-        inf_hist_mat[i,a] <- infect(susceptibility = suscept_mat[i,a], foi = mybeta)
+        rn_inf <- runif(1,0,1)
+
+        inf_hist_mat[i,a] <- infect_cpp(susceptibility = suscept_mat[i,a], foi = mybeta, randnum_inf = rn_inf)
         x[i,a] <- x[i,a]*(1-inf_hist_mat[i,a])
         inf_counter[1,a] <- inf_counter[1,a] + inf_hist_mat[i,a]
         lifetime_inf[i,a] <- ifelse(a>1,lifetime_inf[i,a-1] + inf_hist_mat[i,a],inf_hist_mat[i,a])
-        # generate random number for infection
+        # lifetime_inf[i,a] <- lifetime_infections_cpp(a = a,
+        #                                              lifetime_inf = lifetime_inf[i,a-1],
+        #                                              inf_stat = inf_hist_mat[i,a])
+        # # generate random number for infection
         # randnum_inf <- runif(1,0,1)
         #
         # if (randnum_inf<=mybeta*suscept_mat[i,a]) {
