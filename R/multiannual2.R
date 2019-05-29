@@ -73,6 +73,8 @@ multiannual2 <- function(n = 1000,
     if (actual_year<start_vac_year){vc <- 0
     } else {vc <- vac_coverage}
 
+    # generate random numbers for infection
+    rn_inf <- runif(n,0,1)
     # loop over individuals
       i <- 1
     while(i < n+1){
@@ -147,9 +149,7 @@ multiannual2 <- function(n = 1000,
         } else {mybeta <- beta_epidemic}
 
       # infect person i if random number < beta*susceptability
-        rn_inf <- runif(1,0,1)
-
-        inf_hist_mat[i,a] <- infect_cpp(susceptibility = suscept_mat[i,a], foi = mybeta, randnum_inf = rn_inf)
+        inf_hist_mat[i,a] <- infect_cpp(susceptibility = suscept_mat[i,a], foi = mybeta, randnum_inf = rn_inf[i])
         x[i,a] <- x[i,a]*(1-inf_hist_mat[i,a])
         inf_counter[1,a] <- inf_counter[1,a] + inf_hist_mat[i,a]
         lifetime_inf[i,a] <- ifelse(a>1,lifetime_inf[i,a-1] + inf_hist_mat[i,a],inf_hist_mat[i,a])
