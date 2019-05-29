@@ -1,4 +1,4 @@
-#include "helpers.h"
+#include <Rcpp.h>
 #include <algorithm>    // std::min
 using namespace Rcpp;
 
@@ -12,22 +12,29 @@ using namespace Rcpp;
 //   http://gallery.rcpp.org/
 //
 
+// Susceptibility function
+//
+// This function initializes the population before running the model.
+// @param inf_history Number years since last infection
+// @param vac_history Number of years since last vaccination
+// @param ve Vaccine efficacy
+// @param drift_x Amount of drift from infection
+// @param drift_v Amount of drift from vaccination
+// @param version Which susceptibility function to use: 1 = either-or, 2 = multiplicative
+// @return Numeric value of susceptibility
+// @keywords morevac
+// @export
 // [[Rcpp::export]]
-//NumericVector timesTwo(NumericVector x) {
-//  return x * 2;
-//}
-
-// [[Rcpp::export]]
-int suscept_func(int inf_history, int vac_history, double gamma, double drift_x, double drift_v, int version) {
+double suscept_func(int inf_history, int vac_history, double gamma, double drift_x, double drift_v, int version) {
 
   double vac_ind = 0; // initialize vac_ind
-  int rtn;            // initialize return value
+  double rtn = 0;     // initialize return value
 // vaccinated in current year
   if(vac_history == 0){
     vac_ind = 1;
   }
 // never infected
-  if (drift_x > 0 & drift_v > 0){
+  if (drift_x > 0 && drift_v > 0){
     if (inf_history == 999){
       if (vac_history > 1/drift_v){ // never vaccinated or vaccinated long enough ago for drift to have diminished protection
         rtn = 1;
@@ -54,7 +61,7 @@ int suscept_func(int inf_history, int vac_history, double gamma, double drift_x,
     }
   }
 // infected and drift=0
-  if (drift_x == 0 & drift_v == 0){
+  if (drift_x == 0 && drift_v == 0){
     if (inf_history != 999){
       rtn = 0;
     }
@@ -64,23 +71,6 @@ int suscept_func(int inf_history, int vac_history, double gamma, double drift_x,
 
 }
 
-
-//NumericMatrix initialize(int nindiv, int maxage, NumericVector ages){
-
-//  float init[nindiv][maxage][6];
-
-//  for (int i=1; i<nindiv; i++)
-//    init[i] = 1 / (1+x);
-
-//  return(init);
-//}
-
-
-// You can include R code blocks in C++ files processed with sourceCpp
-// (useful for testing and development). The R code will be automatically
-// run after the compilation.
-//
-
 /*** R
-timesTwo(42)
+suscept_func(inf_history = 3, vac_history = 0, gamma = 0.4, drift_x = 0.2, drift_v = 0.2, version = 2)
 */
