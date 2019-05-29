@@ -40,23 +40,23 @@ multiannual2 <- function(n = 1000,
                          rho = 0
                          ){
 
-  init <- initialize_pop(nindiv = n, years = years, maxage = maxage)
-  attack_rate <- init$ar
-  attack_rate_by_age <- init$attack_rate_by_age
-  ages <- init$age
-  x <- init$x
-  v <- init$v
+  init <- initialize_pop(nindiv = n, maxage = maxage)
+  # rename matrix from init array
+  inf_hist_mat <- init[,,1]
+  vac_hist_mat <- init[,,2]
+   suscept_mat <- init[,,3]
+             x <- init[,,4]
+             v <- init[,,5]
+  lifetime_inf <- init[,,6]
 
-  #print(ages)
-  # select matrix in array for current year
-     suscept_mat <- init$susceptibility[,,1]
-    vac_hist_mat <- init$vac_history[,,1]
-    inf_hist_mat <- init$infection_matrix[,,1]
-    lifetime_inf <- init$lifetime_infections[,,1]
+  ages <- as.numeric(rownames(init))
 
-  #if (same_indiv){
-  #  vn <- sample(1:n,n*vc)
-  #}
+  end_year <- start_year + years - 1
+
+  attack_rate <- c(rep(NA,years))
+  attack_rate_by_age <- matrix(c(rep(NA, years*maxage)),nrow = years)
+  colnames(attack_rate_by_age) <- c(paste0("Age",0:(maxage-1)))
+  rownames(attack_rate_by_age) <- start_year:end_year
 
   # year counter
     year_counter <- 1
@@ -187,10 +187,10 @@ multiannual2 <- function(n = 1000,
     attack_rate_by_age[year_counter,] <- inf_counter[1,]/inf_counter[2,]
 
   # store current year's inf, vac, suscept in array
-       init$infection_matrix[,,year_counter] <- inf_hist_mat
-            init$vac_history[,,year_counter] <- vac_hist_mat
-         init$susceptibility[,,year_counter] <- suscept_mat
-    init$lifetime_infections[,,year_counter] <- lifetime_inf
+  #     init$infection_matrix[,,year_counter] <- inf_hist_mat
+  #          init$vac_history[,,year_counter] <- vac_hist_mat
+  #       init$susceptibility[,,year_counter] <- suscept_mat
+  #  init$lifetime_infections[,,year_counter] <- lifetime_inf
 
   # reset history for new naive individuals
     age0 <- which(ages==0)
@@ -206,12 +206,10 @@ multiannual2 <- function(n = 1000,
     year_counter <- year_counter + 1
     actual_year <- actual_year + 1
  } # end loop over years
-    init$x <- x
-    init$v <- v
+
 ### output
-  end_year <- start_year + years - 1
   dat <- data.frame(Year=start_year:end_year,Attack_Rate=attack_rate)
-  mean_ar <- mean(dat[dat$Year%in% start_year:(start_vac_year-1),2])
+  #mean_ar <- mean(dat[dat$Year%in% start_year:(start_vac_year-1),2])
   #cat('Mean attack rate prior to vaccination:',mean_ar,'\n')
   rownames(attack_rate_by_age) <- start_year:end_year
 
