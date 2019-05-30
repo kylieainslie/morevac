@@ -6,9 +6,10 @@
   library(reshape2)
   library(cowplot)
   library(stringr)
+
 # load morevac package
-#  setwd("C:/Users/kainslie/Google Drive/morevac")
- setwd("~/Documents/morevac")
+  setwd("C:/Users/kainslie/Google Drive/morevac")
+# setwd("~/Documents/morevac")
   devtools::load_all()
 
 # run multi-annual model
@@ -27,6 +28,19 @@
 #  p_age <- plot_attack_rates(dat = out[[1]]$attack_rate_by_age, by = '')
 
 # run simulations
-  sim_out <- run_sim(sim = 10,nindiv = 5000,year_range = c(2000:2019),
-                     age_range = c(0:19),vaccov = 0.5,filename = "figures/corr_vac_0.9",
-                     version = 1, rho = 0.9)
+  library(foreach)
+  library(doParallel)
+  cl <- makeCluster(3)
+  registerDoParallel(cl)
+  #clusterEvalQ(cl, library(morevac))
+  #clusterExport(cl, list=ls())
+
+
+  flag <- c('no vaccination', 'annual', 'biannual')
+
+  sim_out <- foreach (a=flag, .combine = 'rbind',.packages = 'morevac') %dopar%
+   run_sim(sim = 10,nindiv = 1000,year_range = c(2000:2019),
+           age_range = c(0:19),vaccov = 0.5,
+           version = 1, rho = 0.9, flag = a)
+
+  stopCluster(cl)

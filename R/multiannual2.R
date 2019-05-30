@@ -19,6 +19,7 @@
 #' @param suscept_func_version integer indicating which susceptibility version to use.
 #'        1 = either-or, 2 = multiplicative.
 #' @param biannual logical. annual or biannual vaccination?
+#' @param rho correlation of vaccination
 #' @return list with two elements: 1) a list of infection histories and attack rates and
 #'         2) a plot of annual attack rates by vaccination scenario
 #' @keywords morevac
@@ -181,7 +182,9 @@ multiannual2 <- function(n = 1000,
           v[i,a+1] <- v[i,a]+1
         }
         ages[i] <- ages[i] + 1
-        if (ages[i]==maxage){ages[i] <- 0}
+        if (ages[i]==maxage){
+          ages[i] <- 0
+        }
 
         # next person
           i <- i + 1
@@ -205,6 +208,7 @@ multiannual2 <- function(n = 1000,
      suscept_mat[age0,] <- c(1,rep(NA,maxage-1))
                x[age0,] <- c(999,rep(NA,maxage-1))
                v[age0,] <- c(999,rep(NA,maxage-1))
+
     #lifetime_inf[age0,] <- c(0,rep(NA,maxage-1))
     #print(vac_hist_mat)
   # update counters
@@ -213,10 +217,14 @@ multiannual2 <- function(n = 1000,
  } # end loop over years
 
 ### output
+  # over write init with final matrices
+  init[,,1] <- inf_hist_mat
+  init[,,2] <- vac_hist_mat
+  init[,,3] <- suscept_mat
+  init[,,4] <- x
+  init[,,5] <- v
+
   dat <- data.frame(Year=start_year:end_year,Attack_Rate=attack_rate)
-  #mean_ar <- mean(dat[dat$Year%in% start_year:(start_vac_year-1),2])
-  #cat('Mean attack rate prior to vaccination:',mean_ar,'\n')
-  rownames(attack_rate_by_age) <- start_year:end_year
 
   rtn <- list(history=init,
               attack_rate=dat,
