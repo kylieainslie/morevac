@@ -47,7 +47,7 @@ multiannual2 <- function(n = 1000,
    suscept_mat <- init[,,3]
              x <- init[,,4]
              v <- init[,,5]
-  lifetime_inf <- init[,,6]
+  #lifetime_inf <- init[,,6]
 
   ages <- as.numeric(rownames(init))
 
@@ -152,7 +152,7 @@ multiannual2 <- function(n = 1000,
         inf_hist_mat[i,a] <- infect_cpp(susceptibility = suscept_mat[i,a], foi = mybeta, randnum_inf = rn_inf[i])
         x[i,a] <- x[i,a]*(1-inf_hist_mat[i,a])
         inf_counter[1,a] <- inf_counter[1,a] + inf_hist_mat[i,a]
-        lifetime_inf[i,a] <- ifelse(a>1,lifetime_inf[i,a-1] + inf_hist_mat[i,a],inf_hist_mat[i,a])
+        #lifetime_inf[i,a] <- ifelse(a>1,lifetime_inf[i,a-1] + inf_hist_mat[i,a],inf_hist_mat[i,a])
         # lifetime_inf[i,a] <- lifetime_infections_cpp(a = a,
         #                                              lifetime_inf = lifetime_inf[i,a-1],
         #                                              inf_stat = inf_hist_mat[i,a])
@@ -177,8 +177,8 @@ multiannual2 <- function(n = 1000,
         #    x[i,a+1] <- x[i,a]+1
         #  }
         if (a<maxage){
-          x[i,a+1] <- ifelse(x[i,a]<999,x[i,a]+1,999)
-          v[i,a+1] <- ifelse(v[i,a]<999,v[i,a]+1,999)
+          x[i,a+1] <- x[i,a]+1
+          v[i,a+1] <- v[i,a]+1
         }
         ages[i] <- ages[i] + 1
         if (ages[i]==maxage){ages[i] <- 0}
@@ -205,7 +205,7 @@ multiannual2 <- function(n = 1000,
      suscept_mat[age0,] <- c(1,rep(NA,maxage-1))
                x[age0,] <- c(999,rep(NA,maxage-1))
                v[age0,] <- c(999,rep(NA,maxage-1))
-    lifetime_inf[age0,] <- c(0,rep(NA,maxage-1))
+    #lifetime_inf[age0,] <- c(0,rep(NA,maxage-1))
     #print(vac_hist_mat)
   # update counters
     year_counter <- year_counter + 1
