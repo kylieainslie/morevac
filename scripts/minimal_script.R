@@ -13,16 +13,11 @@
   devtools::load_all()
 
 # run multi-annual model
-  # either-or susceptibility version
-    out1a <- multiannual2()
-    out1b <- multiannual2(biannual = TRUE)
-  # multiplicative susceptibility version
-    out2a <- multiannual2(suscept_func_version = 2)
-    out2a <- multiannual2(biannual = TRUE, suscept_func_version = 2)
-  # correlation of vaccination version
-    out2a <- multiannual2(rho = 0.9)
-    out2a <- multiannual2(biannual = TRUE, rho = 0.9)
+  out <- multiannual2()
 
 # outputs
+  # plot attack rates
   p1 <- plot_attack_rates(dat = out$attack_rate)
-#  p_age <- plot_attack_rates(dat = out[[1]]$attack_rate_by_age, by = '')
+  # plot lifetime infections
+  inf_dat <- out$history[,,1]
+  lifetime_inf <- get_lifetime_inf(inf_history = inf_dat, ages = 1:80, maxage = 80)
