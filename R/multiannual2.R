@@ -20,6 +20,7 @@
 #'        1 = either-or, 2 = multiplicative.
 #' @param biannual logical. annual or biannual vaccination?
 #' @param rho correlation of vaccination
+#' @param return_ar_only 0 = no, 1 = return annual attack rates, 2 = return attack rate by age
 #' @return list with two elements: 1) a list of infection histories and attack rates and
 #'         2) a plot of annual attack rates by vaccination scenario
 #' @keywords morevac
@@ -38,7 +39,8 @@ multiannual2 <- function(n = 1000,
                          mygamma = 0.4,
                          suscept_func_version = 1,
                          biannual = FALSE,
-                         rho = 0
+                         rho = 0,
+                         return_ar_only = FALSE
                          ){
 
   init <- initialize_pop(nindiv = n, maxage = maxage)
@@ -82,9 +84,11 @@ multiannual2 <- function(n = 1000,
     while(i < n+1){
       #print(i)
       a <- ages[i] + 1
-      #print(a)
-
       inf_counter[2,a] <- inf_counter[2,a] + 1
+
+      if(is.na(x[i,a])){x[i,a]<-999}
+      if(is.na(v[i,a])){v[i,a]<-999}
+
       # determine who will be vaccinated
         if (actual_year >= start_vac_year & ages[i] >= start_vac_age){
         #  vac_hist_mat[i,a] <- vaccinate(year = year_counter, vc = vc, vac_strategy = biannual)
@@ -226,10 +230,16 @@ multiannual2 <- function(n = 1000,
 
   dat <- data.frame(Year=start_year:end_year,Attack_Rate=attack_rate)
 
-  rtn <- list(history=init,
-              attack_rate=dat,
-              attack_rate_by_age = attack_rate_by_age
-              )
+  if (return_ar_only == 1){
+    rtn <- dat
+  } else if (return_ar_only == 2){
+    rtn <- attack_rate_by_age
+  } else {
+    rtn <- list(history=init,
+                attack_rate=dat,
+                attack_rate_by_age = attack_rate_by_age
+                )
+  }
 
-  return(rtn)
+  #return(rtn)
 }
