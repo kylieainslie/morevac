@@ -16,15 +16,16 @@ vac_cov <- c(0, 0.25, 0.5, 0.75, 1)
 yearRange <- c(2000:2019)
 ageRange <- c(0:19)
 
-sim_out <- foreach (i=1:3, j=1:5, .packages = 'morevac') %do%
-              run_sim(sim = 10,nindiv = 5000, year_range = yearRange,
+sim_out <- foreach (j=1:5, .packages = 'morevac') %:%
+            foreach (i=1:3, .packages = 'morevac') %do%
+              run_sim(sim = 3,nindiv = 1000, year_range = yearRange,
                       age_range = ageRange,vaccov = vac_cov[j],
                       version = 1, rho = 0.9, flag = vac_status[i])
 
 #stopCluster(cl)
 
 ### output
-cohort2 <- data.frame(Year = c(rep(yearRange,3)),
+cohort <- data.frame(Year = c(rep(yearRange,3)),
                      Attack_Rate = c(apply(sim_out[[1]],1,mean),
                                      apply(sim_out[[2]],1,mean),
                                      apply(sim_out[[3]],1,mean)),
@@ -40,13 +41,13 @@ cohort2 <- data.frame(Year = c(rep(yearRange,3)),
                                       rep('Biannual',length(yearRange)))
 )
 
-p_cohort2 <- plot_attack_rates(dat = cohort2, by_vac = TRUE, c_bands = TRUE)
+p_cohort <- plot_attack_rates(dat = cohort2, by_vac = TRUE, c_bands = TRUE)
 #
 # pdf(file = paste0(filename,"_ar.pdf"))
 # plot(p_cohort)
 # dev.off()
 # #
-# # lifetime infections
+# lifetime infections
 # life_inf_dat <- data.frame(Sim = c(rep(1:sim,3)),
 #                            Vac_Strategy = c(rep('No Vaccination',sim),
 #                                             rep('Annual',sim),
