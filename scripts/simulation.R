@@ -4,34 +4,22 @@ library(foreach)
 library(doParallel)
 
 # make cluster
-<<<<<<< Updated upstream
 # cl <- makeCluster(2)
 # registerDoParallel(cl)
 # clusterEvalQ(cl, library(morevac))
 # clusterExport(cl, list=ls())
 # test <- foreach(i=1:5, .packages = 'morevac') %dopar% initialize_pop()
-=======
-cl <- makeCluster(2)
-#registerDoParallel(cl)
-clusterEvalQ(cl, library(morevac))
-clusterExport(cl, varlist=ls())
->>>>>>> Stashed changes
-
 
 vac_status <- c('no vaccination', 'annual', 'biannual')
 vac_cov <- c(0, 0.25, 0.5, 0.75, 1)
 yearRange <- c(2000:2019)
 ageRange <- c(0:19)
 
-<<<<<<< Updated upstream
 sim_out <- foreach (j=1:5, .packages = 'morevac') %:%
             foreach (i=1:3, .packages = 'morevac') %do%
-              run_sim(sim = 3,nindiv = 1000, year_range = yearRange,
+              run_sim(sim = 100,nindiv = 10000, year_range = yearRange,
                       age_range = ageRange,vaccov = vac_cov[j],
                       version = 1, rho = 0.9, flag = vac_status[i])
-=======
-test <- foreach(i=1:2, .packages = 'morevac') %dopar% multiannual2(return_ar_only = 1)
->>>>>>> Stashed changes
 
 #stopCluster(cl)
 
