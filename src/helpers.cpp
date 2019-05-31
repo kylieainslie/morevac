@@ -34,7 +34,7 @@ double suscept_func_cpp(int inf_history, int vac_history, double gamma, double d
   }
 // never infected
   if (drift_x > 0 && drift_v > 0){
-    if (inf_history == 999){
+    if (inf_history >= 999){
       if (vac_history > 1/drift_v){ // never vaccinated or vaccinated long enough ago for drift to have diminished protection
         rtn = 1;
       } else if (vac_history <= 1/drift_v){ // vaccinated this year or within last few years
@@ -43,7 +43,7 @@ double suscept_func_cpp(int inf_history, int vac_history, double gamma, double d
     }
 
 // infected and drift>0
-    if (inf_history != 999){
+    if (inf_history < 999){
       if (vac_history > 1/drift_v){ // never vaccinated
         if (inf_history < 1/drift_x){
           rtn = inf_history*drift_x;
@@ -61,7 +61,7 @@ double suscept_func_cpp(int inf_history, int vac_history, double gamma, double d
   }
 // infected and drift=0
   if (drift_x == 0 && drift_v == 0){
-    if (inf_history != 999){
+    if (inf_history < 999){
       rtn = 0;
     }
   }
