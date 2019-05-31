@@ -4,26 +4,27 @@ library(foreach)
 library(doParallel)
 
 # make cluster
-cl <- makeCluster(2)
-registerDoParallel(cl)
-#clusterEvalQ(cl, library(morevac))
-#clusterExport(cl, list=ls())
+# cl <- makeCluster(2)
+# registerDoParallel(cl)
+# clusterEvalQ(cl, library(morevac))
+# clusterExport(cl, list=ls())
+# test <- foreach(i=1:5, .packages = 'morevac') %dopar% initialize_pop()
 
 
-flag <- c('no vaccination', 'annual', 'biannual')
+vac_status <- c('no vaccination', 'annual', 'biannual')
+vac_cov <- c(0, 0.25, 0.5, 0.75, 1)
+yearRange <- c(2000:2019)
+ageRange <- c(0:19)
 
-test <- foreach(i=1:5, .packages = 'morevac') %dopar% multiannual2(return_ar_only = 2)
+sim_out <- foreach (i=1:3, j=1:5, .packages = 'morevac') %do%
+              run_sim(sim = 10,nindiv = 5000, year_range = yearRange,
+                      age_range = ageRange,vaccov = vac_cov[j],
+                      version = 1, rho = 0.9, flag = vac_status[i])
 
-sim_out <- foreach (i=1:3, .packages = 'morevac') %dopar%
-  run_sim(sim = 10,nindiv = 1000,year_range = c(2000:2019),
-          age_range = c(0:19),vaccov = 0.5,
-          version = 1, rho = 0, flag = flag)
-
-
-stopCluster(cl)
+#stopCluster(cl)
 
 ### output
-cohort <- data.frame(Year = c(rep(year_range,3)),
+cohort2 <- data.frame(Year = c(rep(yearRange,3)),
                      Attack_Rate = c(apply(sim_out[[1]],1,mean),
                                      apply(sim_out[[2]],1,mean),
                                      apply(sim_out[[3]],1,mean)),
@@ -33,13 +34,13 @@ cohort <- data.frame(Year = c(rep(year_range,3)),
                      Upper = c(apply(sim_out[[1]],1,FUN = function(x) quantile(x, c(0.975))),
                                apply(sim_out[[2]],1,FUN = function(x) quantile(x, c(0.975))),
                                apply(sim_out[[3]],1,FUN = function(x) quantile(x, c(0.975)))),
-                     Age = c(rep(age_range,3)),
-                     Vac_Strategy = c(rep('No Vaccination',length(year_range)),
-                                      rep('Annual',length(year_range)),
-                                      rep('Biannual',length(year_range)))
+                     Age = c(rep(ageRange,3)),
+                     Vac_Strategy = c(rep('No Vaccination',length(yearRange)),
+                                      rep('Annual',length(yearRange)),
+                                      rep('Biannual',length(yearRange)))
 )
 
-p_cohort <- plot_attack_rates(dat = cohort, by_vac = TRUE, c_bands = TRUE)
+p_cohort2 <- plot_attack_rates(dat = cohort2, by_vac = TRUE, c_bands = TRUE)
 #
 # pdf(file = paste0(filename,"_ar.pdf"))
 # plot(p_cohort)
