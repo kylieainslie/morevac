@@ -23,13 +23,16 @@ run_sim <- function(sim = 100,
                     version = 1,
                     biannual = FALSE,
                     rho = 0,
-                    flag){
+                    flag = 'annual'){
 ### create empty arrays for storing information about each simulation
   out <- array(NA,dim=c(200,80,sim))
   life_inf <- matrix(c(rep(NA,sim*length(age_range))),nrow=sim)
   ar_out <- matrix(c(rep(NA,sim*length(year_range))),nrow=length(year_range))
   rownames(ar_out) <- year_range
   colnames(ar_out) <- paste0(c(rep("sim",sim)),1:sim)
+  lti_out <- matrix(c(rep(NA,sim*length(year_range))),nrow=length(year_range))
+  rownames(lti_out) <- age_range
+  colnames(lti_out) <- paste0(c(rep("sim",sim)),1:sim)
 
   # determine scenario by flag
     if (flag == 'no vaccination'){
@@ -51,17 +54,21 @@ run_sim <- function(sim = 100,
     # run model
     test <- multiannual2(n = nindiv, vac_coverage = vaccov,
                          suscept_func_version = version,
-                         biannual = vac_strat,  rho = rho,
-                         return_ar_only = 2)
+                         biannual = vac_strat,  rho = rho
+                         )
     # attack rate by age
-    out[,,s] <- test
-    dimnames(out)[[1]] <- rownames(test)
+    out[,,s] <- test$attack_rate_by_age
+    dimnames(out)[[1]] <- rownames(test$attack_rate_by_age)
     ar_out[,s] <- diag(out[rownames(out) %in% year_range,(age_range+1),s])
     # lifetime infections
+    lifetime_inf <- get_lifetime_inf(test$history[,,1])
+    lti_out[,s] <- lifetime_inf[length(age_range),1:length(age_range)]
   }
   close(pb)
 
-  return(ar_out)
+  return(list(attack_rate = ar_out,
+              lifetime_infections = lti_out)
+        )
 }
 
 
