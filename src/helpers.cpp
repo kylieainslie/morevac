@@ -28,6 +28,7 @@ double suscept_func_cpp(int inf_history, int vac_history, double gamma, double d
 
   double vac_ind = 0; // initialize vac_ind
   double rtn = 0;     // initialize return value
+
 // vaccinated in current year
   if(vac_history == 0){
     vac_ind = 1;

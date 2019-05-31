@@ -134,7 +134,15 @@ multiannual2 <- function(n = 1000,
         inf_hist_mat[i,a] <- infect_cpp(susceptibility = suscept_mat[i,a], foi = mybeta, randnum_inf = rn_inf[i])
         x[i,a] <- x[i,a]*(1-inf_hist_mat[i,a])
         inf_counter[1,a] <- inf_counter[1,a] + inf_hist_mat[i,a]
+<<<<<<< Updated upstream
       # update x and v
+=======
+        #lifetime_inf[i,a] <- ifelse(a>1,lifetime_inf[i,a-1] + inf_hist_mat[i,a],inf_hist_mat[i,a])
+        # lifetime_inf[i,a] <- lifetime_infections_cpp(a = a,
+        #                                              lifetime_inf = lifetime_inf[i,a-1],
+        #                                              inf_stat = inf_hist_mat[i,a])
+
+>>>>>>> Stashed changes
         if (a<maxage){
           x[i,a+1] <- x[i,a]+1
           v[i,a+1] <- v[i,a]+1
@@ -155,6 +163,7 @@ multiannual2 <- function(n = 1000,
     attack_rate_by_age[year_counter,] <- inf_counter[1,]/inf_counter[2,]
 
   # reset history for new naive individuals
+<<<<<<< Updated upstream
     if (year_counter < years){
       age0 <- which(ages==0)
       #print(age0)
@@ -166,13 +175,24 @@ multiannual2 <- function(n = 1000,
     }
     #lifetime_inf[age0,] <- c(0,rep(NA,maxage-1))
     #print(vac_hist_mat)
+=======
+    age0 <- which(ages==0)
+
+    inf_hist_mat[age0,] <- c(0,rep(NA,maxage-1))
+    vac_hist_mat[age0,] <- c(0,rep(NA,maxage-1))
+     suscept_mat[age0,] <- c(1,rep(NA,maxage-1))
+               x[age0,] <- c(999,rep(NA,maxage-1))
+               v[age0,] <- c(999,rep(NA,maxage-1))
+  # lifetime_inf[age0,] <- c(0,rep(NA,maxage-1))
+
+>>>>>>> Stashed changes
   # update counters
     year_counter <- year_counter + 1
     actual_year <- actual_year + 1
  } # end loop over years
 
 ### output
-  # over write init with final matrices
+  # overwrite init with final matrices
   init[,,1] <- inf_hist_mat
   init[,,2] <- vac_hist_mat
   init[,,3] <- suscept_mat
@@ -193,5 +213,5 @@ multiannual2 <- function(n = 1000,
                 )
   }
 
-  #return(rtn)
+  return(rtn)
 }

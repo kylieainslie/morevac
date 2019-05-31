@@ -23,7 +23,11 @@ run_sim <- function(sim = 100,
                     version = 1,
                     biannual = FALSE,
                     rho = 0,
+<<<<<<< Updated upstream
                     flag = 'annual'){
+=======
+                    flag = 'no vaccination'){
+>>>>>>> Stashed changes
 ### create empty arrays for storing information about each simulation
   out <- array(NA,dim=c(200,80,sim))
   life_inf <- matrix(c(rep(NA,sim*length(age_range))),nrow=sim)
