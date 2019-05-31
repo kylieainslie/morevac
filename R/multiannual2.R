@@ -88,6 +88,8 @@ multiannual2 <- function(n = 1000,
 
       if(is.na(x[i,a])){x[i,a]<-999}
       if(is.na(v[i,a])){v[i,a]<-999}
+      if(is.na(inf_hist_mat[i,a])){inf_hist_mat[i,a]<-0}
+      if(is.na(vac_hist_mat[i,a])){vac_hist_mat[i,a]<-0}
 
       # determine who will be vaccinated
         if (actual_year >= start_vac_year & ages[i] >= start_vac_age){
@@ -123,36 +125,6 @@ multiannual2 <- function(n = 1000,
                                              drift_v = delta_v,
                                              version = suscept_func_version)
 
-        # if(is.na(x[i,a])){x[i,a]<-999}
-        #
-        # # never infected
-        # #print(x[i,a])
-        # if (x[i,a] == 999){
-        #   if (v[i,a] == 999 | v[i,a] > 1/delta_v){ # never vaccinated or vaccinated long enough ago for drift to have diminished protection
-        #     suscept_mat[i,a] <- 1
-        #   } else if (v[i,a]==0 | v[i,a]<=1/delta_v){ # vaccinated this year or within last few year_counters
-        #     suscept_mat[i,a] <- (vac_hist_mat[i,a]*mygamma) + (v[i,a]*delta_v)
-        #   }
-        # }
-        #
-        # # infected and delta>0
-        # if (x[i,a]>=0 & x[i,a]<999 & delta_x>0 & delta_v>0){
-        #   if (v[i,a]==999 | v[i,a] > 1/delta_v){ # never vaccinated
-        #     if (x[i,a]< 1/delta_x){
-        #       suscept_mat[i,a] <- x[i,a]*delta_x
-        #     } else if (x[i,a]>= 1/delta_x) {
-        #       suscept_mat[i,a] <- 1
-        #     }
-        #   } else if (v[i,a]==0 | v[i,a]<=1/delta_v){ # vaccinated
-        #     suscept_mat[i,a] <- min(x[i,a]*delta_x,(vac_hist_mat[i,a]*mygamma)+(v[i,a]*delta_v))
-        #   }
-        # }
-        #
-        # # infected and delta=0
-        # if (x[i,a]>=0 & x[i,a]<999 & delta_x==0 & delta_v==0){
-        #   suscept_mat[i,a] <- 0
-        # }
-
         # for first year have pandemic transmission rate
         if (year_counter==1){
           mybeta <-beta_pandemic
@@ -162,62 +134,36 @@ multiannual2 <- function(n = 1000,
         inf_hist_mat[i,a] <- infect_cpp(susceptibility = suscept_mat[i,a], foi = mybeta, randnum_inf = rn_inf[i])
         x[i,a] <- x[i,a]*(1-inf_hist_mat[i,a])
         inf_counter[1,a] <- inf_counter[1,a] + inf_hist_mat[i,a]
-        #lifetime_inf[i,a] <- ifelse(a>1,lifetime_inf[i,a-1] + inf_hist_mat[i,a],inf_hist_mat[i,a])
-        # lifetime_inf[i,a] <- lifetime_infections_cpp(a = a,
-        #                                              lifetime_inf = lifetime_inf[i,a-1],
-        #                                              inf_stat = inf_hist_mat[i,a])
-        # # generate random number for infection
-        # randnum_inf <- runif(1,0,1)
-        #
-        # if (randnum_inf<=mybeta*suscept_mat[i,a]) {
-        #   inf_hist_mat[i,a] <- 1
-        #   x[i,a] <- 0
-        #   inf_counter[1,a] <- inf_counter[1,a] + 1
-        #   lifetime_inf[i,a] <- ifelse(a>1,lifetime_inf[i,a-1] + 1, 1)
-        # } else {
-        #     inf_hist_mat[i,a] <- 0
-        #     lifetime_inf[i,a] <- ifelse(a>1,lifetime_inf[i,a-1], 0)
-        #   }
-
-      # update individual counters
-        #if (year_counter<years){
-        #  if (x[i,a] == 999){
-        #    x[i,a+1] <- 999
-        #  } else if (x[i,a]<999){
-        #    x[i,a+1] <- x[i,a]+1
-        #  }
+      # update x and v
         if (a<maxage){
           x[i,a+1] <- x[i,a]+1
           v[i,a+1] <- v[i,a]+1
         }
-        ages[i] <- ages[i] + 1
-        if (ages[i]==maxage){
-          ages[i] <- 0
+      # update ages
+        if (year_counter < years){
+          ages[i] <- ages[i] + 1
+          if (ages[i]==maxage){
+            ages[i] <- 0
+          }
         }
-
-        # next person
+      # next person
           i <- i + 1
     } # end loop over individuals
-      #print(x)
+
   # calculate attack rate by age
     attack_rate[year_counter] <- sum(inf_counter[1,])/sum(inf_counter[2,])
     attack_rate_by_age[year_counter,] <- inf_counter[1,]/inf_counter[2,]
 
-  # store current year's inf, vac, suscept in array
-  #     init$infection_matrix[,,year_counter] <- inf_hist_mat
-  #          init$vac_history[,,year_counter] <- vac_hist_mat
-  #       init$susceptibility[,,year_counter] <- suscept_mat
-  #  init$lifetime_infections[,,year_counter] <- lifetime_inf
-
   # reset history for new naive individuals
-    age0 <- which(ages==0)
-    #print(age0)
-    inf_hist_mat[age0,] <- c(0,rep(NA,maxage-1))
-    vac_hist_mat[age0,] <- c(0,rep(NA,maxage-1))
-     suscept_mat[age0,] <- c(1,rep(NA,maxage-1))
-               x[age0,] <- c(999,rep(NA,maxage-1))
-               v[age0,] <- c(999,rep(NA,maxage-1))
-
+    if (year_counter < years){
+      age0 <- which(ages==0)
+      #print(age0)
+      inf_hist_mat[age0,] <- c(0,rep(NA,maxage-1))
+      vac_hist_mat[age0,] <- c(0,rep(NA,maxage-1))
+       suscept_mat[age0,] <- c(1,rep(NA,maxage-1))
+                 x[age0,] <- c(999,rep(NA,maxage-1))
+                 v[age0,] <- c(999,rep(NA,maxage-1))
+    }
     #lifetime_inf[age0,] <- c(0,rep(NA,maxage-1))
     #print(vac_hist_mat)
   # update counters
@@ -232,6 +178,7 @@ multiannual2 <- function(n = 1000,
   init[,,3] <- suscept_mat
   init[,,4] <- x
   init[,,5] <- v
+  rownames(init) <- ages
 
   dat <- data.frame(Year=start_year:end_year,Attack_Rate=attack_rate)
 
