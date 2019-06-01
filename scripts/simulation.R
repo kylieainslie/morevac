@@ -24,6 +24,8 @@ sim_out <- foreach (j=1:5, .packages = 'morevac') %:%
 #stopCluster(cl)
 
 ### output
+library(ggplot2)
+library(cowplot)
 
 dat1 <- process_sim_output(sim_out, j=1, year_range = yearRange, age_range = ageRange)
 pa1 <- plot_attack_rates(dat = dat1, by_vac = TRUE, c_bands = TRUE)
@@ -44,4 +46,15 @@ pl4 <- plot_lifetime_infections(dat = dat4, by_vac = TRUE)
 dat5 <- process_sim_output(sim_out, j=5, year_range = yearRange, age_range = ageRange)
 pa5 <- plot_attack_rates(dat = dat5, by_vac = TRUE, c_bands = TRUE)
 pl5 <- plot_lifetime_infections(dat = dat5, by_vac = TRUE)
+
+# plots
+theme_set(theme_cowplot(font_size=10)) # reduce default font size
+attack_rate_plot <- plot_grid(pa1, pa2, pa3, pa4, pa5, labels = "AUTO", ncol = 2,
+                              align = 'v', axis = 'l') # aligning vertically along the left axis
+lifetime_inf_plot <- plot_grid(pl1, pl2, pl3, pl4, pl5, labels = "AUTO", ncol = 2,
+                               align = 'v', axis = 'l') # aligning vertically along the left axis
+
+#pdf(file = paste0("figures/combined_plot_",vc,".pdf"))
+#plot(omg)
+#dev.off()
 
