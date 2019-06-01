@@ -13,7 +13,7 @@
 
 plot_lifetime_infections <- function(dat, by_vac = FALSE){
   if (by_vac){
-    p1 <- ggplot(dat, aes(x = Age, y = Life_Inf,fill = Vac_Strategy)) +
+    p1 <- ggplot(dat, aes(x = Age, y = Lifetime_Infections,fill = Vac_Strategy)) +
           geom_boxplot() +
           ylab('Number of Lifetime Infections') +
           theme(panel.grid.major = element_blank(),
@@ -27,7 +27,7 @@ plot_lifetime_infections <- function(dat, by_vac = FALSE){
                 legend.key = element_rect(fill = "white")
           )
   } else{
-    p1 <- ggplot(dat, aes(x = Age, y = Life_Inf)) +
+    p1 <- ggplot(dat, aes(x = Age, y = Lifetime_Infections)) +
           geom_boxplot() +
           ylab('Number of Lifetime Infections') +
           theme(panel.grid.major = element_blank(),
