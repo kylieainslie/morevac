@@ -24,43 +24,24 @@ sim_out <- foreach (j=1:5, .packages = 'morevac') %:%
 #stopCluster(cl)
 
 ### output
-cohort <- data.frame(Year = c(rep(yearRange,3)),
-                     Attack_Rate = c(apply(sim_out[[1]],1,mean),
-                                     apply(sim_out[[2]],1,mean),
-                                     apply(sim_out[[3]],1,mean)),
-                     Lower = c(apply(sim_out[[1]],1,FUN = function(x) quantile(x, c(0.025))),
-                               apply(sim_out[[2]],1,FUN = function(x) quantile(x, c(0.025))),
-                               apply(sim_out[[3]],1,FUN = function(x) quantile(x, c(0.025)))),
-                     Upper = c(apply(sim_out[[1]],1,FUN = function(x) quantile(x, c(0.975))),
-                               apply(sim_out[[2]],1,FUN = function(x) quantile(x, c(0.975))),
-                               apply(sim_out[[3]],1,FUN = function(x) quantile(x, c(0.975)))),
-                     Age = c(rep(ageRange,3)),
-                     Vac_Strategy = c(rep('No Vaccination',length(yearRange)),
-                                      rep('Annual',length(yearRange)),
-                                      rep('Biannual',length(yearRange)))
-)
 
-p_cohort <- plot_attack_rates(dat = cohort2, by_vac = TRUE, c_bands = TRUE)
-#
-# pdf(file = paste0(filename,"_ar.pdf"))
-# plot(p_cohort)
-# dev.off()
-# #
-# lifetime infections
-# life_inf_dat <- data.frame(Sim = c(rep(1:sim,3)),
-#                            Vac_Strategy = c(rep('No Vaccination',sim),
-#                                             rep('Annual',sim),
-#                                             rep('Biannual',sim)),
-#                            rbind(life_inf0,life_infa,life_infb)
-# )
-# names(life_inf_dat) <- c('Sim','Vac_Strategy',c(paste0("Age",age_range)))
-# data_long <- gather(life_inf_dat, Age, Life_Inf, Age0:Age19, factor_key=TRUE)
-# data_long$Age <- as.factor(str_remove(data_long$Age, 'Age'))
-#
-# data_long$Age = with(data_long, reorder(Age, Life_Inf, mean))
-#
-# p1 <- plot_lifetime_infections(dat = data_long, by_vac = TRUE)
-#
-# pdf(file = paste0(filename,"_life_inf.pdf"))
-# plot(p1)
-# dev.off()
+dat1 <- process_sim_output(sim_out, j=1, year_range = yearRange, age_range = ageRange)
+pa1 <- plot_attack_rates(dat = dat1, by_vac = TRUE, c_bands = TRUE)
+pl1 <- plot_lifetime_infections(dat = dat1, by_vac = TRUE)
+
+dat2 <- process_sim_output(sim_out, j=2, year_range = yearRange, age_range = ageRange)
+pa2 <- plot_attack_rates(dat = dat2, by_vac = TRUE, c_bands = TRUE)
+pl2 <- plot_lifetime_infections(dat = dat2, by_vac = TRUE)
+
+dat3 <- process_sim_output(sim_out, j=3, year_range = yearRange, age_range = ageRange)
+pa3 <- plot_attack_rates(dat = dat3, by_vac = TRUE, c_bands = TRUE)
+pl3 <- plot_lifetime_infections(dat = dat3, by_vac = TRUE)
+
+dat4 <- process_sim_output(sim_out, j=4, year_range = yearRange, age_range = ageRange)
+pa4 <- plot_attack_rates(dat = dat4, by_vac = TRUE, c_bands = TRUE)
+pl4 <- plot_lifetime_infections(dat = dat4, by_vac = TRUE)
+
+dat5 <- process_sim_output(sim_out, j=5, year_range = yearRange, age_range = ageRange)
+pa5 <- plot_attack_rates(dat = dat5, by_vac = TRUE, c_bands = TRUE)
+pl5 <- plot_lifetime_infections(dat = dat5, by_vac = TRUE)
+
