@@ -56,11 +56,11 @@ lifetime_inf_plot <- plot_grid(pl1, pl2, pl3, pl4, pl5, labels = "AUTO", ncol = 
 
 path <- 'C:/Users/kainslie/Google Drive/morevac_manuscript/figures/'
 
-pdf(file = paste0(path,'attack_rates_rho_0.9_v2.pdf'))
+pdf(file = paste0(path,'attack_rates_rho_',rho,'_v',version,'.pdf'))
 plot(attack_rate_plot)
 dev.off()
 
-pdf(file = paste0(path,'lifetime_infections_rho_0.9_v2.pdf'))
+pdf(file = paste0(path,'lifetime_infections_rho_',rho,'_v',version,'.pdf'))
 plot(lifetime_inf_plot)
 dev.off()
 
