@@ -19,7 +19,7 @@ sim_out <- foreach (j=1:5, .packages = 'morevac') %:%
             foreach (i=1:3, .packages = 'morevac') %do%
               run_sim(sim = 100,nindiv = 10000, year_range = yearRange,
                       age_range = ageRange,vaccov = vac_cov[j],
-                      version = 1, rho = 0.9, flag = vac_status[i])
+                      version = 2, rho = 0.9, flag = vac_status[i])
 
 #stopCluster(cl)
 
@@ -54,7 +54,13 @@ attack_rate_plot <- plot_grid(pa1, pa2, pa3, pa4, pa5, labels = "AUTO", ncol = 2
 lifetime_inf_plot <- plot_grid(pl1, pl2, pl3, pl4, pl5, labels = "AUTO", ncol = 2,
                                align = 'v', axis = 'l') # aligning vertically along the left axis
 
-#pdf(file = paste0("figures/combined_plot_",vc,".pdf"))
-#plot(omg)
-#dev.off()
+path <- 'C:/Users/kainslie/Google Drive/morevac_manuscript/figures/'
+
+pdf(file = paste0(path,'attack_rates_rho_0.9_v2.pdf'))
+plot(attack_rate_plot)
+dev.off()
+
+pdf(file = paste0(path,'lifetime_infections_rho_0.9_v2.pdf'))
+plot(lifetime_inf_plot)
+dev.off()
 
