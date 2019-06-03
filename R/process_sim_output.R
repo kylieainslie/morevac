@@ -32,7 +32,7 @@ process_sim_output <- function(sim_out, j, year_range, age_range){
                     Upper2 = c(apply(sim_out[[j]][[1]]$lifetime_infections,1,FUN = function(x) quantile(x, c(0.975))),
                                apply(sim_out[[j]][[2]]$lifetime_infections,1,FUN = function(x) quantile(x, c(0.975))),
                                apply(sim_out[[j]][[3]]$lifetime_infections,1,FUN = function(x) quantile(x, c(0.975)))),
-                    Age = c(rep(age_range,3)),
+                    Age = as.factor(c(rep(age_range,3))),
                     Vac_Strategy = c(rep('No Vaccination',length(year_range)),
                                      rep('Annual',length(year_range)),
                                      rep('Biannual',length(year_range)))
