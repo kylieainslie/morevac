@@ -27,7 +27,7 @@ suscept_func <- function(inf_history, vac_history = 999, ve = 0.4, drift_x = 0.2
   if(vac_history == 0){vac_ind <- 1}
   # never infected
   if (drift_x > 0 & drift_v > 0){
-    if (inf_history == 999){
+    if (inf_history >= 999){
       if (vac_history > 1/drift_v){ # never vaccinated or vaccinated long enough ago for drift to have diminished protection
         rtn <- 1
       } else if (vac_history <= 1/drift_v){ # vaccinated this year or within last few years
@@ -36,7 +36,7 @@ suscept_func <- function(inf_history, vac_history = 999, ve = 0.4, drift_x = 0.2
     }
 
   # infected and drift>0
-    if (inf_history != 999){
+    if (inf_history < 999){
       if (vac_history > 1/drift_v){ # never vaccinated
         if (inf_history < 1/drift_x){
          rtn <- inf_history*drift_x
@@ -54,7 +54,7 @@ suscept_func <- function(inf_history, vac_history = 999, ve = 0.4, drift_x = 0.2
   }
   # infected and drift=0
   if (drift_x == 0 & drift_v == 0){
-    if (inf_history != 999){
+    if (inf_history < 999){
       rtn <- 0
     }
   }

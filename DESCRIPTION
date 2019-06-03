@@ -1,9 +1,11 @@
 Package: morevac
 Title: What the Package Does (one line, title case)
 Version: 0.0.0.9000
-Authors@R: person("First", "Last", email = "first.last@example.com", role = c("aut", "cre"))
+Authors@R: person("Kylie", "Ainslie", email = "k.ainslie@imperial.ac.uk", role = c("aut", "cre"))
 Description: What the package does (one paragraph).
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.1.1
+LinkingTo: Rcpp
+Imports: Rcpp

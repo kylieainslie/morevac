@@ -1,127 +1,66 @@
+### run simulations
 
+library(foreach)
+library(doParallel)
 
-run_sim <- function(sim = 100, nindiv = 1000, year_range, age_range, vaccov = 0.5,filename = "test"){
-### create empty arrays for storing information about each simulation
-  out0 <- array(NA,dim=c(200,80,sim))
-  outa <- array(NA,dim=c(200,80,sim))
-  outb <- array(NA,dim=c(200,80,sim))
+# make cluster
+# cl <- makeCluster(2)
+# registerDoParallel(cl)
+# clusterEvalQ(cl, library(morevac))
+# clusterExport(cl, list=ls())
+# test <- foreach(i=1:5, .packages = 'morevac') %dopar% initialize_pop()
 
-  life_inf0 <- matrix(c(rep(NA,sim*length(age_range))),nrow=sim)
-  life_infa <- life_inf0
-  life_infb <- life_inf0
+vac_status <- c('no vaccination', 'annual', 'biannual')
+vac_cov <- c(0, 0.25, 0.5, 0.75, 1)
+yearRange <- c(2000:2019)
+ageRange <- c(0:19)
 
-  ar_out0 <- matrix(c(rep(NA,sim*length(year_range))),nrow=length(year_range))
-  ar_outa <- matrix(c(rep(NA,sim*length(year_range))),nrow=length(year_range))
-  ar_outb <- matrix(c(rep(NA,sim*length(year_range))),nrow=length(year_range))
+sim_out <- foreach (j=1:5, .packages = 'morevac') %:%
+            foreach (i=1:3, .packages = 'morevac') %do%
+              run_sim(sim = 100,nindiv = 10000, year_range = yearRange,
+                      age_range = ageRange,vaccov = vac_cov[j],
+                      version = 2, rho = 0.9, flag = vac_status[i])
 
-### create progress bar
-  pb <- txtProgressBar(min = 0, max = sim, style = 3)
-### start simulations
-  for (s in 1:sim){
-    Sys.sleep(0.1)
-    # update progress bar
-    setTxtProgressBar(pb, s)
-
-    # run model
-    test0 <- multiannual2(n=nindiv, vac_coverage = 0, suscept_func_version = 2)
-    testa <- multiannual2(n=nindiv, vac_coverage = vaccov, suscept_func_version = 2)
-    testb <- multiannual2(n=nindiv, vac_coverage = vaccov,suscept_func_version = 2, biannual = TRUE)
-    # attack rate by age
-    out0[,,s] <- test0[[1]]$attack_rate_by_age
-    dimnames(out0)[[1]] <- rownames(test0[[1]]$attack_rate_by_age)
-    ar_out0[,s] <- diag(out0[rownames(out0) %in% year_range,(age_range+1),s])
-
-    outa[,,s] <- testa[[1]]$attack_rate_by_age
-    dimnames(outa)[[1]] <- rownames(testa[[1]]$attack_rate_by_age)
-    ar_outa[,s] <- diag(outa[rownames(outa) %in% year_range,(age_range+1),s])
-
-    outb[,,s] <- testb[[1]]$attack_rate_by_age
-    dimnames(outb)[[1]] <- rownames(testb[[1]]$attack_rate_by_age)
-    ar_outb[,s] <- diag(outb[rownames(outb) %in% year_range,(age_range+1),s])
-    # lifetime infections
-    tmp0 <- test0[[1]]$history$lifetime_infections[,,200]
-    life_inf0[s,] <- apply(tmp0[which(!is.na(tmp0[,20]) & is.na(tmp0[,21])),age_range + 1],2,mean,na.rm = TRUE)
-    tmpa <- testa[[1]]$history$lifetime_infections[,,200]
-    life_infa[s,] <- apply(tmpa[which(!is.na(tmpa[,20]) & is.na(tmpa[,21])),age_range + 1],2,mean,na.rm = TRUE)
-    tmpb <- testb[[1]]$history$lifetime_infections[,,200]
-    life_infb[s,] <- apply(tmpb[which(!is.na(tmpb[,20]) & is.na(tmpb[,21])),age_range + 1],2,mean,na.rm = TRUE)
-  }
-  close(pb)
+#stopCluster(cl)
 
 ### output
-  cohort <- data.frame(Year = c(rep(year_range,3)),
-                       Attack_Rate = c(apply(ar_out0,1,mean),
-                                       apply(ar_outa,1,mean),
-                                       apply(ar_outb,1,mean)),
-                       Lower = c(apply(ar_out0,1,FUN = function(x) quantile(x, c(0.025))),
-                                 apply(ar_outa,1,FUN = function(x) quantile(x, c(0.025))),
-                                 apply(ar_outb,1,FUN = function(x) quantile(x, c(0.025)))),
-                       Upper = c(apply(ar_out0,1,FUN = function(x) quantile(x, c(0.975))),
-                                 apply(ar_outa,1,FUN = function(x) quantile(x, c(0.975))),
-                                 apply(ar_outb,1,FUN = function(x) quantile(x, c(0.975)))),
-                       Age = c(rep(age_range,3)),
-                       Vac_Strategy = c(rep('No Vaccination',length(year_range)),
-                                        rep('Annual',length(year_range)),
-                                        rep('Biannual',length(year_range)))
-  )
+library(ggplot2)
+library(cowplot)
 
-  p_cohort <-
-     ggplot(data = cohort, aes(x = Year, y = Attack_Rate, colour= Vac_Strategy)) +
-     geom_line() +
-     geom_ribbon(aes(x=Year,ymin=Lower,ymax=Upper,linetype=NA,fill=Vac_Strategy),alpha=0.2)+
-     xlab('Year') +
-     ylab('Attack Rate') +
-     scale_y_continuous(limits = c(0,0.4), expand = c(0,0)) +
-     theme(panel.grid.major = element_blank(),
-           panel.grid.minor = element_blank(),
-           panel.background = element_blank(),
-           axis.line = element_line(colour = "black"),
-           legend.position = c(.95, .95),
-           legend.justification = c("right", "top"),
-           legend.box.just = "right",
-           legend.margin = margin(6, 6, 6, 6),
-           legend.key = element_rect(fill = "white")
-     )
+dat1 <- process_sim_output(sim_out, j=1, year_range = yearRange, age_range = ageRange)
+pa1 <- plot_attack_rates(dat = dat1, by_vac = TRUE, c_bands = TRUE)
+pl1 <- plot_lifetime_infections(dat = dat1, by_vac = TRUE)
 
-  #plot_attack_rates(dat = cohort, by = 'Vac_Strategy', c_bands = TRUE)
+dat2 <- process_sim_output(sim_out, j=2, year_range = yearRange, age_range = ageRange)
+pa2 <- plot_attack_rates(dat = dat2, by_vac = TRUE, c_bands = TRUE)
+pl2 <- plot_lifetime_infections(dat = dat2, by_vac = TRUE)
 
-  pdf(file = paste0(filename,"_ar.pdf"))
-  plot(p_cohort)
-  dev.off()
-  #
-  # lifetime infections
-  life_inf_dat <- data.frame(Sim = c(rep(1:sim,3)),
-                             Vac_Strategy = c(rep('No Vaccination',sim),
-                                              rep('Annual',sim),
-                                              rep('Biannual',sim)),
-                             rbind(life_inf0,life_infa,life_infb)
-  )
-  names(life_inf_dat) <- c('Sim','Vac_Strategy',c(paste0("Age",age_range)))
-  data_long <- gather(life_inf_dat, Age, Life_Inf, Age0:Age19, factor_key=TRUE)
-  data_long$Age <- as.factor(str_remove(data_long$Age, 'Age'))
+dat3 <- process_sim_output(sim_out, j=3, year_range = yearRange, age_range = ageRange)
+pa3 <- plot_attack_rates(dat = dat3, by_vac = TRUE, c_bands = TRUE)
+pl3 <- plot_lifetime_infections(dat = dat3, by_vac = TRUE)
 
-  data_long$Age = with(data_long, reorder(Age, Life_Inf, mean))
-  # boxplot
-  p1 <-
-     ggplot(data_long, aes(x = Age, y = Life_Inf,fill = Vac_Strategy)) +
-     geom_boxplot() +
-     ylab('Number of Lifetime Infections') +
-     theme(panel.grid.major = element_blank(),
-           panel.grid.minor = element_blank(),
-           panel.background = element_blank(),
-           axis.line = element_line(colour = "black"),
-           legend.position = c(.25, .95),
-           legend.justification = c("right", "top"),
-           legend.box.just = "right",
-           legend.margin = margin(6, 6, 6, 6),
-           legend.key = element_rect(fill = "white")
-     )
-  # plot_lifetime_infections(dat = data_long, by = 'Vac_Strategy')
-  pdf(file = paste0(filname,"_life_inf.pdf"))
-  plot(p1)
-  dev.off()
+dat4 <- process_sim_output(sim_out, j=4, year_range = yearRange, age_range = ageRange)
+pa4 <- plot_attack_rates(dat = dat4, by_vac = TRUE, c_bands = TRUE)
+pl4 <- plot_lifetime_infections(dat = dat4, by_vac = TRUE)
 
-}
+dat5 <- process_sim_output(sim_out, j=5, year_range = yearRange, age_range = ageRange)
+pa5 <- plot_attack_rates(dat = dat5, by_vac = TRUE, c_bands = TRUE)
+pl5 <- plot_lifetime_infections(dat = dat5, by_vac = TRUE)
 
+# plots
+theme_set(theme_cowplot(font_size=10)) # reduce default font size
+attack_rate_plot <- plot_grid(pa1, pa2, pa3, pa4, pa5, labels = "AUTO", ncol = 2,
+                              align = 'v', axis = 'l') # aligning vertically along the left axis
+lifetime_inf_plot <- plot_grid(pl1, pl2, pl3, pl4, pl5, labels = "AUTO", ncol = 2,
+                               align = 'v', axis = 'l') # aligning vertically along the left axis
 
+path <- 'C:/Users/kainslie/Google Drive/morevac_manuscript/figures/'
+
+pdf(file = paste0(path,'attack_rates_rho_',rho,'_v',version,'.pdf'))
+plot(attack_rate_plot)
+dev.off()
+
+pdf(file = paste0(path,'lifetime_infections_rho_',rho,'_v',version,'.pdf'))
+plot(lifetime_inf_plot)
+dev.off()
 

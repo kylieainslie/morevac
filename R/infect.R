@@ -12,8 +12,8 @@
 #' @export
 #' @examples
 #' infect()
-infect <- function(susceptibility = 1, foi = 0.2){
-  randnum_inf <- runif(1,0,1)
+infect <- function(susceptibility = 1, foi = 0.2, randnum_inf = runif(1,0,1)){
+  #randnum_inf <- runif(1,0,1)
 
   if (randnum_inf <= foi*susceptibility) {
     rtn <- 1
