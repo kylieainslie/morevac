@@ -4,13 +4,20 @@
 \alias{plot_lifetime_infections}
 \title{Plot multi-annual attack rates}
 \usage{
-plot_lifetime_infections(dat, by_vac = FALSE)
+plot_lifetime_infections(dat, by_vac = FALSE, no_legend = FALSE,
+  x = 0.3, y = 0.95)
 }
 \arguments{
 \item{dat}{data frame of annual attack rates. Should have two colums: Age and Life_Inf.
 If by_vac=TRUE then there should be a third column: Vac_Strategy.}
 
 \item{by_vac}{Logical. If true, lifetime infections will be plotted by vaccintion strategy.}
+
+\item{no_legend}{logical. if TRUE legend will be suppressed.}
+
+\item{x}{x-coordinate position of the legend.}
+
+\item{y}{y-coordinate postion of the legend}
 }
 \value{
 plot of lifetime infections by age.

@@ -4,7 +4,8 @@
 \alias{plot_attack_rates}
 \title{Plot multi-annual attack rates}
 \usage{
-plot_attack_rates(dat, by_vac = FALSE, c_bands = FALSE, y_max = 0.5)
+plot_attack_rates(dat, by_vac = FALSE, c_bands = FALSE, y_max = 0.5,
+  no_legend = FALSE)
 }
 \arguments{
 \item{dat}{data frame of annual attack rates. Should have two colums: Year and Attack_Rate.
@@ -15,6 +16,8 @@ If by_vac=TRUE, dat should have a third column: Vac_Strategy.}
 \item{c_bands}{logical. Plot confidence bands or not. Must have columns named Lower and Upper.}
 
 \item{y_max}{maximum value for y-axis.}
+
+\item{no_legend}{logical. if TRUE legend will be suppressed.}
 }
 \value{
 plot of multi-annual attack rates with vertical dashed line indicating year of start of

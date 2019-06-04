@@ -130,7 +130,7 @@ life_inf_dat <- data.frame(Sim = c(rep(1:sim,3)),
 )
 names(life_inf_dat) <- c('Sim','Vac_Strategy',c(paste0("Age",age_range)))
 data_long <- gather(life_inf_dat, Age, Life_Inf, Age0:Age19, factor_key=TRUE)
-data_long$Age <- as.factor(str_remove(data_long$Age, 'Age'))
+data_long$Sim <- as.factor(str_remove(data_long$Age, 'Age'))
 
 data_long$Age = with(data_long, reorder(Age, Life_Inf, mean))
 # boxplot

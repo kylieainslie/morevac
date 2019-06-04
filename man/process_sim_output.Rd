@@ -16,7 +16,9 @@ process_sim_output(sim_out, j, year_range, age_range)
 \item{age_range}{range of ages to follow cohort}
 }
 \value{
-data frame with attack rate and lifetime infections by year, age, and vaccination strategy
+list of two data frames:
+        1) data frame with attack rates averaged over simulations by year, age, and vaccination strategy
+        2) data frame with lifetime infections by simulation, year, age, and vac strategy
 }
 \description{
 This function initializes the population before running the model.

@@ -50,7 +50,7 @@ process_sim_output <- function(sim_out, j, year_range, age_range){
   tmp3$Age <- as.factor(c(rep(age_range,n_sim)))
   tmp3$Vac_Strategy <- c(rep('Biannual',dim(tmp3)[1]))
 
-  rtn_li <- cbind(tmp1,tmp2,tmp3)
+  rtn_li <- rbind(tmp1,tmp2,tmp3)
 
   return(list(rtn_ar, rtn_li))
 }
