@@ -4,12 +4,10 @@
 \alias{initialize_pop}
 \title{Initialize population}
 \usage{
-initialize_pop(nindiv = 1000, years = 200, maxage = 80)
+initialize_pop(nindiv = 1000, maxage = 80)
 }
 \arguments{
 \item{nindiv}{Number of individuals in the simulated population. Defaults to 1000.}
-
-\item{years}{Number of years to simulate over. Defaults to 200.}
 
 \item{maxage}{Maximum age of individuals after which they die and are removed from the population. Defaults to 80.}
 }

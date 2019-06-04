@@ -14,12 +14,20 @@ vac_status <- c('no vaccination', 'annual', 'biannual')
 vac_cov <- c(0, 0.25, 0.5, 0.75, 1)
 yearRange <- c(2000:2019)
 ageRange <- c(0:19)
-
+# diff vac covs
 sim_out <- foreach (j=1:5, .packages = 'morevac') %:%
             foreach (i=1:3, .packages = 'morevac') %do%
               run_sim(sim = 100,nindiv = 10000, year_range = yearRange,
                       age_range = ageRange,vaccov = vac_cov[j],
                       version = 2, rho = 0.9, flag = vac_status[i])
+
+# different rho values
+rhos <- c(0, 0.2, 0.5, 0.9)
+sim_out <- foreach (j=1:4, .packages = 'morevac') %:%
+  foreach (i=1:3, .packages = 'morevac') %do%
+  run_sim(sim = 100,nindiv = 10000, year_range = yearRange,
+          age_range = ageRange,vaccov = 0.5,
+          version = 2, rho = rhos[j], flag = vac_status[i])
 
 #stopCluster(cl)
 
@@ -49,9 +57,9 @@ pl5 <- plot_lifetime_infections(dat = dat5, by_vac = TRUE)
 
 # plots
 theme_set(theme_cowplot(font_size=10)) # reduce default font size
-attack_rate_plot <- plot_grid(pa1, pa2, pa3, pa4, pa5, labels = "AUTO", ncol = 2,
+attack_rate_plot <- plot_grid(pa1, pa2, pa3, pa4, labels = "AUTO", ncol = 2,
                               align = 'v', axis = 'l') # aligning vertically along the left axis
-lifetime_inf_plot <- plot_grid(pl1, pl2, pl3, pl4, pl5, labels = "AUTO", ncol = 2,
+lifetime_inf_plot <- plot_grid(pl1, pl2, pl3, pl4, labels = "AUTO", ncol = 2,
                                align = 'v', axis = 'l') # aligning vertically along the left axis
 
 path <- 'C:/Users/kainslie/Google Drive/morevac_manuscript/figures/'

@@ -8,7 +8,7 @@ multiannual2(n = 1000, years = 200, maxage = 80, start_year = 1820,
   start_vac_year = 2000, start_vac_age = 3, vac_coverage = 0.5,
   beta_pandemic = 0.4, beta_epidemic = 0.15, delta_x = 0.2,
   delta_v = 0.2, mygamma = 0.4, suscept_func_version = 1,
-  biannual = FALSE)
+  biannual = FALSE, rho = 0, return_ar_only = 0)
 }
 \arguments{
 \item{n}{number of individuals to be simulated}
@@ -37,6 +37,10 @@ multiannual2(n = 1000, years = 200, maxage = 80, start_year = 1820,
 1 = either-or, 2 = multiplicative.}
 
 \item{biannual}{logical. annual or biannual vaccination?}
+
+\item{rho}{correlation of vaccination}
+
+\item{return_ar_only}{0 = no, 1 = return annual attack rates, 2 = return attack rate by age}
 
 \item{vac_start_year}{year that vaccination starts}
 }

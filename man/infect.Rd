@@ -4,7 +4,7 @@
 \alias{infect}
 \title{Infection function}
 \usage{
-infect(susceptibility = 1, foi = 0.2)
+infect(susceptibility = 1, foi = 0.2, randnum_inf = runif(1, 0, 1))
 }
 \arguments{
 \item{susceptibility}{Value of an individual's susceptibility.}

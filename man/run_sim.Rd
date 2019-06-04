@@ -5,7 +5,8 @@
 \title{Run simulations of multi-annual model of infection and vaccination}
 \usage{
 run_sim(sim = 100, nindiv = 1000, year_range, age_range,
-  vaccov = 0.5, filename = "test", version = 1)
+  vaccov = 0.5, version = 1, biannual = FALSE, rho = 0,
+  flag = "annual")
 }
 \arguments{
 \item{sim}{number of simulations to run}
@@ -18,9 +19,9 @@ run_sim(sim = 100, nindiv = 1000, year_range, age_range,
 
 \item{vaccov}{vaccination coverage, should be between 0 and 1 (inclusive)}
 
-\item{filename}{prefix of outputted figures}
-
 \item{version}{which vaccination version to use: 1 = either-or, 2 = multiplicative}
+
+\item{filename}{prefix of outputted figures}
 }
 \value{
 two plots 1) plot of annual attack rates for the cohort and 2) a plot of number of lifetime infections by age
