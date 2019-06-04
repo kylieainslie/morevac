@@ -36,24 +36,24 @@ library(ggplot2)
 library(cowplot)
 
 dat1 <- process_sim_output(sim_out, j=1, year_range = yearRange, age_range = ageRange)
-pa1 <- plot_attack_rates(dat = dat1, by_vac = TRUE, c_bands = TRUE)
-pl1 <- plot_lifetime_infections(dat = dat1, by_vac = TRUE)
+pa1 <- plot_attack_rates(dat = dat1[[1]], by_vac = TRUE, c_bands = TRUE)
+pl1 <- plot_lifetime_infections(dat = dat1[[2]], by_vac = TRUE, x=0.5)
 
 dat2 <- process_sim_output(sim_out, j=2, year_range = yearRange, age_range = ageRange)
-pa2 <- plot_attack_rates(dat = dat2, by_vac = TRUE, c_bands = TRUE)
-pl2 <- plot_lifetime_infections(dat = dat2, by_vac = TRUE)
+pa2 <- plot_attack_rates(dat = dat2[[1]], by_vac = TRUE, c_bands = TRUE, no_legend = TRUE)
+pl2 <- plot_lifetime_infections(dat = dat2[[2]], by_vac = TRUE, no_legend = TRUE)
 
 dat3 <- process_sim_output(sim_out, j=3, year_range = yearRange, age_range = ageRange)
-pa3 <- plot_attack_rates(dat = dat3, by_vac = TRUE, c_bands = TRUE)
-pl3 <- plot_lifetime_infections(dat = dat3, by_vac = TRUE)
+pa3 <- plot_attack_rates(dat = dat3[[1]], by_vac = TRUE, c_bands = TRUE, no_legend = TRUE)
+pl3 <- plot_lifetime_infections(dat = dat3[[2]], by_vac = TRUE, no_legend = TRUE)
 
 dat4 <- process_sim_output(sim_out, j=4, year_range = yearRange, age_range = ageRange)
-pa4 <- plot_attack_rates(dat = dat4, by_vac = TRUE, c_bands = TRUE)
-pl4 <- plot_lifetime_infections(dat = dat4, by_vac = TRUE)
+pa4 <- plot_attack_rates(dat = dat4[[1]], by_vac = TRUE, c_bands = TRUE, no_legend = TRUE)
+pl4 <- plot_lifetime_infections(dat = dat4[[2]], by_vac = TRUE, no_legend = TRUE)
 
 dat5 <- process_sim_output(sim_out, j=5, year_range = yearRange, age_range = ageRange)
-pa5 <- plot_attack_rates(dat = dat5, by_vac = TRUE, c_bands = TRUE)
-pl5 <- plot_lifetime_infections(dat = dat5, by_vac = TRUE)
+pa5 <- plot_attack_rates(dat = dat5[[1]], by_vac = TRUE, c_bands = TRUE, no_legend = TRUE)
+pl5 <- plot_lifetime_infections(dat = dat5[[2]], by_vac = TRUE, no_legend = TRUE)
 
 # plots
 theme_set(theme_cowplot(font_size=10)) # reduce default font size
@@ -62,13 +62,15 @@ attack_rate_plot <- plot_grid(pa1, pa2, pa3, pa4, labels = "AUTO", ncol = 2,
 lifetime_inf_plot <- plot_grid(pl1, pl2, pl3, pl4, labels = "AUTO", ncol = 2,
                                align = 'v', axis = 'l') # aligning vertically along the left axis
 
-path <- 'C:/Users/kainslie/Google Drive/morevac_manuscript/figures/'
+filename <- c('attack_rates_by_rho_vc0.5','lifetime_infections_by_rho_vc0.5')
+path <- '/Users/Kylie/Google Drive/morevac_manuscript/presentations/MRC symposium'
+setwd(path)
 
-pdf(file = paste0(path,'attack_rates_rho_',rho,'_v',version,'.pdf'))
+jpeg(file = paste0(filename[1],'.jpeg'))
 plot(attack_rate_plot)
 dev.off()
 
-pdf(file = paste0(path,'lifetime_infections_rho_',rho,'_v',version,'.pdf'))
+jpeg(file = paste0(filename[2],'.jpeg'))
 plot(lifetime_inf_plot)
 dev.off()
 
