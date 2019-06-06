@@ -7,7 +7,7 @@
 #' This function initializes the population before running the model.
 #' @param inf_history Number years since last infection
 #' @param vac_history Number of years since last vaccination
-#' @param ve Vaccine efficacy
+#' @param gamma Vaccine efficacy
 #' @param drift_x Amount of drift from infection
 #' @param drift_v Amount of drift from vaccination
 #' @param version Which susceptibility function to use: 1 = either-or, 2 = multiplicative
@@ -16,7 +16,7 @@
 #' @export
 #' @examples
 #' suscept_func()
-suscept_func <- function(inf_history, vac_history = 999, ve = 0.4, drift_x = 0.2, drift_v = 0.2, version = 1){
+suscept_func <- function(inf_history, vac_history = 999, gamma = 0.4, drift_x = 0.2, drift_v = 0.2, version = 1){
   # version = 1 is either-or
   # version = 2 is multiplicative
 
@@ -31,7 +31,7 @@ suscept_func <- function(inf_history, vac_history = 999, ve = 0.4, drift_x = 0.2
       if (vac_history > 1/drift_v){ # never vaccinated or vaccinated long enough ago for drift to have diminished protection
         rtn <- 1
       } else if (vac_history <= 1/drift_v){ # vaccinated this year or within last few years
-        rtn <- (vac_ind*ve) + (vac_history*drift_v)
+        rtn <- (vac_ind*gamma) + (vac_history*drift_v)
       }
     }
 
@@ -45,9 +45,9 @@ suscept_func <- function(inf_history, vac_history = 999, ve = 0.4, drift_x = 0.2
         }
       } else if (vac_history <= 1/drift_v){ # vaccinated
           if (version == 1){
-            rtn <- min(inf_history*drift_x,(vac_ind*ve)+(vac_history*drift_v)) # either-or
+            rtn <- min(inf_history*drift_x,(vac_ind*gamma)+(vac_history*drift_v)) # either-or
           } else if (version == 2) {
-            rtn <- inf_history*drift_x * (ve +(vac_history*drift_v)) # multiplicative
+            rtn <- inf_history*drift_x * (gamma +(vac_history*drift_v)) # multiplicative
           }
       }
     }
