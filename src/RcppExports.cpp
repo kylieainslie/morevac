@@ -5,22 +5,6 @@
 
 using namespace Rcpp;
 
-// suscept_func_cpp
-double suscept_func_cpp(int inf_history, int vac_history, double gamma, double drift_x, double drift_v, int version);
-RcppExport SEXP _morevac_suscept_func_cpp(SEXP inf_historySEXP, SEXP vac_historySEXP, SEXP gammaSEXP, SEXP drift_xSEXP, SEXP drift_vSEXP, SEXP versionSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type inf_history(inf_historySEXP);
-    Rcpp::traits::input_parameter< int >::type vac_history(vac_historySEXP);
-    Rcpp::traits::input_parameter< double >::type gamma(gammaSEXP);
-    Rcpp::traits::input_parameter< double >::type drift_x(drift_xSEXP);
-    Rcpp::traits::input_parameter< double >::type drift_v(drift_vSEXP);
-    Rcpp::traits::input_parameter< int >::type version(versionSEXP);
-    rcpp_result_gen = Rcpp::wrap(suscept_func_cpp(inf_history, vac_history, gamma, drift_x, drift_v, version));
-    return rcpp_result_gen;
-END_RCPP
-}
 // infect_cpp
 int infect_cpp(double susceptibility, double foi, double randnum_inf);
 RcppExport SEXP _morevac_infect_cpp(SEXP susceptibilitySEXP, SEXP foiSEXP, SEXP randnum_infSEXP) {
@@ -47,11 +31,27 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// suscept_func_cpp
+double suscept_func_cpp(int inf_history, int vac_history, double gamma, double drift_x, double drift_v, int version);
+RcppExport SEXP _morevac_suscept_func_cpp(SEXP inf_historySEXP, SEXP vac_historySEXP, SEXP gammaSEXP, SEXP drift_xSEXP, SEXP drift_vSEXP, SEXP versionSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type inf_history(inf_historySEXP);
+    Rcpp::traits::input_parameter< int >::type vac_history(vac_historySEXP);
+    Rcpp::traits::input_parameter< double >::type gamma(gammaSEXP);
+    Rcpp::traits::input_parameter< double >::type drift_x(drift_xSEXP);
+    Rcpp::traits::input_parameter< double >::type drift_v(drift_vSEXP);
+    Rcpp::traits::input_parameter< int >::type version(versionSEXP);
+    rcpp_result_gen = Rcpp::wrap(suscept_func_cpp(inf_history, vac_history, gamma, drift_x, drift_v, version));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_morevac_suscept_func_cpp", (DL_FUNC) &_morevac_suscept_func_cpp, 6},
     {"_morevac_infect_cpp", (DL_FUNC) &_morevac_infect_cpp, 3},
     {"_morevac_lifetime_infections_cpp", (DL_FUNC) &_morevac_lifetime_infections_cpp, 3},
+    {"_morevac_suscept_func_cpp", (DL_FUNC) &_morevac_suscept_func_cpp, 6},
     {NULL, NULL, 0}
 };
 
