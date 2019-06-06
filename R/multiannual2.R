@@ -116,7 +116,7 @@ multiannual2 <- function(n = 1000,
             } else {vac_hist_mat[i,a] <- 0}
          } else {vac_hist_mat[i,a] <- 0}
         #print(vac_hist_mat[i,])
-
+        #print(x[i,a])
       # calculate susceptibility function for person i
         suscept_mat[i,a] <- suscept_func_cpp(inf_history = x[i,a],
                                              vac_history = v[i,a],
