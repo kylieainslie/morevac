@@ -8,7 +8,7 @@
   library(stringr)
 
 # load morevac package
-#  setwd("C:/Users/kainslie/Google Drive/morevac")
+#  setwd("C:/Users/kainslie/Documents/GitHub/morevac")
   setwd("~/Documents/morevac")
   devtools::load_all()
 
