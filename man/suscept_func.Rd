@@ -4,15 +4,15 @@
 \alias{suscept_func}
 \title{Susceptibility function}
 \usage{
-suscept_func(inf_history, vac_history = 999, ve = 0.4, drift_x = 0.2,
-  drift_v = 0.2, version = 1)
+suscept_func(inf_history, vac_history = 999, gamma = 0.4,
+  drift_x = 0.2, drift_v = 0.2, version = 1)
 }
 \arguments{
 \item{inf_history}{Number years since last infection}
 
 \item{vac_history}{Number of years since last vaccination}
 
-\item{ve}{Vaccine efficacy}
+\item{gamma}{Vaccine efficacy}
 
 \item{drift_x}{Amount of drift from infection}
 

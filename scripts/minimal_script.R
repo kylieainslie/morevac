@@ -9,7 +9,7 @@
 
 # load morevac package
 #  setwd("C:/Users/kainslie/Documents/GitHub/morevac")
-  setwd("~/Documents/morevac")
+#  setwd("~/Documents/morevac")
   devtools::load_all()
 
 # run multi-annual model

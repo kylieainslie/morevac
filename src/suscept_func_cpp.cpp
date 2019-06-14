@@ -14,11 +14,14 @@ using namespace Rcpp;
 // @keywords morevac
 // @export
 // [[Rcpp::export]]
-double suscept_func_cpp(int inf_history, int vac_history,
-                        double gamma, double drift_x,
-                        double drift_v, int version) {
+double suscept_func_cpp(int inf_history,
+                        int vac_history,
+                        double gamma,
+                        double drift_x,
+                        double drift_v,
+                        int version) {
 
-  double vac_ind = 0; // initialize vac_ind
+  int vac_ind = 0; // initialize vac_ind
   double rtn = 0;     // initialize return value
 
 // vaccinated in current year
