@@ -4,8 +4,9 @@ library(foreach)
 library(doParallel)
 
 # make cluster
-# cl <- makeCluster(2)
-# registerDoParallel(cl)
+ ncl <- detectCores()
+ cl <- makeCluster(ncl)
+ registerDoParallel(cl)
 # clusterEvalQ(cl, library(morevac))
 # clusterExport(cl, list=ls())
 # test <- foreach(i=1:5, .packages = 'morevac') %dopar% initialize_pop()
@@ -15,11 +16,11 @@ vac_cov <- c(0, 0.25, 0.5, 0.75, 1)
 yearRange <- c(2000:2019)
 ageRange <- c(0:19)
 # diff vac covs
-sim_out <- foreach (j=1:5, .packages = 'morevac') %:%
-            foreach (i=1:3, .packages = 'morevac') %do%
-              run_sim(sim = 100,nindiv = 10000, year_range = yearRange,
+sim_out <- foreach (j=1:5, .packages = c('morevac','Rcpp')) %:%
+            foreach (i=1:3, .packages = c('morevac','Rcpp')) %dopar%
+              run_sim(sim = 10,nindiv = 10000, year_range = yearRange,
                       age_range = ageRange,vaccov = vac_cov[j],
-                      version = 2, rho = 0.9, flag = vac_status[i])
+                      version = 1, rho = 0, flag = vac_status[i])
 
 # different rho values
 rhos <- c(0, 0.2, 0.5, 0.9)
