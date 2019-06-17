@@ -48,7 +48,7 @@ double suscept_func_cpp(int inf_history,
         }
       } else if (vac_history <= 1/drift_v){ // vaccinated
         if (version == 1){
-          rtn = MIN(inf_history*drift_x,(vac_ind*gamma)+(vac_history*drift_v)); // either-or
+          rtn = std::min(inf_history*drift_x,(vac_ind*gamma)+(vac_history*drift_v)); // either-or
         } else if (version == 2) {
           rtn = inf_history*drift_x * (gamma +(vac_history*drift_v)); // multiplicative
         }
