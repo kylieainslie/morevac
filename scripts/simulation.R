@@ -18,7 +18,7 @@ ageRange <- c(0:19)
 # diff vac covs
 sim_out <- foreach (j=1:5, .packages = c('morevac','Rcpp')) %:%
             foreach (i=1:3, .packages = c('morevac','Rcpp')) %dopar%
-              run_sim(sim = 10,nindiv = 10000, year_range = yearRange,
+              run_sim(sim = 10,nindiv = 1000, year_range = yearRange,
                       age_range = ageRange,vaccov = vac_cov[j],
                       version = 1, rho = 0, flag = vac_status[i])
 

@@ -23,7 +23,8 @@ run_sim <- function(sim = 100,
                     version = 1,
                     biannual = FALSE,
                     rho = 0,
-                    flag = 'annual'){
+                    flag = 'annual',
+                    file.out = FALSE){
 
 ### create empty arrays for storing information about each simulation
   out <- array(NA,dim=c(200,80,sim))
@@ -38,11 +39,11 @@ run_sim <- function(sim = 100,
   # determine scenario by flag
     if (flag == 'no vaccination'){
       vaccov <- 0
-      vac_strat <- FALSE
+      vac_strat <- 1
     } else if (flag == 'annual'){
-      vac_strat <- FALSE
+      vac_strat <- 1
     } else if (flag == 'biannual'){
-      vac_strat <- TRUE
+      vac_strat <- 2
     }
 ### create progress bar
   pb <- txtProgressBar(min = 0, max = sim, style = 3)
@@ -55,7 +56,7 @@ run_sim <- function(sim = 100,
     # run model
     test <- multiannual2(n = nindiv, vac_coverage = vaccov,
                          suscept_func_version = version,
-                         biannual = vac_strat,  rho = rho
+                         vac_strategy = vac_strat,  rho = rho
                          )
     # attack rate by age
     out[,,s] <- test$attack_rate_by_age
@@ -66,7 +67,10 @@ run_sim <- function(sim = 100,
     lti_out[,s] <- lifetime_inf[length(age_range),1:length(age_range)]
   }
   close(pb)
-
+  if (file.out == TRUE){
+    write.csv(attack_rate,file = 'attack_rate_data.csv')
+    write.csv(lti_out,file = 'lifetime_inf_data.csv')
+  }
   return(list(attack_rate = ar_out,
               lifetime_infections = lti_out)
         )
