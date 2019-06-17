@@ -3,51 +3,67 @@ using namespace Rcpp;
 
 // Vaccinate function
 //
-// @param susceptibility Value of an individual's susceptibility.
-// @param foi Number between 0 and 1 indicating the force of infection.
-// @param randnum_inf Random number between 0 and 1.
-// @return Indicator of infection (0 = not infected, 1 = infected).
+// @param prior_vac Indicator of vaccination in previous year (0=no, 1=yes).
+// @param even_year Indicator of whether the current year is an even year (0=no, 1=yes).
+// @param vac_cov Number between 0 and 1 (inclusive) indicacting percentage of vaccination coverage.
+// @param vac_strategy Vaccination strategy (1=annual, 2=biannual).
+// @param age Integer value of age.
+// @param rho Number between 0 and 1 (inclusive) indicacting correlation of prior vaccination.
+// @param randnum_vac Random number between 0 and 1.
+// @param actual_year integer, YYYY year during simulation.
+// @param start_vac_year integer of first vaccination year (YYYY)
+// @param start_vac_age Integer value of start age of vaccination.
+// @return Indicator of vaccination (0 = unvaccinated, 1 = vaccinated).
 // @keywords morevac
 // @export
 // [[Rcpp::export]]
-int vaccinate_cpp(int vac_history,
-                  int year,
+int vaccinate_cpp(int prior_vac,
+                  int even_year,
                   double vac_cov,
                   int vac_strategy,
                   int age,
                   double rho,
                   double randnum_vac,
                   int actual_year,
-                  int start_vac_year){
+                  int start_vac_year,
+                  int start_vac_age){
 
   int rtn = 0;
 
-// determine who will be vaccinated
-  if (actual_year >= start_vac_year & age >= start_vac_age){
-
-// incorporate prior vaccination
-    if (biannual & (year_counter %% 2) != 0){
-      if (a > 2 & vac_hist_mat[i,a-2] == 1){rn_vac[i] <- rn_vac[i] * (1-rho)}
-    } else {
-      if (a > 1 & vac_hist_mat[i,a-1] == 1){rn_vac[i] <- rn_vac[i] * (1-rho)}
+// don't vaccinate if it's not a vaccination year or individual is not old enough
+  if (actual_year < start_vac_year || age < start_vac_age){
+    return(rtn);
+  }
+// if it's a vaccination year & individual is old enough -> possibly vaccination
+  if (actual_year >= start_vac_year && age >= start_vac_age){
+// determine vaccination probability by incorporating prior vaccination
+    if (prior_vac == 1){
+      randnum_vac = randnum_vac * (1-rho);
     }
-
 // vaccinate
-    if (rn_vac[i] <= vac_cov & actual_year >= start_vac_year){
-      if (biannual == FALSE) {
-        rtn <- 1
+  if (randnum_vac <= vac_cov){
+      if (vac_strategy == 1) {
+        rtn = 1;
+      } else if (vac_strategy == 2 && even_year == 1){
+        rtn = 1;
+      } else {rtn = 0;}
+    } else {rtn = 0;}
+  } else {rtn = 0;}
 
-      } else if (biannual == TRUE & (year_counter %% 2) != 0){
-        rtn <- 1
-      } else {rtn <- 0}
-    } else {rtn <- 0}
-} else {rtn <- 0}
-
-return(rtn)
+return(rtn);
 }
 
 /*** R
-vaccinate_cpp(susceptibility = 0.5, foi = 0.15, randnum_inf = 0.05)
+vaccinate_cpp(prior_vac = 1,
+              even_year = 1,
+              vac_cov = 0.5,
+              vac_strategy = 2,
+              age = 5,
+              rho = 0,
+              randnum_vac = 0.7,
+              actual_year = 2008,
+              start_vac_year=2000,
+              start_vac_age=3)
 */
 
 
