@@ -18,7 +18,7 @@
 #' @param mygamma protective effect of vaccine
 #' @param suscept_func_version integer indicating which susceptibility version to use.
 #'        1 = either-or, 2 = multiplicative.
-#' @param biannual logical. annual or biannual vaccination?
+#' @param vac_strategy Integer value indicating frequency of vaccination (1 = annual, 2 = biannual, 3 =triannual,...)
 #' @param rho correlation of vaccination
 #' @param return_ar_only 0 = no, 1 = return annual attack rates, 2 = return attack rate by age
 #' @return list with two elements: 1) a list of infection histories and attack rates and
@@ -38,11 +38,11 @@ multiannual2 <- function(n = 1000,
                          delta_v = 0.2,
                          mygamma = 0.4,
                          suscept_func_version = 1,
-                         biannual = FALSE,
+                         vac_strategy = 1,
                          rho = 0,
                          return_ar_only = 0
                          ){
-
+# initialize the population
   init <- initialize_pop(nindiv = n, maxage = maxage)
   # rename matrix from init array
   inf_hist_mat <- init[,,1]
@@ -51,7 +51,6 @@ multiannual2 <- function(n = 1000,
              x <- init[,,4]
              v <- init[,,5]
   #lifetime_inf <- init[,,6]
-
   ages <- as.numeric(rownames(init))
 
   end_year <- start_year + years - 1
@@ -60,26 +59,26 @@ multiannual2 <- function(n = 1000,
   attack_rate_by_age <- matrix(c(rep(NA, years*maxage)),nrow = years)
   colnames(attack_rate_by_age) <- c(paste0("Age",0:(maxage-1)))
   rownames(attack_rate_by_age) <- start_year:end_year
-
   # year counter
     year_counter <- 1
     actual_year <- start_year
-  # start loop over years
+    if (actual_year %% 2 == 0){
+      ey <-1
+    } else {ey <- 0}
+# start loop over years
   while (year_counter < years+1){
-    #print(year_counter)
-    #print(lifetime_inf)
     inf_counter <- matrix(c(rep(0,maxage*2)),nrow=2)
     rownames(inf_counter) <- c('number_of_infections','n_age')
     colnames(inf_counter) <- c(paste0("Age",0:(maxage-1)))
 
-    # turn off vaccination until start_vac_year
+  # turn off vaccination until start_vac_year
     if (actual_year<start_vac_year){vc <- 0
     } else {vc <- vac_coverage}
 
-    # generate random numbers for infection and vaccination
+  # generate random numbers for infection and vaccination
     rn_inf <- runif(n,0,1)
     rn_vac <- runif(n,0,1)
-    # loop over individuals
+  # loop over individuals
       i <- 1
     while(i < n+1){
       #print(i)
@@ -91,30 +90,39 @@ multiannual2 <- function(n = 1000,
       if(is.na(inf_hist_mat[i,a])){inf_hist_mat[i,a]<-0}
       if(is.na(vac_hist_mat[i,a])){vac_hist_mat[i,a]<-0}
 
+      if (a-vac_strategy < 1){prior_vac <- 0
+      } else {prior_vac <- vac_hist_mat[i,a-vac_strategy]}
       # determine who will be vaccinated
-        if (actual_year >= start_vac_year & ages[i] >= start_vac_age){
-        #  vac_hist_mat[i,a] <- vaccinate(year = year_counter, vc = vc, vac_strategy = biannual)
-        # } else {vac_hist_mat[i,a] <- 0} # set vaccination status to 0 for current year
-
-        # v[i,a] <- v[i,a]*(1-vac_hist_mat[i,a])
-        # incorporate prior vaccination
-          if (biannual & (year_counter %% 2) != 0){
-            if (a > 2 & vac_hist_mat[i,a-2] == 1){rn_vac[i] <- rn_vac[i] * (1-rho)}
-          } else {
-            if (a > 1 & vac_hist_mat[i,a-1] == 1){rn_vac[i] <- rn_vac[i] * (1-rho)}
-          }
-
-         # vaccinate
-           if (rn_vac[i] <= vc & actual_year >= start_vac_year){
-             if (biannual == FALSE) {
-                vac_hist_mat[i,a] <- 1
-                v[i,a] <- 0
-              } else if (biannual == TRUE & (year_counter %% 2) != 0){
-                      vac_hist_mat[i,a] <- 1
-                      v[i,a] <- 0
-              } else {vac_hist_mat[i,a] <- 0}
-            } else {vac_hist_mat[i,a] <- 0}
-         } else {vac_hist_mat[i,a] <- 0}
+       vac_hist_mat[i,a] <- vaccinate_cpp(prior_vac = prior_vac,
+                                          even_year = ey,
+                                          vac_cov = vc,
+                                          vac_strategy = vac_strategy,
+                                          age = ages[i],
+                                          rho = rho,
+                                          randnum_vac = rn_vac[i],
+                                          actual_year = actual_year,
+                                          start_vac_year = start_vac_year,
+                                          start_vac_age = start_vac_age)
+        v[i,a] <- v[i,a]*(1-vac_hist_mat[i,a])
+        # if (actual_year >= start_vac_year & ages[i] >= start_vac_age){
+        # # incorporate prior vaccination
+        #   if (vac_strategy & (year_counter %% 2) != 0){
+        #     if (a > 2 & vac_hist_mat[i,a-2] == 1){rn_vac[i] <- rn_vac[i] * (1-rho)}
+        #   } else {
+        #     if (a > 1 & vac_hist_mat[i,a-1] == 1){rn_vac[i] <- rn_vac[i] * (1-rho)}
+        #   }
+        #
+        #  # vaccinate
+        #    if (rn_vac[i] <= vc & actual_year >= start_vac_year){
+        #      if (vac_strategy == FALSE) {
+        #         vac_hist_mat[i,a] <- 1
+        #         v[i,a] <- 0
+        #       } else if (vac_strategy == TRUE & (year_counter %% 2) != 0){
+        #               vac_hist_mat[i,a] <- 1
+        #               v[i,a] <- 0
+        #       } else {vac_hist_mat[i,a] <- 0}
+        #     } else {vac_hist_mat[i,a] <- 0}
+        #  } else {vac_hist_mat[i,a] <- 0}
         #print(vac_hist_mat[i,])
         #print(x[i,a])
       # calculate susceptibility function for person i
