@@ -1,5 +1,5 @@
 ### For cluster
-setwd('/Volumes/kainslie/morevac_sims/data')
+setwd('/Volumes/kainslie/cluster')
 # set up your details and which cluster you want (big or small)
 options(didehpc.username = "kainslie",
         didehpc.cluster = "small")
