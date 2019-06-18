@@ -1,5 +1,5 @@
 ### For cluster
-setwd('/Volumes/kainslie')
+setwd('/Volumes/kainslie/morevac_sims/data')
 # set up your details and which cluster you want (big or small)
 options(didehpc.username = "kainslie",
         didehpc.cluster = "small")
@@ -11,8 +11,7 @@ root <- "contexts"
 # setting up the context: what files need to be sourced for your function to work, what packages you need
 # package sources only required here because the package I am using is not on CRAN
 ctx <- context::context_save(path = root,
-                             packages = c("morevac","ggplot2","reshape2","stringr",
-                                          "foreach","parallel","cowplot","doParallel"),
+                             packages = c("morevac","Rcpp"),
                              package_sources = provisionr::package_sources(github = "kylieainslie/morevac")
                              )
 
@@ -20,8 +19,14 @@ ctx <- context::context_save(path = root,
 obj <- didehpc::queue_didehpc(ctx)
 
 # 'job' is the thing I am running on the cluster
-job1 <- obj$enqueue(sim_for_cluster_func(s = 100, n = 10000, v = 1, r = 0.9))
-job2 <- obj$enqueue(sim_for_cluster_func(s = 100, n = 10000, v = 2, r = 0.5))
 
+job1 <- obj$enqueue(run_sim(sim = 10,nindiv = 1000,vaccov = 0,version = 1,
+                            rho = 0, vac_strategy = 0,file.out = TRUE))
+
+job2 <- obj$enqueue(run_sim(sim = 10,nindiv = 1000,vaccov = 0,version = 1,
+                            rho = 0, vac_strategy = 1,file.out = TRUE))
+
+job3 <- obj$enqueue(run_sim(sim = 10,nindiv = 1000,vaccov = 0,version = 1,
+                            rho = 0, vac_strategy = 3,file.out = TRUE))
 
 
