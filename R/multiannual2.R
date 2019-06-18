@@ -72,6 +72,7 @@ multiannual2 <- function(n = 1000,
     colnames(inf_counter) <- c(paste0("Age",0:(maxage-1)))
 
   # turn off vaccination until start_vac_year
+    if (vac_strategy == 0) {vac_coverage <- 0}
     if (actual_year<start_vac_year){vc <- 0
     } else {vc <- vac_coverage}
 
