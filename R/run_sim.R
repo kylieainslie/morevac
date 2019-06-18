@@ -59,7 +59,7 @@ run_sim <- function(sim = 100,
   }
   close(pb)
   if (file.out == TRUE){
-    cat("Writing output to file...")
+    cat("Writing output to file...","\n")
     write.csv(ar_out,file = 'attack_rate_data.csv')
     write.csv(lti_out,file = 'lifetime_inf_data.csv')
   }
