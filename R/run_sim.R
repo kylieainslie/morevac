@@ -23,7 +23,8 @@ run_sim <- function(sim = 100,
                     version = 1,
                     vac_strategy = 1,
                     rho = 0,
-                    file.out = FALSE){
+                    file.out = FALSE,
+                    tag = ""){
 
 ### create empty arrays for storing information about each simulation
   out <- array(NA,dim=c(200,80,sim))
@@ -61,9 +62,9 @@ run_sim <- function(sim = 100,
   if (file.out == TRUE){
     cat("Writing output to file...","\n")
     write.csv(ar_out,
-              file = '/Volumes/kainslie/morevac_sims/data/attack_rate_data.csv')
+              file = paste0('attack_rate_data_',tag,'.csv'))
     write.csv(lti_out,
-              file = '/Volumes/kainslie/morevac_sims/data/lifetime_inf_data.csv')
+              file = paste0('lifetime_inf_data_',tag,'.csv'))
   }
   return(list(attack_rate = ar_out,
               lifetime_infections = lti_out)
