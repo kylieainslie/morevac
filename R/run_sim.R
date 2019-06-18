@@ -60,8 +60,10 @@ run_sim <- function(sim = 100,
   close(pb)
   if (file.out == TRUE){
     cat("Writing output to file...","\n")
-    write.csv(ar_out,file = 'attack_rate_data.csv')
-    write.csv(lti_out,file = 'lifetime_inf_data.csv')
+    write.csv(ar_out,
+              file = '/Volumes/kainslie/morevac_sims/data/attack_rate_data.csv')
+    write.csv(lti_out,
+              file = '/Volumes/kainslie/morevac_sims/data/lifetime_inf_data.csv')
   }
   return(list(attack_rate = ar_out,
               lifetime_infections = lti_out)
