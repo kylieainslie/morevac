@@ -21,12 +21,12 @@ obj <- didehpc::queue_didehpc(ctx)
 # 'job' is the thing I am running on the cluster
 
 job1 <- obj$enqueue(run_sim(sim = 10,nindiv = 1000,vaccov = 0,version = 1,
-                            rho = 0, vac_strategy = 0,file.out = TRUE))
+                            rho = 0, vac_strategy = 0,file.out = TRUE,tag = ""))
 
 job2 <- obj$enqueue(run_sim(sim = 10,nindiv = 1000,vaccov = 0,version = 1,
                             rho = 0, vac_strategy = 1,file.out = TRUE))
 
 job3 <- obj$enqueue(run_sim(sim = 10,nindiv = 1000,vaccov = 0,version = 1,
-                            rho = 0, vac_strategy = 3,file.out = TRUE))
+                            rho = 0, vac_strategy = 2,file.out = TRUE))
 
 
