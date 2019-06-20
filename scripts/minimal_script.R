@@ -21,3 +21,6 @@
   # plot lifetime infections
   inf_dat <- out$history[,,1]
   lifetime_inf <- get_lifetime_inf(inf_history = inf_dat, ages = 1:80, maxage = 80)
+
+### checking version 2
+  test <- multiannual2(vac_coverage = 0.25, suscept_func_version = 2)
