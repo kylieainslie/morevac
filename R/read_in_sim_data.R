@@ -8,7 +8,7 @@
 #' @return list of attack rate and lifetime infections data for each vac scenario
 #' @keywords morevac
 #' @export
-read_in_sim_data <- function(tags){
+read_in_sim_data <- function(tags, ve = FALSE){
 
   rtn <- list(no_vac = list(attack_rate = read.csv(file = paste0("attack_rates/attack_rate_data_",tags[1],".csv"),header = TRUE)[,-1],
                             lifetime_infections = read.csv(file = paste0("lifetime_infections/lifetime_inf_data_",tags[1],".csv"),header = TRUE)[,-1]),
@@ -16,7 +16,19 @@ read_in_sim_data <- function(tags){
                             lifetime_infections = read.csv(file = paste0("lifetime_infections/lifetime_inf_data_",tags[2],".csv"),header = TRUE)[,-1]),
               biannual = list(attack_rate = read.csv(file = paste0("attack_rates/attack_rate_data_",tags[3],".csv"),header = TRUE)[,-1],
                               lifetime_infections = read.csv(file = paste0("lifetime_infections/lifetime_inf_data_",tags[3],".csv"),header = TRUE)[,-1])
-  )
+              )
+  if (ve == TRUE){
+    rtn <- list(no_vac = list(attack_rate = read.csv(file = paste0("attack_rates/attack_rate_data_",tags[1],".csv"),header = TRUE)[,-1],
+                              lifetime_infections = read.csv(file = paste0("lifetime_infections/lifetime_inf_data_",tags[1],".csv"),header = TRUE)[,-1],
+                              ve = read.csv(file = paste0("ve/ve_data_",tags[1],".csv"),header = TRUE)[,-1]),
+                annual = list(attack_rate = read.csv(file = paste0("attack_rates/attack_rate_data_",tags[2],".csv"),header = TRUE)[,-1],
+                              lifetime_infections = read.csv(file = paste0("lifetime_infections/lifetime_inf_data_",tags[2],".csv"),header = TRUE)[,-1],
+                              ve = read.csv(file = paste0("ve/ve_data_",tags[2],".csv"),header = TRUE)[,-1]),
+                biannual = list(attack_rate = read.csv(file = paste0("attack_rates/attack_rate_data_",tags[3],".csv"),header = TRUE)[,-1],
+                                lifetime_infections = read.csv(file = paste0("lifetime_infections/lifetime_inf_data_",tags[3],".csv"),header = TRUE)[,-1],
+                                ve = read.csv(file = paste0("ve/ve_data_",tags[3],".csv"),header = TRUE)[,-1])
+                )
+  }
 
   return(rtn)
 

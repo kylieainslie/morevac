@@ -24,6 +24,7 @@ run_sim <- function(sim = 100,
                     vac_strategy = 1,
                     rho = 0,
                     file.out = FALSE,
+                    ve.out = FALSE,
                     tag = ""){
 
 ### create empty arrays for storing information about each simulation
@@ -35,6 +36,8 @@ run_sim <- function(sim = 100,
   lti_out <- matrix(c(rep(NA,sim*length(year_range))),nrow=length(year_range))
   rownames(lti_out) <- age_range
   colnames(lti_out) <- paste0(c(rep("sim",sim)),1:sim)
+  ve_out <- lti_out
+  rownames(ve_out) <- year_range
 
   if (vac_strategy == 0){vaccov <- 0}
 ### create progress bar
@@ -57,6 +60,9 @@ run_sim <- function(sim = 100,
     # lifetime infections
     lifetime_inf <- get_lifetime_inf(test$history[,,1])
     lti_out[,s] <- lifetime_inf[length(age_range),1:length(age_range)]
+    # ve
+    ve[,s] <- test$ve$VE
+
   }
   close(pb)
   if (file.out == TRUE){
@@ -65,9 +71,15 @@ run_sim <- function(sim = 100,
               file = paste0('attack_rate_data_',tag,'.csv'))
     write.csv(lti_out,
               file = paste0('lifetime_inf_data_',tag,'.csv'))
+    if(ve.out == TRUE){
+    write.csv(ve_out,
+              file = paste0('ve_data_',tag,'.csv'))
+    }
+
   }
   return(list(attack_rate = ar_out,
-              lifetime_infections = lti_out)
+              lifetime_infections = lti_out,
+              ve = ve_out)
         )
 }
 

@@ -24,3 +24,17 @@
 
 ### checking version 2
   test <- multiannual2(vac_coverage = 0.25, suscept_func_version = 2)
+  p_test <- plot_attack_rates(dat = test$attack_rate)
+  inf_hist <- test$history[,,1]
+  vac_hist <- test$history[,,2]
+   suscept <- test$history[,,3]
+
+
+birth_cohort <- which(rownames(vac_hist)==19)
+bc_vac_hist <- vac_hist[birth_cohort,1:20]
+bc_inf_hist <- inf_hist[birth_cohort,1:20]
+bc_suscept <- suscept[birth_cohort,1:20]
+
+bc_vac_hist[2,]
+bc_inf_hist[2,]
+bc_suscept[2,]

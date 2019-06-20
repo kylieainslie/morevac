@@ -12,7 +12,7 @@
 #'         2) data frame with lifetime infections by simulation, year, age, and vac strategy
 #' @keywords morevac
 #' @export
-process_sim_output <- function(sim_out, year_range, age_range){
+process_sim_output <- function(sim_out, year_range, age_range, ve_out = FALSE){
 # attack rates
   rtn_ar <- data.frame(Year = c(rep(year_range,3)),
                        Attack_Rate = c(apply(sim_out[[1]]$attack_rate,1,mean),
@@ -51,5 +51,23 @@ process_sim_output <- function(sim_out, year_range, age_range){
 
   rtn_li <- rbind(tmp1,tmp2,tmp3)
 
-  return(list(rtn_ar, rtn_li))
+# ve
+  if(ve_out == TRUE){
+  rtn_ve <- data.frame(Year = c(rep(year_range,3)),
+                       Attack_Rate = c(apply(sim_out[[1]]$ve,1,mean),
+                                       apply(sim_out[[2]]$ve,1,mean),
+                                       apply(sim_out[[3]]$ve,1,mean)),
+                       Lower = c(apply(sim_out[[1]]$ve,1,FUN = function(x) quantile(x, c(0.025))),
+                                 apply(sim_out[[2]]$ve,1,FUN = function(x) quantile(x, c(0.025))),
+                                 apply(sim_out[[3]]$ve,1,FUN = function(x) quantile(x, c(0.025)))),
+                       Upper = c(apply(sim_out[[1]]$ve,1,FUN = function(x) quantile(x, c(0.975))),
+                                 apply(sim_out[[2]]$ve,1,FUN = function(x) quantile(x, c(0.975))),
+                                 apply(sim_out[[3]]$ve,1,FUN = function(x) quantile(x, c(0.975)))),
+                       Age = as.factor(c(rep(age_range,3))),
+                       Vac_Strategy = c(rep('No Vaccination',length(year_range)),
+                                        rep('Annual',length(year_range)),
+                                        rep('Biannual',length(year_range)))
+  )
+  return(list(rtn_ar, rtn_li, rtn_ve))
+  } else {return(list(rtn_ar, rtn_li))}
 }

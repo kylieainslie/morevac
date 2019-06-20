@@ -50,12 +50,12 @@ multiannual2 <- function(n = 1000,
    suscept_mat <- init[,,3]
              x <- init[,,4]
              v <- init[,,5]
-  #lifetime_inf <- init[,,6]
   ages <- as.numeric(rownames(init))
 
   end_year <- start_year + years - 1
 
   attack_rate <- c(rep(NA,years))
+  ve <- attack_rate
   attack_rate_by_age <- matrix(c(rep(NA, years*maxage)),nrow = years)
   colnames(attack_rate_by_age) <- c(paste0("Age",0:(maxage-1)))
   rownames(attack_rate_by_age) <- start_year:end_year
@@ -67,14 +67,20 @@ multiannual2 <- function(n = 1000,
     } else {ey <- 0}
 # start loop over years
   while (year_counter < years+1){
-    inf_counter <- matrix(c(rep(0,maxage*2)),nrow=2)
-    rownames(inf_counter) <- c('number_of_infections','n_age')
+    inf_counter <- matrix(c(rep(0,maxage*6)),nrow=6)
+    rownames(inf_counter) <- c('total_num_infections',
+                               'n_age',
+                               'num_vac_infections',
+                               'num_vaccinated',
+                               'num_unvac_infections',
+                               'num_unvaccinated'
+                               )
     colnames(inf_counter) <- c(paste0("Age",0:(maxage-1)))
 
   # turn off vaccination until start_vac_year
-    if (vac_strategy == 0) {vac_coverage <- 0}
-    if (actual_year<start_vac_year){vc <- 0
+    if (vac_strategy == 0 | actual_year<start_vac_year) {vc <- 0
     } else {vc <- vac_coverage}
+
 
   # generate random numbers for infection and vaccination
     rn_inf <- runif(n,0,1)
@@ -93,6 +99,7 @@ multiannual2 <- function(n = 1000,
 
       if (a-vac_strategy < 1){prior_vac <- 0
       } else {prior_vac <- vac_hist_mat[i,a-vac_strategy]}
+
       # determine who will be vaccinated
        vac_hist_mat[i,a] <- vaccinate_cpp(prior_vac = prior_vac,
                                           even_year = ey,
@@ -105,27 +112,8 @@ multiannual2 <- function(n = 1000,
                                           start_vac_year = start_vac_year,
                                           start_vac_age = start_vac_age)
         v[i,a] <- v[i,a]*(1-vac_hist_mat[i,a])
-        # if (actual_year >= start_vac_year & ages[i] >= start_vac_age){
-        # # incorporate prior vaccination
-        #   if (vac_strategy & (year_counter %% 2) != 0){
-        #     if (a > 2 & vac_hist_mat[i,a-2] == 1){rn_vac[i] <- rn_vac[i] * (1-rho)}
-        #   } else {
-        #     if (a > 1 & vac_hist_mat[i,a-1] == 1){rn_vac[i] <- rn_vac[i] * (1-rho)}
-        #   }
-        #
-        #  # vaccinate
-        #    if (rn_vac[i] <= vc & actual_year >= start_vac_year){
-        #      if (vac_strategy == FALSE) {
-        #         vac_hist_mat[i,a] <- 1
-        #         v[i,a] <- 0
-        #       } else if (vac_strategy == TRUE & (year_counter %% 2) != 0){
-        #               vac_hist_mat[i,a] <- 1
-        #               v[i,a] <- 0
-        #       } else {vac_hist_mat[i,a] <- 0}
-        #     } else {vac_hist_mat[i,a] <- 0}
-        #  } else {vac_hist_mat[i,a] <- 0}
-        #print(vac_hist_mat[i,])
-        #print(x[i,a])
+        inf_counter[4,a] <- inf_counter[1,a] + vac_hist_mat[i,a]
+        inf_counter[6,a] <- inf_counter[1,a] + (1-vac_hist_mat[i,a])
       # calculate susceptibility function for person i
         suscept_mat[i,a] <- suscept_func_cpp(inf_history = x[i,a],
                                              vac_history = v[i,a],
@@ -142,8 +130,11 @@ multiannual2 <- function(n = 1000,
       # infect person i if random number < beta*susceptability
         inf_hist_mat[i,a] <- infect_cpp(susceptibility = suscept_mat[i,a], foi = mybeta, randnum_inf = rn_inf[i])
         x[i,a] <- x[i,a]*(1-inf_hist_mat[i,a])
-        inf_counter[1,a] <- inf_counter[1,a] + inf_hist_mat[i,a]
-
+      # update infection counters
+        inf_counter[1,a] <- inf_counter[1,a] + inf_hist_mat[i,a]                           # total infections
+        inf_counter[3,a] <- inf_counter[3,a] + (inf_hist_mat[i,a] * vac_hist_mat[i,a])     # vaccinated infections
+        inf_counter[5,a] <- inf_counter[5,a] + (inf_hist_mat[i,a] * (1-vac_hist_mat[i,a])) # unvaccinated infections
+      # update x and v
         if (a<maxage){
           x[i,a+1] <- x[i,a]+1
           v[i,a+1] <- v[i,a]+1
@@ -153,6 +144,12 @@ multiannual2 <- function(n = 1000,
           ages[i] <- ages[i] + 1
           if (ages[i]==maxage){
             ages[i] <- 0
+            inf_hist_mat[i,] <- c(0,rep(NA,maxage-1))
+            vac_hist_mat[i,] <- c(0,rep(NA,maxage-1))
+            suscept_mat[i,] <- c(1,rep(NA,maxage-1))
+            x[i,] <- c(999,rep(NA,maxage-1))
+            v[i,] <- c(999,rep(NA,maxage-1))
+
           }
         }
       # next person
@@ -162,26 +159,8 @@ multiannual2 <- function(n = 1000,
   # calculate attack rate by age
     attack_rate[year_counter] <- sum(inf_counter[1,])/sum(inf_counter[2,])
     attack_rate_by_age[year_counter,] <- inf_counter[1,]/inf_counter[2,]
-
-  # reset history for new naive individuals
-    if (year_counter < years){
-      age0 <- which(ages==0)
-      #print(age0)
-      inf_hist_mat[age0,] <- c(0,rep(NA,maxage-1))
-      vac_hist_mat[age0,] <- c(0,rep(NA,maxage-1))
-       suscept_mat[age0,] <- c(1,rep(NA,maxage-1))
-                 x[age0,] <- c(999,rep(NA,maxage-1))
-                 v[age0,] <- c(999,rep(NA,maxage-1))
-    }
-    #lifetime_inf[age0,] <- c(0,rep(NA,maxage-1))
-    #print(vac_hist_mat)
-    age0 <- which(ages==0)
-
-    inf_hist_mat[age0,] <- c(0,rep(NA,maxage-1))
-    vac_hist_mat[age0,] <- c(0,rep(NA,maxage-1))
-     suscept_mat[age0,] <- c(1,rep(NA,maxage-1))
-               x[age0,] <- c(999,rep(NA,maxage-1))
-               v[age0,] <- c(999,rep(NA,maxage-1))
+  # VE
+    ve[year_counter] <- 1-((sum(inf_counter[3,])/sum(inf_counter[4,]))/(sum(inf_counter[5,])/sum(inf_counter[5,])))
 
   # update counters
     year_counter <- year_counter + 1
@@ -198,17 +177,19 @@ multiannual2 <- function(n = 1000,
   rownames(init) <- ages
 
   dat <- data.frame(Year=start_year:end_year,Attack_Rate=attack_rate)
+  ve_dat <- data.frame(Year=start_vac_year:end_year,VE=ve[(years-(end_year-start_vac_year)):years])
 
-  if (return_ar_only == 1){
-    rtn <- dat
-  } else if (return_ar_only == 2){
-    rtn <- attack_rate_by_age
-  } else {
-    rtn <- list(history=init,
-                attack_rate=dat,
-                attack_rate_by_age = attack_rate_by_age
+  # if (return_ar_only == 1){
+  #   rtn <- dat
+  # } else if (return_ar_only == 2){
+  #   rtn <- attack_rate_by_age
+  # } else {
+    rtn <- list(history = init,
+                attack_rate = dat,
+                attack_rate_by_age = attack_rate_by_age,
+                ve = ve_dat
                 )
-  }
+  # }
 
   return(rtn)
 }
