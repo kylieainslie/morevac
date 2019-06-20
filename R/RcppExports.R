@@ -2,18 +2,18 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 infect_cpp <- function(susceptibility, foi, randnum_inf) {
-    .Call(`_morevac_infect_cpp`, susceptibility, foi, randnum_inf)
+    .Call('_morevac_infect_cpp', PACKAGE = 'morevac', susceptibility, foi, randnum_inf)
 }
 
 lifetime_infections_cpp <- function(a, lifetime_inf, inf_stat) {
-    .Call(`_morevac_lifetime_infections_cpp`, a, lifetime_inf, inf_stat)
+    .Call('_morevac_lifetime_infections_cpp', PACKAGE = 'morevac', a, lifetime_inf, inf_stat)
 }
 
 suscept_func_cpp <- function(inf_history, vac_history, gamma, drift_x, drift_v, version) {
-    .Call(`_morevac_suscept_func_cpp`, inf_history, vac_history, gamma, drift_x, drift_v, version)
+    .Call('_morevac_suscept_func_cpp', PACKAGE = 'morevac', inf_history, vac_history, gamma, drift_x, drift_v, version)
 }
 
 vaccinate_cpp <- function(prior_vac, even_year, vac_cov, vac_strategy, age, rho, randnum_vac, actual_year, start_vac_year, start_vac_age) {
-    .Call(`_morevac_vaccinate_cpp`, prior_vac, even_year, vac_cov, vac_strategy, age, rho, randnum_vac, actual_year, start_vac_year, start_vac_age)
+    .Call('_morevac_vaccinate_cpp', PACKAGE = 'morevac', prior_vac, even_year, vac_cov, vac_strategy, age, rho, randnum_vac, actual_year, start_vac_year, start_vac_age)
 }
 

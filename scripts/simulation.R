@@ -28,15 +28,36 @@ sim_out <- foreach (j=1:4, .packages = 'morevac') %:%
   foreach (i=1:3, .packages = 'morevac') %do%
   run_sim(sim = 100,nindiv = 10000, year_range = yearRange,
           age_range = ageRange,vaccov = 0.5,
-          version = 2, rho = rhos[j], flag = vac_status[i])
+          version = 2, rho = rhos[j], file.out = TRUE)
 
+# submitting individual jobs
+out0 <- run_sim(sim = 1000,nindiv = 10000,vaccov = 0,version = 2,
+                rho = 0, vac_strategy = 0,file.out = TRUE,
+                tag = "vs0vc0r0v1")
+out1 <- run_sim(sim = 1000,nindiv = 10000,vaccov = 0,version = 1,
+                rho = 0, vac_strategy = 1,file.out = TRUE,
+                tag = "vs1vc0r0v1")
+out2 <- run_sim(sim = 1000,nindiv = 10000,vaccov = 0,version = 1,
+                rho = 0, vac_strategy = 2,file.out = TRUE,
+                tag = "vs2vc0r0v1")
 #stopCluster(cl)
 
 ### output
 library(ggplot2)
 library(cowplot)
 
-dat1 <- process_sim_output(sim_out, j=1, year_range = yearRange, age_range = ageRange)
+# read in dim results files
+setwd("Q:/morevac_sims/data")
+tags <- c("vs0vc0r0v1","vs1vc50r0v1","vs2vc50r0v1")
+  sim_out <- list(no_vac = list(attack_rate = read.csv(file = paste0("attack_rates/attack_rate_data_",tags[1],".csv"),header = TRUE)[,-1],
+                                lifetime_infections = read.csv(file = paste0("lifetime_infections/lifetime_inf_data_",tags[1],".csv"),header = TRUE)[,-1]),
+                  annual = list(attack_rate = read.csv(file = paste0("attack_rates/attack_rate_data_",tags[2],".csv"),header = TRUE)[,-1],
+                                lifetime_infections = read.csv(file = paste0("lifetime_infections/lifetime_inf_data_",tags[2],".csv"),header = TRUE)[,-1]),
+                  biannual = list(attack_rate = read.csv(file = paste0("attack_rates/attack_rate_data_",tags[3],".csv"),header = TRUE)[,-1],
+                                  lifetime_infections = read.csv(file = paste0("lifetime_infections/lifetime_inf_data_",tags[3],".csv"),header = TRUE)[,-1])
+                  )
+
+dat1 <- process_sim_output(sim_out, year_range = yearRange, age_range = ageRange)
 pa1 <- plot_attack_rates(dat = dat1[[1]], by_vac = TRUE, c_bands = TRUE)
 pl1 <- plot_lifetime_infections(dat = dat1[[2]], by_vac = TRUE, x=0.5)
 
