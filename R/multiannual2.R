@@ -112,8 +112,9 @@ multiannual2 <- function(n = 1000,
                                           start_vac_year = start_vac_year,
                                           start_vac_age = start_vac_age)
         v[i,a] <- v[i,a]*(1-vac_hist_mat[i,a])
-        inf_counter[4,a] <- inf_counter[1,a] + vac_hist_mat[i,a]
-        inf_counter[6,a] <- inf_counter[1,a] + (1-vac_hist_mat[i,a])
+      # update number of vac/unvac counters
+        inf_counter[4,a] <- inf_counter[4,a] + vac_hist_mat[i,a]
+        inf_counter[6,a] <- inf_counter[6,a] + (1-vac_hist_mat[i,a])
       # calculate susceptibility function for person i
         suscept_mat[i,a] <- suscept_func_cpp(inf_history = x[i,a],
                                              vac_history = v[i,a],
@@ -157,10 +158,11 @@ multiannual2 <- function(n = 1000,
     } # end loop over individuals
 
   # calculate attack rate by age
-    attack_rate[year_counter] <- sum(inf_counter[1,])/sum(inf_counter[2,])
+    totals <- apply(inf_counter,1,sum)
+    attack_rate[year_counter] <- totals[1]/totals[2]
     attack_rate_by_age[year_counter,] <- inf_counter[1,]/inf_counter[2,]
   # VE
-    ve[year_counter] <- 1-((sum(inf_counter[3,])/sum(inf_counter[4,]))/(sum(inf_counter[5,])/sum(inf_counter[5,])))
+    ve[year_counter] <- 1-((totals[3]/totals[4])/(totals[5]/totals[6]))
 
   # update counters
     year_counter <- year_counter + 1
@@ -187,7 +189,8 @@ multiannual2 <- function(n = 1000,
     rtn <- list(history = init,
                 attack_rate = dat,
                 attack_rate_by_age = attack_rate_by_age,
-                ve = ve_dat
+                ve = ve_dat,
+                inf_counter = inf_counter
                 )
   # }
 

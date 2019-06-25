@@ -121,88 +121,88 @@ job22 <- obj$enqueue(run_sim(sim = 1000,nindiv = 10000,vaccov = 1,version = 2,
 #### change rho
 ### version 1
 # vac_cov = 0.25
-job23 <- obj$enqueue(run_sim(sim = 1000,nindiv = 10000,vaccov = 0.25,version = 1,
-                            rho = 0.9, vac_strategy = 1,file.out = TRUE,
-                            tag = "vs1vc25r09v1"))
+job23b <- obj$enqueue(run_sim(sim = 1000,nindiv = 10000,vaccov = 0.25,version = 1,
+                            rho = 0.2, vac_strategy = 1,file.out = TRUE,
+                            tag = "vs1vc25r02v1"))
 
-job24 <- obj$enqueue(run_sim(sim = 1000,nindiv = 10000,vaccov = 0.25,version = 1,
-                            rho = 0.9, vac_strategy = 2,file.out = TRUE,
-                            tag = "vs2vc25r09v1"))
+job24b <- obj$enqueue(run_sim(sim = 1000,nindiv = 10000,vaccov = 0.25,version = 1,
+                            rho = 0.2, vac_strategy = 2,file.out = TRUE,
+                            tag = "vs2vc25r02v1"))
 
 # vac_cov = 0.50
-job25 <- obj$enqueue(run_sim(sim = 1000,nindiv = 10000,vaccov = 0.50,version = 1,
-                            rho = 0.9, vac_strategy = 1,file.out = TRUE,
-                            tag = "vs1vc50r09v1"))
+job25b <- obj$enqueue(run_sim(sim = 1000,nindiv = 10000,vaccov = 0.50,version = 1,
+                            rho = 0.2, vac_strategy = 1,file.out = TRUE,
+                            tag = "vs1vc50r02v1"))
 
-job26 <- obj$enqueue(run_sim(sim = 1000,nindiv = 10000,vaccov = 0.50,version = 1,
-                            rho = 0.9, vac_strategy = 2,file.out = TRUE,
-                            tag = "vs2vc50r09v1"))
+job26b <- obj$enqueue(run_sim(sim = 1000,nindiv = 10000,vaccov = 0.50,version = 1,
+                            rho = 0.2, vac_strategy = 2,file.out = TRUE,
+                            tag = "vs2vc50r02v1"))
 
 # vac_cov = 0.75
-job27 <- obj$enqueue(run_sim(sim = 1000,nindiv = 10000,vaccov = 0.75,version = 1,
-                            rho = 0.9, vac_strategy = 1,file.out = TRUE,
-                            tag = "vs1vc75r09v1"))
+job27b <- obj$enqueue(run_sim(sim = 1000,nindiv = 10000,vaccov = 0.75,version = 1,
+                            rho = 0.2, vac_strategy = 1,file.out = TRUE,
+                            tag = "vs1vc75r02v1"))
 
-job28 <- obj$enqueue(run_sim(sim = 1000,nindiv = 10000,vaccov = 0.75,version = 1,
-                            rho = 0.9, vac_strategy = 2,file.out = TRUE,
-                            tag = "vs2vc75r09v1"))
+job28b <- obj$enqueue(run_sim(sim = 1000,nindiv = 10000,vaccov = 0.75,version = 1,
+                            rho = 0.2, vac_strategy = 2,file.out = TRUE,
+                            tag = "vs2vc75r02v1"))
 
 # vac_cov = 1
-job29 <- obj$enqueue(run_sim(sim = 1000,nindiv = 10000,vaccov = 1,version = 1,
-                             rho = 0.9, vac_strategy = 1,file.out = TRUE,
-                             tag = "vs1vc1r09v1"))
+job29b <- obj$enqueue(run_sim(sim = 1000,nindiv = 10000,vaccov = 1,version = 1,
+                             rho = 0.2, vac_strategy = 1,file.out = TRUE,
+                             tag = "vs1vc1r02v1"))
 
-job30 <- obj$enqueue(run_sim(sim = 1000,nindiv = 10000,vaccov = 1,version = 1,
-                             rho = 0.9, vac_strategy = 2,file.out = TRUE,
-                             tag = "vs2vc1r09v1"))
+job30b <- obj$enqueue(run_sim(sim = 1000,nindiv = 10000,vaccov = 1,version = 1,
+                             rho = 0.2, vac_strategy = 2,file.out = TRUE,
+                             tag = "vs2vc1r02v1"))
 
 ### version 2
 # vac_cov = 0
-job31 <- obj$enqueue(run_sim(sim = 1000,nindiv = 10000,vaccov = 0,version = 2,
-                             rho = 0.9, vac_strategy = 0,file.out = TRUE,
-                             tag = "vs0vc0r09v2"))
+job31b <- obj$enqueue(run_sim(sim = 1000,nindiv = 10000,vaccov = 0,version = 2,
+                             rho = 0.2, vac_strategy = 0,file.out = TRUE,
+                             tag = "vs0vc0r02v2"))
 
-job32 <- obj$enqueue(run_sim(sim = 1000,nindiv = 10000,vaccov = 0,version = 2,
-                             rho = 0.9, vac_strategy = 1,file.out = TRUE,
-                             tag = "vs1vc0r09v2"))
+job32b <- obj$enqueue(run_sim(sim = 1000,nindiv = 10000,vaccov = 0,version = 2,
+                             rho = 0.2, vac_strategy = 1,file.out = TRUE,
+                             tag = "vs1vc0r02v2"))
 
-job33 <- obj$enqueue(run_sim(sim = 1000,nindiv = 10000,vaccov = 0,version = 2,
-                             rho = 0.9, vac_strategy = 2,file.out = TRUE,
-                             tag = "vs2vc0r09v2"))
+job33b <- obj$enqueue(run_sim(sim = 1000,nindiv = 10000,vaccov = 0,version = 2,
+                             rho = 0.2, vac_strategy = 2,file.out = TRUE,
+                             tag = "vs2vc0r02v2"))
 
 # vac_cov = 0.25
-job34 <- obj$enqueue(run_sim(sim = 1000,nindiv = 10000,vaccov = 0.25,version = 2,
-                             rho = 0.9, vac_strategy = 1,file.out = TRUE,
-                             tag = "vs1vc25r09v2"))
+job34b <- obj$enqueue(run_sim(sim = 1000,nindiv = 10000,vaccov = 0.25,version = 2,
+                             rho = 0.2, vac_strategy = 1,file.out = TRUE,
+                             tag = "vs1vc25r02v2"))
 
-job35 <- obj$enqueue(run_sim(sim = 1000,nindiv = 10000,vaccov = 0.25,version = 2,
-                             rho = 0.9, vac_strategy = 2,file.out = TRUE,
-                             tag = "vs2vc25r09v2"))
+job35b <- obj$enqueue(run_sim(sim = 1000,nindiv = 10000,vaccov = 0.25,version = 2,
+                             rho = 0.2, vac_strategy = 2,file.out = TRUE,
+                             tag = "vs2vc25r02v2"))
 
 # vac_cov = 0.50
-job36 <- obj$enqueue(run_sim(sim = 1000,nindiv = 10000,vaccov = 0.50,version = 2,
-                             rho = 0.9, vac_strategy = 1,file.out = TRUE,
-                             tag = "vs1vc50r09v2"))
+job36b <- obj$enqueue(run_sim(sim = 1000,nindiv = 10000,vaccov = 0.50,version = 2,
+                             rho = 0.2, vac_strategy = 1,file.out = TRUE,
+                             tag = "vs1vc50r05v2"))
 
-job37 <- obj$enqueue(run_sim(sim = 1000,nindiv = 10000,vaccov = 0.50,version = 2,
-                             rho = 0.9, vac_strategy = 2,file.out = TRUE,
-                             tag = "vs2vc50r09v2"))
+job37b <- obj$enqueue(run_sim(sim = 1000,nindiv = 10000,vaccov = 0.50,version = 2,
+                             rho = 0.2, vac_strategy = 2,file.out = TRUE,
+                             tag = "vs2vc50r02v2"))
 
 # vac_cov = 0.75
-job38 <- obj$enqueue(run_sim(sim = 1000,nindiv = 10000,vaccov = 0.75,version = 2,
-                             rho = 0.9, vac_strategy = 1,file.out = TRUE,
-                             tag = "vs1vc75r09v2"))
+job38b <- obj$enqueue(run_sim(sim = 1000,nindiv = 10000,vaccov = 0.75,version = 2,
+                             rho = 0.2, vac_strategy = 1,file.out = TRUE,
+                             tag = "vs1vc75r05v2"))
 
-job39 <- obj$enqueue(run_sim(sim = 1000,nindiv = 10000,vaccov = 0.75,version = 2,
-                             rho = 0.9, vac_strategy = 2,file.out = TRUE,
-                             tag = "vs2vc75r09v2"))
+job39b <- obj$enqueue(run_sim(sim = 1000,nindiv = 10000,vaccov = 0.75,version = 2,
+                             rho = 0.2, vac_strategy = 2,file.out = TRUE,
+                             tag = "vs2vc75r02v2"))
 
 # vac_cov = 1
-job40 <- obj$enqueue(run_sim(sim = 1000,nindiv = 10000,vaccov = 1,version = 2,
-                             rho = 0.9, vac_strategy = 1,file.out = TRUE,
-                             tag = "vs1vc1r09v2"))
+job40b <- obj$enqueue(run_sim(sim = 1000,nindiv = 10000,vaccov = 1,version = 2,
+                             rho = 0.2, vac_strategy = 1,file.out = TRUE,
+                             tag = "vs1vc1r02v2"))
 
-job41 <- obj$enqueue(run_sim(sim = 1000,nindiv = 10000,vaccov = 1,version = 2,
-                             rho = 0.9, vac_strategy = 2,file.out = TRUE,
-                             tag = "vs2vc1r09v2"))
+job41b <- obj$enqueue(run_sim(sim = 1000,nindiv = 10000,vaccov = 1,version = 2,
+                             rho = 0.2, vac_strategy = 2,file.out = TRUE,
+                             tag = "vs2vc1r02v2"))
 
