@@ -38,3 +38,13 @@ bc_suscept <- suscept[birth_cohort,1:20]
 bc_vac_hist[2,]
 bc_inf_hist[2,]
 bc_suscept[2,]
+
+# plot drift
+test <- multiannual2()
+mydat <- test$drift
+mydat$Cum_Drift <- cumsum(mydat$Drift)
+p_drift <- ggplot(data = mydat, aes(x=Year, y=Cum_Drift)) +
+           geom_line()
+p_drift
+
+
