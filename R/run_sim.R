@@ -14,7 +14,6 @@
 #' @return two plots 1) plot of annual attack rates for the cohort and 2) a plot of number of lifetime infections by age
 #' @keywords morevac
 #' @export
-
 run_sim <- function(sim = 100,
                     nindiv = 1000,
                     year_range = c(2000:2019),

@@ -34,9 +34,9 @@ multiannual2 <- function(n = 1000,
                          vac_coverage = 0.5,
                          beta_pandemic = 0.4,
                          beta_epidemic = 0.15,
-                         delta_x = 0.2,
-                         delta_v = 0.2,
-                         mygamma = 0.4,
+                         delta_x = NULL,
+                         delta_v = NULL,
+                         vac_protect = 0.7,
                          suscept_func_version = 1,
                          vac_strategy = 1,
                          rho = 0,
@@ -53,35 +53,61 @@ multiannual2 <- function(n = 1000,
   ages <- as.numeric(rownames(init))
 
   end_year <- start_year + years - 1
+# create empty vectors
+  # vaccine strain update
+    vaccine_dist <- c(rep(NA,years))
+    update <- c(rep(NA,years))
+    years_since_vac_update <- c(rep(NA,years))
+  # attack rate and ve
+    attack_rate <- c(rep(NA,years))
+    ve <- attack_rate
+    attack_rate_by_age <- matrix(c(rep(NA, years*maxage)),nrow = years)
+    colnames(attack_rate_by_age) <- c(paste0("Age",0:(maxage-1)))
+    rownames(attack_rate_by_age) <- start_year:end_year
+  # infection counter
+    null_inf_counter <- matrix(c(rep(0,maxage*6)),nrow=6)
+    rownames(null_inf_counter) <- c('total_num_infections',
+                             'n_age',
+                             'num_vac_infections',
+                             'num_vaccinated',
+                             'num_unvac_infections',
+                             'num_unvaccinated'
+    )
+    colnames(null_inf_counter) <- c(paste0("Age",0:(maxage-1)))
 
-  attack_rate <- c(rep(NA,years))
-  ve <- attack_rate
-  attack_rate_by_age <- matrix(c(rep(NA, years*maxage)),nrow = years)
-  colnames(attack_rate_by_age) <- c(paste0("Age",0:(maxage-1)))
-  rownames(attack_rate_by_age) <- start_year:end_year
+  # calculate drift for each year
+    drift <- drift_func(years = years, rate = 0.5)
   # year counter
     year_counter <- 1
     actual_year <- start_year
     if (actual_year %% 2 == 0){
       ey <-1
     } else {ey <- 0}
+
 # start loop over years
   while (year_counter < years+1){
-    inf_counter <- matrix(c(rep(0,maxage*6)),nrow=6)
-    rownames(inf_counter) <- c('total_num_infections',
-                               'n_age',
-                               'num_vac_infections',
-                               'num_vaccinated',
-                               'num_unvac_infections',
-                               'num_unvaccinated'
-                               )
-    colnames(inf_counter) <- c(paste0("Age",0:(maxage-1)))
-
+  # initialize infection counter for current year
+    inf_counter <- null_inf_counter
+  # set drift value to year_counter value in drift matrix
+    if(is.null(delta_x)){delta_x <- drift[year_counter]}
   # turn off vaccination until start_vac_year
-    if (vac_strategy == 0 | actual_year<start_vac_year) {vc <- 0
-    } else {vc <- vac_coverage}
+    if (vac_strategy == 0 | actual_year<start_vac_year) {
+      vc <- 0
+      mygamma <- 1 - vac_protect
+    } else {
+      if (actual_year == start_vac_year){years_since_vac_update[year_counter] <- 0}
+        vc <- vac_coverage
+      # determine vaccine distance from circulating strain
+        vaccine_dist[year_counter] <- min(1,sum(drift[(year_counter-years_since_vac_update[year_counter]):year_counter]))
+      # update vaccine?
+        update[year_counter] <- vaccine_update(years_since_vac_update = years_since_vac_update[year_counter],
+                                               accumulated_drift = vaccine_dist[year_counter])
+      # change years since vac update to 0 if updated in current year
+        years_since_vac_update[year_counter] <- years_since_vac_update[year_counter] * (1 - update[year_counter]) + (1 - update[year_counter])
 
-
+      # determine protective effect of vaccine based on distance from circulating strain
+        mygamma <- (1-vac_protect)*(1-(vaccine_dist[year_counter]*(1-update[year_counter])))
+    }
   # generate random numbers for infection and vaccination
     rn_inf <- runif(n,0,1)
     rn_vac <- runif(n,0,1)
@@ -91,12 +117,12 @@ multiannual2 <- function(n = 1000,
       #print(i)
       a <- ages[i] + 1
       inf_counter[2,a] <- inf_counter[2,a] + 1
-
+    # update current year value from NA to 999 or 0
       if(is.na(x[i,a])){x[i,a]<-999}
       if(is.na(v[i,a])){v[i,a]<-999}
       if(is.na(inf_hist_mat[i,a])){inf_hist_mat[i,a]<-0}
       if(is.na(vac_hist_mat[i,a])){vac_hist_mat[i,a]<-0}
-
+    # determine whether an individual was vaccinated in the year (or two) previously
       if (a-vac_strategy < 1){prior_vac <- 0
       } else {prior_vac <- vac_hist_mat[i,a-vac_strategy]}
 
@@ -112,8 +138,15 @@ multiannual2 <- function(n = 1000,
                                           start_vac_year = start_vac_year,
                                           start_vac_age = start_vac_age)
         v[i,a] <- v[i,a]*(1-vac_hist_mat[i,a])
-        inf_counter[4,a] <- inf_counter[1,a] + vac_hist_mat[i,a]
-        inf_counter[6,a] <- inf_counter[1,a] + (1-vac_hist_mat[i,a])
+      # update number of vac/unvac counters
+        inf_counter[4,a] <- inf_counter[4,a] + vac_hist_mat[i,a]
+        inf_counter[6,a] <- inf_counter[6,a] + (1-vac_hist_mat[i,a])
+      # determine delta_v
+        if(is.null(delta_v)) {
+          if (v[i,a]>=999){
+            delta_v <- 1
+          } else {delta_v <- min(1,sum(drift[year_counter-v[i,a]:year_counter]))}
+        }
       # calculate susceptibility function for person i
         suscept_mat[i,a] <- suscept_func_cpp(inf_history = x[i,a],
                                              vac_history = v[i,a],
@@ -157,11 +190,13 @@ multiannual2 <- function(n = 1000,
     } # end loop over individuals
 
   # calculate attack rate by age
-    attack_rate[year_counter] <- sum(inf_counter[1,])/sum(inf_counter[2,])
+    totals <- apply(inf_counter,1,sum)
+    attack_rate[year_counter] <- totals[1]/totals[2]
     attack_rate_by_age[year_counter,] <- inf_counter[1,]/inf_counter[2,]
   # VE
-    ve[year_counter] <- 1-((sum(inf_counter[3,])/sum(inf_counter[4,]))/(sum(inf_counter[5,])/sum(inf_counter[5,])))
-
+    ve[year_counter] <- 1-((totals[3]/totals[4])/(totals[5]/totals[6]))
+  # update vaccine update counter
+    if (year_counter < years) {years_since_vac_update[year_counter + 1] <- years_since_vac_update[year_counter] + 1}
   # update counters
     year_counter <- year_counter + 1
     actual_year <- actual_year + 1
@@ -178,7 +213,7 @@ multiannual2 <- function(n = 1000,
 
   dat <- data.frame(Year=start_year:end_year,Attack_Rate=attack_rate)
   ve_dat <- data.frame(Year=start_vac_year:end_year,VE=ve[(years-(end_year-start_vac_year)):years])
-
+  drift_dat <- data.frame(Year=start_year:end_year,Drift=drift, Vac_Distance=vaccine_dist,Vac_Update=update)
   # if (return_ar_only == 1){
   #   rtn <- dat
   # } else if (return_ar_only == 2){
@@ -187,7 +222,8 @@ multiannual2 <- function(n = 1000,
     rtn <- list(history = init,
                 attack_rate = dat,
                 attack_rate_by_age = attack_rate_by_age,
-                ve = ve_dat
+                ve = ve_dat,
+                drift = drift_dat
                 )
   # }
 
