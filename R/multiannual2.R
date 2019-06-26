@@ -76,7 +76,7 @@ multiannual2 <- function(n = 1000,
     colnames(null_inf_counter) <- c(paste0("Age",0:(maxage-1)))
 
   # calculate drift for each year
-    drift <- drift_func(years = years)
+    drift <- drift_func(years = years, rate = 0.5)
   # year counter
     year_counter <- 1
     actual_year <- start_year
@@ -213,7 +213,7 @@ multiannual2 <- function(n = 1000,
 
   dat <- data.frame(Year=start_year:end_year,Attack_Rate=attack_rate)
   ve_dat <- data.frame(Year=start_vac_year:end_year,VE=ve[(years-(end_year-start_vac_year)):years])
-
+  drift_dat <- data.frame(Year=start_year:end_year,Drift=drift, Vac_Distance=vaccine_dist,Vac_Update=update)
   # if (return_ar_only == 1){
   #   rtn <- dat
   # } else if (return_ar_only == 2){
@@ -223,7 +223,7 @@ multiannual2 <- function(n = 1000,
                 attack_rate = dat,
                 attack_rate_by_age = attack_rate_by_age,
                 ve = ve_dat,
-                inf_counter = inf_counter
+                drift = drift_dat
                 )
   # }
 
