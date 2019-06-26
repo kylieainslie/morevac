@@ -98,14 +98,15 @@ multiannual2 <- function(n = 1000,
       if (actual_year == start_vac_year){years_since_vac_update[year_counter] <- 0}
         vc <- vac_coverage
       # determine vaccine distance from circulating strain
-        vaccine_dist[year_counter] <- min(1,sum(drift[(year_counter-years_since_vac_update[year_counter]):(year_counter-1)]))
+        vaccine_dist[year_counter] <- min(1,sum(drift[(year_counter-years_since_vac_update[year_counter]):year_counter]))
       # update vaccine?
         update[year_counter] <- vaccine_update(years_since_vac_update = years_since_vac_update[year_counter],
-                                               accumulated_drift = vaccine_dist)
-      # determine protective effect of vaccine based on distance from circulating strain
-        mygamma <- (1-vac_protect)*(1-(vaccine_dist*(1-update)))
+                                               accumulated_drift = vaccine_dist[year_counter])
       # change years since vac update to 0 if updated in current year
-        years_since_vac_update[year_counter] <- years_since_vac_update[year_counter] * (1 - update) + (1 - update)
+        years_since_vac_update[year_counter] <- years_since_vac_update[year_counter] * (1 - update[year_counter]) + (1 - update[year_counter])
+
+      # determine protective effect of vaccine based on distance from circulating strain
+        mygamma <- (1-vac_protect)*(1-(vaccine_dist[year_counter]*(1-update[year_counter])))
     }
   # generate random numbers for infection and vaccination
     rn_inf <- runif(n,0,1)
@@ -147,11 +148,6 @@ multiannual2 <- function(n = 1000,
           } else {delta_v <- min(1,sum(drift[year_counter-v[i,a]:year_counter]))}
         }
       # calculate susceptibility function for person i
-         print(x[i,a])
-         print(v[i,a])
-         print(mygamma)
-         print(delta_x)
-         print(delta_v)
         suscept_mat[i,a] <- suscept_func_cpp(inf_history = x[i,a],
                                              vac_history = v[i,a],
                                              gamma = mygamma,
@@ -199,7 +195,8 @@ multiannual2 <- function(n = 1000,
     attack_rate_by_age[year_counter,] <- inf_counter[1,]/inf_counter[2,]
   # VE
     ve[year_counter] <- 1-((totals[3]/totals[4])/(totals[5]/totals[6]))
-
+  # update vaccine update counter
+    if (year_counter < years) {years_since_vac_update[year_counter + 1] <- years_since_vac_update[year_counter] + 1}
   # update counters
     year_counter <- year_counter + 1
     actual_year <- actual_year + 1
