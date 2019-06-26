@@ -54,6 +54,10 @@ multiannual2 <- function(n = 1000,
 
   end_year <- start_year + years - 1
 # create empty vectors
+  # vaccine strain update
+    vaccine_dist <- c(rep(NA,years))
+    update <- c(rep(NA,years))
+    years_since_vac_update <- c(rep(NA,years))
   # attack rate and ve
     attack_rate <- c(rep(NA,years))
     ve <- attack_rate
@@ -89,15 +93,19 @@ multiannual2 <- function(n = 1000,
   # turn off vaccination until start_vac_year
     if (vac_strategy == 0 | actual_year<start_vac_year) {
       vc <- 0
-      vac_update_stat <- 0
+      mygamma <- 1 - vac_protect
     } else {
-      vc <- vac_coverage
+      if (actual_year == start_vac_year){years_since_vac_update[year_counter] <- 0}
+        vc <- vac_coverage
       # determine vaccine distance from circulating strain
-      accum_drift <- sum(drift[(year_counter-vac_update_stat):year_counter])
-      update <- vaccine_update(vac_update_status = vac_update_stat,
-                                        accumulated_drift = accum_drift)
-      vac_update_stat <- vac_update_stat * (1 - update) + (1 - update)
-      mygamma <- (1-vac_protect)*(1-(accum_drift*(1-update)))
+        vaccine_dist[year_counter] <- min(1,sum(drift[(year_counter-years_since_vac_update[year_counter]):(year_counter-1)]))
+      # update vaccine?
+        update[year_counter] <- vaccine_update(years_since_vac_update = years_since_vac_update[year_counter],
+                                               accumulated_drift = vaccine_dist)
+      # determine protective effect of vaccine based on distance from circulating strain
+        mygamma <- (1-vac_protect)*(1-(vaccine_dist*(1-update)))
+      # change years since vac update to 0 if updated in current year
+        years_since_vac_update[year_counter] <- years_since_vac_update[year_counter] * (1 - update) + (1 - update)
     }
   # generate random numbers for infection and vaccination
     rn_inf <- runif(n,0,1)
@@ -132,7 +140,18 @@ multiannual2 <- function(n = 1000,
       # update number of vac/unvac counters
         inf_counter[4,a] <- inf_counter[4,a] + vac_hist_mat[i,a]
         inf_counter[6,a] <- inf_counter[6,a] + (1-vac_hist_mat[i,a])
+      # determine delta_v
+        if(is.null(delta_v)) {
+          if (v[i,a]>=999){
+            delta_v <- 1
+          } else {delta_v <- min(1,sum(drift[year_counter-v[i,a]:year_counter]))}
+        }
       # calculate susceptibility function for person i
+         print(x[i,a])
+         print(v[i,a])
+         print(mygamma)
+         print(delta_x)
+         print(delta_v)
         suscept_mat[i,a] <- suscept_func_cpp(inf_history = x[i,a],
                                              vac_history = v[i,a],
                                              gamma = mygamma,
