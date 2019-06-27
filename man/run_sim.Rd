@@ -6,7 +6,7 @@
 \usage{
 run_sim(sim = 100, nindiv = 1000, year_range = c(2000:2019),
   age_range = c(0:19), vaccov = 0.5, version = 1, vac_strategy = 1,
-  rho = 0, file.out = FALSE, tag = "")
+  rho = 0, file.out = FALSE, ve.out = FALSE, tag = "")
 }
 \arguments{
 \item{sim}{number of simulations to run}

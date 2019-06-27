@@ -4,7 +4,7 @@
 \alias{process_sim_output}
 \title{Processes simulation output into a data frame}
 \usage{
-process_sim_output(sim_out, year_range, age_range)
+process_sim_output(sim_out, year_range, age_range, ve_out = FALSE)
 }
 \arguments{
 \item{sim_out}{list output from simulations}

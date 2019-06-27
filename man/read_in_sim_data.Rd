@@ -4,7 +4,7 @@
 \alias{read_in_sim_data}
 \title{Read in simulation output}
 \usage{
-read_in_sim_data(tags)
+read_in_sim_data(tags, ve = FALSE)
 }
 \arguments{
 \item{tags}{list filename tags (should be of length 3)}
