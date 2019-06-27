@@ -89,8 +89,6 @@ multiannual2 <- function(n = 1000,
     print(year_counter)
   # initialize infection counter for current year
     inf_counter <- null_inf_counter
-  # set drift value to year_counter value in drift matrix
-    if(is.null(delta_x)){delta_x <- drift[year_counter]}
   # turn off vaccination until start_vac_year
     if (vac_strategy == 0 | actual_year<start_vac_year) {
       vc <- 0
@@ -146,17 +144,27 @@ multiannual2 <- function(n = 1000,
         inf_counter[6,a] <- inf_counter[6,a] + (1-vac_hist_mat[i,a])
       # determine delta_v
         if(is.null(delta_v)) {
+          constant <- 0
           if (v[i,a]>=999){
             delta_v <- 1
           } else {delta_v <- min(1,sum(drift[year_counter-v[i,a]:year_counter]))}
-        }
+        } else {constant <- 1}
+      # determine delta_x
+        if(is.null(delta_x)){
+          constant <- 0
+          if (x[i,a] >= 999){
+            delta_x <- 1
+          } else {delta_x <- min(1,sum(drift[year_counter-x[i,a]:year_counter]))}
+        } else {constant <- 1}
+
       # calculate susceptibility function for person i
         suscept_mat[i,a] <- suscept_func_cpp(inf_history = x[i,a],
                                              vac_history = v[i,a],
                                              gamma = mygamma,
                                              drift_x = delta_x,
                                              drift_v = delta_v,
-                                             version = suscept_func_version)
+                                             version = suscept_func_version,
+                                             constant = constant)
 
         # for first year have pandemic transmission rate
         if (year_counter==1){
