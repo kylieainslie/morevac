@@ -1,6 +1,8 @@
-### testing script
-# check drift and vac update
+### testing script ###
 test <- multiannual2()
+p_test <- plot_attack_rates(dat = test$attack_rate)
+
+# check drift and vac update
 mydat <- test$drift
 mydat$Cum_Drift <- cumsum(mydat$Drift)
 mydat_thinned <- mydat[which(mydat$Vac_Update==1),]
@@ -20,6 +22,20 @@ p_vac
 inf_hist <- test$history[,,1]
 vac_hist <- test$history[,,2]
  suscept <- test$history[,,3]
+       x <- test$history[,,4]
+       v <- test$history[,,5]
 
-# subset cohort
+birth_cohort <- which(rownames(vac_hist)==19)
+bc_vac_hist <- vac_hist[birth_cohort,1:20]
+bc_inf_hist <- inf_hist[birth_cohort,1:20]
+ bc_suscept <- suscept[birth_cohort,1:20]
+       bc_x <- x[birth_cohort,1:20]
+       bc_v <- v[birth_cohort,1:20]
+
+person <- data.frame(inf_hist = bc_inf_hist[2,],
+                            x = bc_x[2,],
+                     vac_hist = bc_vac_hist[2,],
+                           v = bc_v[2,],
+                     suscept  = bc_suscept[2,],
+                     drift = mydat_vac$Drift)
 
