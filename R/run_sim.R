@@ -60,7 +60,7 @@ run_sim <- function(sim = 100,
     lifetime_inf <- get_lifetime_inf(test$history[,,1])
     lti_out[,s] <- lifetime_inf[length(age_range),1:length(age_range)]
     # ve
-    ve[,s] <- test$ve$VE
+    ve_out[,s] <- test$ve$VE
 
   }
   close(pb)
