@@ -106,7 +106,9 @@ multiannual2 <- function(n = 1000,
                                                 (1 - update[year_counter])
 
       # determine protective effect of vaccine based on distance from circulating strain
-        mygamma <- (1-vac_protect)*(1-(vaccine_dist[year_counter]*(1-update[year_counter])))
+        if (update[year_counter] == 0){
+        mygamma <- (1-vac_protect)*((1/(1-vaccine_dist[year_counter])))
+        } else {mygamma <- 1-vac_protect}
     }
   # generate random numbers for infection and vaccination
     rn_inf <- runif(n,0,1)
@@ -145,23 +147,27 @@ multiannual2 <- function(n = 1000,
         if(is.null(delta_v)) {
           constant <- 0
           if (v[i,a]>=999){
-            delta_v <- 1
-          } else {delta_v <- min(1,sum(drift[year_counter-v[i,a]:year_counter]))}
+            new_delta_v <- 1
+          } else if (v[i,a] == 0){
+            new_delta_v <- 0
+          } else {new_delta_v <- min(1,sum(drift[(year_counter-v[i,a]+1):year_counter]))}
         } else {constant <- 1}
       # determine delta_x
         if(is.null(delta_x)){
           constant <- 0
           if (x[i,a] >= 999){
-            delta_x <- 1
-          } else {delta_x <- min(1,sum(drift[year_counter-x[i,a]:year_counter]))}
+            new_delta_x <- 1
+          } else if (x[i,a] == 0){
+            new_delta_x <- 0
+          } else if (x[i,a] > 0 & x[i,a] < 999) {new_delta_x <- min(1,sum(drift[(year_counter-x[i,a]+1):year_counter]))}
         } else {constant <- 1}
 
       # calculate susceptibility function for person i
         suscept_mat[i,a] <- suscept_func_cpp(inf_history = x[i,a],
                                              vac_history = v[i,a],
                                              gamma = mygamma,
-                                             drift_x = delta_x,
-                                             drift_v = delta_v,
+                                             drift_x = new_delta_x,
+                                             drift_v = new_delta_v,
                                              version = suscept_func_version,
                                              constant = constant)
 
@@ -173,6 +179,7 @@ multiannual2 <- function(n = 1000,
       # infect person i if random number < beta*susceptability
         inf_hist_mat[i,a] <- infect_cpp(susceptibility = suscept_mat[i,a], foi = mybeta, randnum_inf = rn_inf[i])
         x[i,a] <- x[i,a]*(1-inf_hist_mat[i,a])
+        suscept_mat[i,a] <- suscept_mat[i,a]*(1-inf_hist_mat[i,a])
       # update infection counters
         inf_counter[1,a] <- inf_counter[1,a] + inf_hist_mat[i,a]                           # total infections
         inf_counter[3,a] <- inf_counter[3,a] + (inf_hist_mat[i,a] * vac_hist_mat[i,a])     # vaccinated infections
