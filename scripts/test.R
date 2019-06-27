@@ -32,10 +32,13 @@ bc_inf_hist <- inf_hist[birth_cohort,1:20]
        bc_x <- x[birth_cohort,1:20]
        bc_v <- v[birth_cohort,1:20]
 
-person <- data.frame(inf_hist = bc_inf_hist[2,],
-                            x = bc_x[2,],
-                     vac_hist = bc_vac_hist[2,],
-                           v = bc_v[2,],
-                     suscept  = bc_suscept[2,],
-                     drift = mydat_vac$Drift)
-
+i <- 1
+person <- data.frame(inf_hist = bc_inf_hist[i,],
+                            x = bc_x[i,],
+                     vac_hist = bc_vac_hist[i,],
+                           v = bc_v[i,],
+                     suscept  = bc_suscept[i,],
+                     drift = mydat_vac$Drift,
+                     vac_dist = mydat_vac$Vac_Distance,
+                     update = mydat_vac$Vac_Update)
+person
