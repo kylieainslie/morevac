@@ -23,8 +23,7 @@
   lifetime_inf <- get_lifetime_inf(inf_history = inf_dat, ages = 1:80, maxage = 80)
 
 # plot drift
-test <- multiannual2()
-mydat <- test$drift
+mydat <- out$drift
 mydat$Cum_Drift <- cumsum(mydat$Drift)
 mydat_thinned <- mydat[which(mydat$Vac_Update==1),]
 p_drift <- ggplot(data = mydat, aes(x=Year, y=Cum_Drift)) +
