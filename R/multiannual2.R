@@ -86,6 +86,7 @@ multiannual2 <- function(n = 1000,
 
 # start loop over years
   while (year_counter < years+1){
+    print(year_counter)
   # initialize infection counter for current year
     inf_counter <- null_inf_counter
   # set drift value to year_counter value in drift matrix
@@ -103,7 +104,9 @@ multiannual2 <- function(n = 1000,
         update[year_counter] <- vaccine_update(years_since_vac_update = years_since_vac_update[year_counter],
                                                accumulated_drift = vaccine_dist[year_counter])
       # change years since vac update to 0 if updated in current year
-        years_since_vac_update[year_counter] <- years_since_vac_update[year_counter] * (1 - update[year_counter]) + (1 - update[year_counter])
+        years_since_vac_update[year_counter] <- years_since_vac_update[year_counter] *
+                                                (1 - update[year_counter]) +
+                                                (1 - update[year_counter])
 
       # determine protective effect of vaccine based on distance from circulating strain
         mygamma <- (1-vac_protect)*(1-(vaccine_dist[year_counter]*(1-update[year_counter])))
@@ -196,7 +199,7 @@ multiannual2 <- function(n = 1000,
   # VE
     ve[year_counter] <- 1-((totals[3]/totals[4])/(totals[5]/totals[6]))
   # update vaccine update counter
-    if (year_counter < years) {years_since_vac_update[year_counter + 1] <- years_since_vac_update[year_counter] + 1}
+    if (year_counter < years) {years_since_vac_update[year_counter + 1] <- years_since_vac_update[year_counter]}
   # update counters
     year_counter <- year_counter + 1
     actual_year <- actual_year + 1
@@ -213,7 +216,8 @@ multiannual2 <- function(n = 1000,
 
   dat <- data.frame(Year=start_year:end_year,Attack_Rate=attack_rate)
   ve_dat <- data.frame(Year=start_vac_year:end_year,VE=ve[(years-(end_year-start_vac_year)):years])
-  drift_dat <- data.frame(Year=start_year:end_year,Drift=drift, Vac_Distance=vaccine_dist,Vac_Update=update)
+  drift_dat <- data.frame(Year=start_year:end_year,Drift=drift, Vac_Distance=vaccine_dist,Vac_Update=update,
+                          Years_Since_Vac_Update = years_since_vac_update)
   # if (return_ar_only == 1){
   #   rtn <- dat
   # } else if (return_ar_only == 2){
