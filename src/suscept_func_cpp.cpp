@@ -19,7 +19,8 @@ double suscept_func_cpp(int inf_history,
                         double gamma,
                         double drift_x,
                         double drift_v,
-                        int version) {
+                        int version,
+                        int constant) {
 
   int vac_ind = 0; // initialize vac_ind
   double rtn = 0;     // initialize return value
@@ -28,33 +29,21 @@ double suscept_func_cpp(int inf_history,
   if(vac_history == 0){
      vac_ind = 1;
   }
-// never infected
-//  if (drift_x > 0 && drift_v > 0){
-//    if (inf_history >= 999){
-//      if (vac_history > 1/drift_v){ // never vaccinated or vaccinated long enough ago for drift to have diminished protection
-//        rtn = 1;
-//      } else if (vac_history <= 1/drift_v){ // vaccinated this year or within last few years
-//        rtn = (vac_ind*gamma) + (vac_history*drift_v);
-//      }
-//    }
-
-// infected and drift>0
-//    if (inf_history < 999){
-//      if (vac_history > 1/drift_v){ // never vaccinated
-//        if (inf_history < 1/drift_x){
-//          rtn = inf_history*drift_x;
-//        } else if (inf_history >= 1/drift_x) {
-//          rtn = 1;
-//        }
-//      } else if (vac_history <= 1/drift_v){ // vaccinated
+// constant drift values
+   if(constant == 1){
         if (version == 1){
           rtn = std::min(1.0, std::min(inf_history*drift_x,(vac_ind*gamma)+(vac_history*drift_v))); // either-or
         } else if (version == 2) {
           rtn = std::min(1.0,inf_history*drift_x) * std::min(1.0,gamma +(vac_history*drift_v)); // multiplicative
         }
-//      }
-//    }
-//  }
+   } else {
+// non-constant drift values
+     if (version == 1){
+       rtn = std::min(1.0, std::min(drift_x,(vac_ind*gamma) + drift_v)); // either-or
+     } else if (version == 2) {
+       rtn = std::min(1.0,drift_x) * std::min(1.0, gamma + drift_v); // multiplicative
+     }
+   }
 // infected and drift=0
   if (drift_x == 0 && drift_v == 0){
     if (inf_history < 999){
@@ -66,5 +55,7 @@ double suscept_func_cpp(int inf_history,
 }
 
 /*** R
-suscept_func_cpp(inf_history = 3, vac_history = 1, gamma = 0.4, drift_x = 0.2, drift_v = 0.2, version = 2)
+suscept_func_cpp(inf_history = 3, vac_history = 1,
+                 gamma = 0.3, drift_x = 0.2, drift_v = 0.2,
+                 version = 2, constant = 0)
 */
