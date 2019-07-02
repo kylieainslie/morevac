@@ -40,7 +40,7 @@ multiannual2 <- function(n = 1000,
                          suscept_func_version = 1,
                          vac_strategy = 1,
                          rho = 0,
-                         return_ar_only = 0
+                         wane = 0.84
                          ){
 # initialize the population
   init <- initialize_pop(nindiv = n, maxage = maxage)
@@ -232,18 +232,13 @@ multiannual2 <- function(n = 1000,
   ve_dat <- data.frame(Year=start_vac_year:end_year,VE=ve[(years-(end_year-start_vac_year)):years])
   drift_dat <- data.frame(Year=start_year:end_year,Drift=drift, Vac_Distance=vaccine_dist,Vac_Update=update,
                           Years_Since_Vac_Update = years_since_vac_update)
-  # if (return_ar_only == 1){
-  #   rtn <- dat
-  # } else if (return_ar_only == 2){
-  #   rtn <- attack_rate_by_age
-  # } else {
+  # return
     rtn <- list(history = init,
                 attack_rate = dat,
                 attack_rate_by_age = attack_rate_by_age,
                 ve = ve_dat,
                 drift = drift_dat
                 )
-  # }
 
   return(rtn)
 }
