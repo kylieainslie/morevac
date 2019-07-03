@@ -41,10 +41,14 @@ double suscept_func_cpp(int inf_history,
         }
    } else {
 // non-constant drift values
+  if (vac_history < 999){
      if (version == 1){
-       rtn = std::min(1.0, std::min(drift_x,(vac_ind*gamma) + (1-vac_ind)*(gamma + drift_v + w))); // either-or
-     } else if (version == 2) {
-       rtn = std::min(1.0,drift_x) * std::min(1.0, (vac_ind*gamma) + (1-vac_ind)*(gamma + drift_v + w)); // multiplicative
+          rtn = std::min(1.0, std::min(drift_x,(vac_ind*gamma) + (1-vac_ind)*(gamma + drift_v + w))); // either-or
+      } else if (version == 2) {
+          rtn = std::min(1.0,drift_x) * std::min(1.0, (vac_ind*gamma) + (1-vac_ind)*(gamma + drift_v + w)); // multiplicative
+      }
+     } else if (vac_history >= 999){
+       rtn = std::min(1.0,drift_x);
      }
    }
 // infected and drift=0
@@ -56,7 +60,7 @@ double suscept_func_cpp(int inf_history,
 }
 
 /*** R
-suscept_func_cpp(inf_history = 0, vac_history = 2,gamma = 0.3,
-                 drift_x = 1, drift_v = 0, wane_rate = 0.84,
+suscept_func_cpp(inf_history = 0, vac_history = 3,gamma = 0.3,
+                 drift_x = 0.7, drift_v = 0.1, wane_rate = 0,
                  version = 1, constant = 0)
 */
