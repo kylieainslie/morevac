@@ -33,14 +33,14 @@ multiannual2 <- function(n = 1000,
                          start_vac_age = 3,
                          vac_coverage = 0.5,
                          beta_pandemic = 0.4,
-                         beta_epidemic = 0.15,
+                         beta_epidemic = 0.2,
                          delta_x = NULL,
                          delta_v = NULL,
                          vac_protect = 0.7,
                          suscept_func_version = 1,
                          vac_strategy = 1,
                          rho = 0,
-                         wane = 0.84
+                         wane = 0
                          ){
 # initialize the population
   init <- initialize_pop(nindiv = n, maxage = maxage)
@@ -129,6 +129,7 @@ multiannual2 <- function(n = 1000,
       } else {prior_vac <- vac_hist_mat[i,a-vac_strategy]}
 
       # determine who will be vaccinated
+      if (actual_year >= start_vac_year){
        vac_hist_mat[i,a] <- vaccinate_cpp(prior_vac = prior_vac,
                                           even_year = ey,
                                           vac_cov = vc,
@@ -140,6 +141,7 @@ multiannual2 <- function(n = 1000,
                                           start_vac_year = start_vac_year,
                                           start_vac_age = start_vac_age)
         v[i,a] <- v[i,a]*(1-vac_hist_mat[i,a])
+      }
       # update number of vac/unvac counters
         inf_counter[4,a] <- inf_counter[4,a] + vac_hist_mat[i,a]
         inf_counter[6,a] <- inf_counter[6,a] + (1-vac_hist_mat[i,a])
@@ -151,7 +153,10 @@ multiannual2 <- function(n = 1000,
           } else if (v[i,a] == 0){
             new_delta_v <- 0
           } else {new_delta_v <- min(1,sum(drift[(year_counter-v[i,a]+1):year_counter]))}
-        } else {constant <- 1}
+        } else {
+          constant <- 1
+          new_delta_v <- delta_v
+          }
       # determine delta_x
         if(is.null(delta_x)){
           constant <- 0
@@ -160,7 +165,10 @@ multiannual2 <- function(n = 1000,
           } else if (x[i,a] == 0){
             new_delta_x <- 0
           } else if (x[i,a] > 0 & x[i,a] < 999) {new_delta_x <- min(1,sum(drift[(year_counter-x[i,a]+1):year_counter]))}
-        } else {constant <- 1}
+        } else {
+          constant <- 1
+          new_delta_x <- delta_x
+        }
 
       # calculate susceptibility function for person i
         suscept_mat[i,a] <- suscept_func_cpp(inf_history = x[i,a],
