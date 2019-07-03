@@ -31,13 +31,12 @@ sim_out <- foreach (j=1:4, .packages = 'morevac') %:%
           version = 2, rho = rhos[j], file.out = TRUE)
 
 # submitting individual jobs
-out0 <- run_sim(sim = 1000,nindiv = 10000,vaccov = 0,version = 2,
-                rho = 0, vac_strategy = 0,file.out = TRUE,
-                tag = "vs0vc0r0v1")
-out1 <- run_sim(sim = 1000,nindiv = 10000,vaccov = 0,version = 1,
+out0 <- run_sim(sim = 10,nindiv = 3000,vaccov = 0.25,version = 2,
+                rho = 0, vac_strategy = 0,file.out = FALSE)
+out1 <- run_sim(sim = 100,nindiv = 10000,vaccov = 0,version = 2,
                 rho = 0, vac_strategy = 1,file.out = TRUE,
                 tag = "vs1vc0r0v1")
-out2 <- run_sim(sim = 1000,nindiv = 10000,vaccov = 0,version = 1,
+out2 <- run_sim(sim = 100,nindiv = 10000,vaccov = 0,version = 2,
                 rho = 0, vac_strategy = 2,file.out = TRUE,
                 tag = "vs2vc0r0v1")
 #stopCluster(cl)

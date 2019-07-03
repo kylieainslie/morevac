@@ -168,6 +168,7 @@ multiannual2 <- function(n = 1000,
                                              gamma = mygamma,
                                              drift_x = new_delta_x,
                                              drift_v = new_delta_v,
+                                             wane_rate = wane,
                                              version = suscept_func_version,
                                              constant = constant)
 

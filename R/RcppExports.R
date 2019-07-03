@@ -9,8 +9,8 @@ lifetime_infections_cpp <- function(a, lifetime_inf, inf_stat) {
     .Call(`_morevac_lifetime_infections_cpp`, a, lifetime_inf, inf_stat)
 }
 
-suscept_func_cpp <- function(inf_history, vac_history, gamma, drift_x, drift_v, version, constant) {
-    .Call(`_morevac_suscept_func_cpp`, inf_history, vac_history, gamma, drift_x, drift_v, version, constant)
+suscept_func_cpp <- function(inf_history, vac_history, gamma, drift_x, drift_v, wane_rate, version, constant) {
+    .Call(`_morevac_suscept_func_cpp`, inf_history, vac_history, gamma, drift_x, drift_v, wane_rate, version, constant)
 }
 
 vaccinate_cpp <- function(prior_vac, even_year, vac_cov, vac_strategy, age, rho, randnum_vac, actual_year, start_vac_year, start_vac_age) {
