@@ -22,6 +22,7 @@ run_sim <- function(sim = 100,
                     version = 1,
                     vac_strategy = 1,
                     rho = 0,
+                    wane = 0.84,
                     file.out = FALSE,
                     ve.out = FALSE,
                     tag = ""){
@@ -50,7 +51,8 @@ run_sim <- function(sim = 100,
     # run model
     test <- multiannual2(n = nindiv, vac_coverage = vaccov,
                          suscept_func_version = version,
-                         vac_strategy = vac_strategy,  rho = rho
+                         vac_strategy = vac_strategy,  rho = rho,
+                         wane = wane
                          )
     # attack rate by age
     out[,,s] <- test$attack_rate_by_age
