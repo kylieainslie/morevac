@@ -31,14 +31,22 @@ sim_out <- foreach (j=1:4, .packages = 'morevac') %:%
           version = 2, rho = rhos[j], file.out = TRUE)
 
 # submitting individual jobs
-out0 <- run_sim(sim = 10,nindiv = 3000,vaccov = 0.25,version = 2,
-                rho = 0, vac_strategy = 0,file.out = FALSE)
-out1 <- run_sim(sim = 100,nindiv = 10000,vaccov = 0,version = 2,
-                rho = 0, vac_strategy = 1,file.out = TRUE,
-                tag = "vs1vc0r0v1")
-out2 <- run_sim(sim = 100,nindiv = 10000,vaccov = 0,version = 2,
-                rho = 0, vac_strategy = 2,file.out = TRUE,
-                tag = "vs2vc0r0v1")
+out0 <- run_sim(sim = 25,nindiv = 5000,vaccov = 0.5,version = 2,
+                rho = 0.9, wane = 0.84, vac_strategy = 0,
+                file.out = FALSE)
+out1 <- run_sim(sim = 25,nindiv = 5000,vaccov = 0.5,version = 2,
+                rho = 0, wane = 0.84, vac_strategy = 1,
+                file.out = FALSE)
+out2 <- run_sim(sim = 25,nindiv = 5000,vaccov = 0.5,version = 2,
+                rho = 0, wane = 0.84, vac_strategy = 2,
+                file.out = FALSE)
+
+sim_out <- list(no_vac = list(attack_rate = out0$attack_rate,
+                              lifetime_infections = out0$lifetime_infections),
+                annual = list(attack_rate = out1$attack_rate,
+                              lifetime_infections = out1$lifetime_infections),
+                biannual = list(attack_rate = out2$attack_rate,
+                                lifetime_infections = out2$lifetime_infections))
 #stopCluster(cl)
 
 ### output
