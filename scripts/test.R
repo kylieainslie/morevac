@@ -1,5 +1,5 @@
 ### testing script ###
-test <- multiannual2()
+test <- multiannual2(wane = 0.84, suscept_func_version = 2)
 p_test <- plot_attack_rates(dat = test$attack_rate)
 p_test
 # check drift and vac update
@@ -26,15 +26,15 @@ vac_hist <- test$history[,,2]
        v <- test$history[,,5]
 
 # original cohort
-mydat_orig <- mydat[1:20,]
-orig_cohort <- which(rownames(vac_hist)==0)
-oc_vac_hist <- vac_hist[orig_cohort,1:20]
-oc_inf_hist <- inf_hist[orig_cohort,1:20]
-oc_suscept <- suscept[orig_cohort,1:20]
-oc_x <- x[orig_cohort,1:20]
-oc_v <- v[orig_cohort,1:20]
+mydat_orig <- mydat[161:200,]
+orig_cohort <- which(rownames(vac_hist)==39)
+oc_vac_hist <- vac_hist[orig_cohort,1:40]
+oc_inf_hist <- inf_hist[orig_cohort,1:40]
+oc_suscept <- suscept[orig_cohort,1:40]
+oc_x <- x[orig_cohort,1:40]
+oc_v <- v[orig_cohort,1:40]
 
-i <- 2
+i <- 1
 person <- data.frame(inf_hist = oc_inf_hist[i,],
                      x = oc_x[i,],
                      vac_hist = oc_vac_hist[i,],
@@ -52,7 +52,7 @@ bc_inf_hist <- inf_hist[birth_cohort,1:20]
        bc_x <- x[birth_cohort,1:20]
        bc_v <- v[birth_cohort,1:20]
 
-i <- 2
+i <- 1
 person <- data.frame(inf_hist = bc_inf_hist[i,],
                             x = bc_x[i,],
                      vac_hist = bc_vac_hist[i,],
