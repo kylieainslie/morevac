@@ -55,51 +55,41 @@ library(cowplot)
 
 # read in dim results files
 setwd("Q:/morevac_sims/data")
-tags <- c("vs0vc0r0v1","vs1vc50r0v1","vs2vc50r0v1")
-  sim_out <- list(no_vac = list(attack_rate = read.csv(file = paste0("attack_rates/attack_rate_data_",tags[1],".csv"),header = TRUE)[,-1],
-                                lifetime_infections = read.csv(file = paste0("lifetime_infections/lifetime_inf_data_",tags[1],".csv"),header = TRUE)[,-1]),
-                  annual = list(attack_rate = read.csv(file = paste0("attack_rates/attack_rate_data_",tags[2],".csv"),header = TRUE)[,-1],
-                                lifetime_infections = read.csv(file = paste0("lifetime_infections/lifetime_inf_data_",tags[2],".csv"),header = TRUE)[,-1]),
-                  biannual = list(attack_rate = read.csv(file = paste0("attack_rates/attack_rate_data_",tags[3],".csv"),header = TRUE)[,-1],
-                                  lifetime_infections = read.csv(file = paste0("lifetime_infections/lifetime_inf_data_",tags[3],".csv"),header = TRUE)[,-1])
-                  )
 
-dat1 <- process_sim_output(sim_out, year_range = yearRange, age_range = ageRange)
+# version 1
+# read in output data
+tags1 <- c("vs0vc50r09v1w84","vs1vc50r09v1w84","vs2vc50r09v1w84")
+sim_out1 <- list(no_vac = list(attack_rate = read.csv(file = paste0("attack_rates/attack_rate_data_",tags1[1],".csv"),header = TRUE)[,-1],
+                               lifetime_infections = read.csv(file = paste0("lifetime_infections/lifetime_inf_data_",tags1[1],".csv"),header = TRUE)[,-1]),
+                 annual = list(attack_rate = read.csv(file = paste0("attack_rates/attack_rate_data_",tags1[2],".csv"),header = TRUE)[,-1],
+                               lifetime_infections = read.csv(file = paste0("lifetime_infections/lifetime_inf_data_",tags1[2],".csv"),header = TRUE)[,-1]),
+                 biannual = list(attack_rate = read.csv(file = paste0("attack_rates/attack_rate_data_",tags1[3],".csv"),header = TRUE)[,-1],
+                                 lifetime_infections = read.csv(file = paste0("lifetime_infections/lifetime_inf_data_",tags1[3],".csv"),header = TRUE)[,-1])
+)
+# process data to be plotted
+dat1 <- process_sim_output(sim_out1, year_range = yearRange, age_range = ageRange)
+# plot attack rates
 pa1 <- plot_attack_rates(dat = dat1[[1]], by_vac = TRUE, c_bands = TRUE)
+# plot lifetime infections
 pl1 <- plot_lifetime_infections(dat = dat1[[2]], by_vac = TRUE, x=0.5)
 
-dat2 <- process_sim_output(sim_out, j=2, year_range = yearRange, age_range = ageRange)
-pa2 <- plot_attack_rates(dat = dat2[[1]], by_vac = TRUE, c_bands = TRUE, no_legend = TRUE)
-pl2 <- plot_lifetime_infections(dat = dat2[[2]], by_vac = TRUE, no_legend = TRUE)
+# version 2
+tags2 <- c("vs0vc50r09v2w84","vs1vc50r09v2w84","vs2vc50r09v2w84")
+sim_out2 <- list(no_vac = list(attack_rate = read.csv(file = paste0("attack_rates/attack_rate_data_",tags2[1],".csv"),header = TRUE)[,-1],
+                               lifetime_infections = read.csv(file = paste0("lifetime_infections/lifetime_inf_data_",tags2[1],".csv"),header = TRUE)[,-1]),
+                 annual = list(attack_rate = read.csv(file = paste0("attack_rates/attack_rate_data_",tags2[2],".csv"),header = TRUE)[,-1],
+                               lifetime_infections = read.csv(file = paste0("lifetime_infections/lifetime_inf_data_",tags2[2],".csv"),header = TRUE)[,-1]),
+                 biannual = list(attack_rate = read.csv(file = paste0("attack_rates/attack_rate_data_",tags2[3],".csv"),header = TRUE)[,-1],
+                                 lifetime_infections = read.csv(file = paste0("lifetime_infections/lifetime_inf_data_",tags2[3],".csv"),header = TRUE)[,-1])
+)
 
-dat3 <- process_sim_output(sim_out, j=3, year_range = yearRange, age_range = ageRange)
-pa3 <- plot_attack_rates(dat = dat3[[1]], by_vac = TRUE, c_bands = TRUE, no_legend = TRUE)
-pl3 <- plot_lifetime_infections(dat = dat3[[2]], by_vac = TRUE, no_legend = TRUE)
-
-dat4 <- process_sim_output(sim_out, j=4, year_range = yearRange, age_range = ageRange)
-pa4 <- plot_attack_rates(dat = dat4[[1]], by_vac = TRUE, c_bands = TRUE, no_legend = TRUE)
-pl4 <- plot_lifetime_infections(dat = dat4[[2]], by_vac = TRUE, no_legend = TRUE)
-
-dat5 <- process_sim_output(sim_out, j=5, year_range = yearRange, age_range = ageRange)
-pa5 <- plot_attack_rates(dat = dat5[[1]], by_vac = TRUE, c_bands = TRUE, no_legend = TRUE)
-pl5 <- plot_lifetime_infections(dat = dat5[[2]], by_vac = TRUE, no_legend = TRUE)
+dat2 <- process_sim_output(sim_out2, year_range = yearRange, age_range = ageRange)
+pa2 <- plot_attack_rates(dat = dat2[[1]], by_vac = TRUE, c_bands = TRUE)
+pl2 <- plot_lifetime_infections(dat = dat2[[2]], by_vac = TRUE, x=0.5)
 
 # plots
 theme_set(theme_cowplot(font_size=10)) # reduce default font size
-attack_rate_plot <- plot_grid(pa1, pa2, pa3, pa4, labels = "AUTO", ncol = 2,
-                              align = 'v', axis = 'l') # aligning vertically along the left axis
-lifetime_inf_plot <- plot_grid(pl1, pl2, pl3, pl4, labels = "AUTO", ncol = 2,
-                               align = 'v', axis = 'l') # aligning vertically along the left axis
+attack_rate_plot <- plot_grid(pa1, pa2, labels = "AUTO", ncol = 2, align = 'v', axis = 'l')
+lifetime_inf_plot <- plot_grid(pl1, pl2, labels = "AUTO", ncol = 2, align = 'v', axis = 'l')
 
-filename <- c('attack_rates_by_rho_vc0.5','lifetime_infections_by_rho_vc0.5')
-path <- '/Users/Kylie/Google Drive/morevac_manuscript/presentations/MRC symposium'
-setwd(path)
-
-jpeg(file = paste0(filename[1],'.jpeg'))
-plot(attack_rate_plot)
-dev.off()
-
-jpeg(file = paste0(filename[2],'.jpeg'))
-plot(lifetime_inf_plot)
-dev.off()
 
