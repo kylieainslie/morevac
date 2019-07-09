@@ -30,134 +30,35 @@ kids_only1 <- gather_(kids_only, keycol, valuecol, gathercols)
 
 p_kids <- plot_attack_rates(dat=kids_only1[kids_only1$Year %in% (2000:2019),],by_age = TRUE)
 
-# follow a cohort from 2000 to 2019
-sim <- 100
-nindiv <- 5000
-year_range <- 2000:2019
-age_range <- 0:19
-vaccov <- c(0, 0.25, 0.5, 0.75, 1)
-#start_year <- 1820
-
-out0 <- array(NA,dim=c(200,80,sim))
-outa <- array(NA,dim=c(200,80,sim))
-outb <- array(NA,dim=c(200,80,sim))
-life_inf0 <- matrix(c(rep(NA,sim*length(age_range))),nrow=sim)
-life_infa <- life_inf0
-life_infb <- life_inf0
-ar_out0 <- matrix(c(rep(NA,sim*length(year_range))),nrow=length(year_range))
-ar_outa <- matrix(c(rep(NA,sim*length(year_range))),nrow=length(year_range))
-ar_outb <- matrix(c(rep(NA,sim*length(year_range))),nrow=length(year_range))
-
-for (vc in vaccov){
-  print(paste('Simulating for vaccination coverage', vc))
-# create progress bar
-pb <- txtProgressBar(min = 0, max = sim, style = 3)
-
-for (s in 1:sim){
-  Sys.sleep(0.1)
-  # update progress bar
-  setTxtProgressBar(pb, s)
-
-  # run model
-  test0 <- multiannual2(n=nindiv, vac_coverage = 0)
-  testa <- multiannual2(n=nindiv, vac_coverage = vc)
-  testb <- multiannual2(n=nindiv, vac_coverage = vc, biannual = TRUE)
-  # attack rate by age
-  out0[,,s] <- test0[[1]]$attack_rate_by_age
-  dimnames(out0)[[1]] <- rownames(test0[[1]]$attack_rate_by_age)
-  ar_out0[,s] <- diag(out0[rownames(out0) %in% year_range,(age_range+1),s])
-
-  outa[,,s] <- testa[[1]]$attack_rate_by_age
-  dimnames(outa)[[1]] <- rownames(testa[[1]]$attack_rate_by_age)
-  ar_outa[,s] <- diag(outa[rownames(outa) %in% year_range,(age_range+1),s])
-
-  outb[,,s] <- testb[[1]]$attack_rate_by_age
-  dimnames(outb)[[1]] <- rownames(testb[[1]]$attack_rate_by_age)
-  ar_outb[,s] <- diag(outb[rownames(outb) %in% year_range,(age_range+1),s])
-  # lifetime infections
-  tmp0 <- test0[[1]]$history$lifetime_infections[,,200]
-  life_inf0[s,] <- apply(tmp0[which(!is.na(tmp0[,20]) & is.na(tmp0[,21])),age_range + 1],2,mean,na.rm = TRUE)
-  tmpa <- testa[[1]]$history$lifetime_infections[,,200]
-  life_infa[s,] <- apply(tmpa[which(!is.na(tmpa[,20]) & is.na(tmpa[,21])),age_range + 1],2,mean,na.rm = TRUE)
-  tmpb <- testb[[1]]$history$lifetime_infections[,,200]
-  life_infb[s,] <- apply(tmpb[which(!is.na(tmpb[,20]) & is.na(tmpb[,21])),age_range + 1],2,mean,na.rm = TRUE)
-}
-close(pb)
-
-cohort <- data.frame(Year = c(rep(year_range,3)),
-                     Attack_Rate = c(apply(ar_out0,1,mean),
-                                     apply(ar_outa,1,mean),
-                                     apply(ar_outb,1,mean)),
-                     Lower = c(apply(ar_out0,1,FUN = function(x) quantile(x, c(0.025))),
-                               apply(ar_outa,1,FUN = function(x) quantile(x, c(0.025))),
-                               apply(ar_outb,1,FUN = function(x) quantile(x, c(0.025)))),
-                     Upper = c(apply(ar_out0,1,FUN = function(x) quantile(x, c(0.975))),
-                               apply(ar_outa,1,FUN = function(x) quantile(x, c(0.975))),
-                               apply(ar_outb,1,FUN = function(x) quantile(x, c(0.975)))),
-                     Age = c(rep(age_range,3)),
-                     Vac_Strategy = c(rep('No Vaccination',length(year_range)),
-                                      rep('Annual',length(year_range)),
-                                      rep('Biannual',length(year_range)))
-                     )
-
-p_cohort <- ggplot(data = cohort, aes(x = Year, y = Attack_Rate, colour= Vac_Strategy)) +
-            geom_line() +
-            geom_ribbon(aes(x=Year,ymin=Lower,ymax=Upper,linetype=NA,fill=Vac_Strategy),alpha=0.2)+
-            xlab('Year') +
-            ylab('Attack Rate') +
-            scale_y_continuous(limits = c(0,0.4), expand = c(0,0)) +
-            theme(panel.grid.major = element_blank(),
-                  panel.grid.minor = element_blank(),
-                  panel.background = element_blank(),
-                  axis.line = element_line(colour = "black"),
-                  legend.position = c(.95, .95),
-                  legend.justification = c("right", "top"),
-                  legend.box.just = "right",
-                  legend.margin = margin(6, 6, 6, 6),
-                  legend.key = element_rect(fill = "white")
-               )
-pdf(file = paste0("figures/ar_by_strategy_mult",vc,".pdf"))
-plot(p_cohort)
-dev.off()
-
-# lifetime infections
-library(stringr)
-life_inf_dat <- data.frame(Sim = c(rep(1:sim,3)),
-                           Vac_Strategy = c(rep('No Vaccination',sim),
-                                            rep('Annual',sim),
-                                            rep('Biannual',sim)),
-                           rbind(life_inf0,life_infa,life_infb)
+### plot simulation results
+tags1 <- c("vs0vc50r09v1w84","vs1vc50r09v1w84","vs2vc50r09v1w84")
+sim_out1 <- list(no_vac = list(attack_rate = read.csv(file = paste0("attack_rates/attack_rate_data_",tags1[1],".csv"),header = TRUE)[,-1],
+                               lifetime_infections = read.csv(file = paste0("lifetime_infections/lifetime_inf_data_",tags1[1],".csv"),header = TRUE)[,-1]),
+                 annual = list(attack_rate = read.csv(file = paste0("attack_rates/attack_rate_data_",tags1[2],".csv"),header = TRUE)[,-1],
+                               lifetime_infections = read.csv(file = paste0("lifetime_infections/lifetime_inf_data_",tags1[2],".csv"),header = TRUE)[,-1]),
+                 biannual = list(attack_rate = read.csv(file = paste0("attack_rates/attack_rate_data_",tags1[3],".csv"),header = TRUE)[,-1],
+                                 lifetime_infections = read.csv(file = paste0("lifetime_infections/lifetime_inf_data_",tags1[3],".csv"),header = TRUE)[,-1])
 )
-names(life_inf_dat) <- c('Sim','Vac_Strategy',c(paste0("Age",age_range)))
-data_long <- gather(life_inf_dat, Age, Life_Inf, Age0:Age19, factor_key=TRUE)
-data_long$Sim <- as.factor(str_remove(data_long$Age, 'Age'))
+# process data to be plotted
+yearRange <- 2000:2019
+ageRange <- 0:19
+dat1 <- process_sim_output(sim_out1, year_range = yearRange, age_range = ageRange)
+# plot attack rates
+pa1 <- plot_attack_rates(dat = dat1[[1]], by_vac = TRUE, c_bands = TRUE)
+# plot lifetime infections
+pl1 <- plot_lifetime_infections(dat = dat1[[2]], by_vac = TRUE, x=0.5)
 
-data_long$Age = with(data_long, reorder(Age, Life_Inf, mean))
-# boxplot
-p1 <- ggplot(data_long, aes(x = Age, y = Life_Inf,fill = Vac_Strategy)) +
-      geom_boxplot() +
-      ylab('Number of Lifetime Infections') +
-      theme(panel.grid.major = element_blank(),
-            panel.grid.minor = element_blank(),
-            panel.background = element_blank(),
-            axis.line = element_line(colour = "black"),
-            legend.position = c(.25, .95),
-            legend.justification = c("right", "top"),
-            legend.box.just = "right",
-            legend.margin = margin(6, 6, 6, 6),
-            legend.key = element_rect(fill = "white")
-      )
-
-pdf(file = paste0("figures/life_inf_by_strategy_mult",vc,".pdf"))
-plot(p1)
-dev.off()
-
-#theme_set(theme_cowplot(font_size=10)) # reduce default font size
-#omg <- plot_grid(p_cohort, p1, labels = "AUTO", ncol = 2,
-#                 align = 'v', axis = 'l') # aligning vertically along the left axis
-#pdf(file = paste0("figures/combined_plot_",vc,".pdf"))
-#plot(omg)
-#dev.off()
-
+# plot attack rates for different values of waning
+path <- 'Q:/morevac_sims/data/'
+wane_val <- c('0','25','50','84','100')
+for (i in 1:length(wane_val)){
+  tags <- paste0(c("vs0vc50r09v1w","vs1vc50r09v1w","vs2vc50r09v1w"),c(rep(wane_val[i],3)))
+  sim_out <- list(no_vac = list(attack_rate = read.csv(file = paste0(path,"attack_rates/attack_rate_data_",tags[1],".csv"),header = TRUE)[,-1],
+                                lifetime_infections = read.csv(file = paste0(path,"lifetime_infections/lifetime_inf_data_",tags[1],".csv"),header = TRUE)[,-1]),
+                  annual = list(attack_rate = read.csv(file = paste0(path,"attack_rates/attack_rate_data_",tags[2],".csv"),header = TRUE)[,-1],
+                                lifetime_infections = read.csv(file = paste0(path,"lifetime_infections/lifetime_inf_data_",tags[2],".csv"),header = TRUE)[,-1]),
+                  biannual = list(attack_rate = read.csv(file = paste0(path,"attack_rates/attack_rate_data_",tags[3],".csv"),header = TRUE)[,-1],
+                                  lifetime_infections = read.csv(file = paste0(path,"lifetime_infections/lifetime_inf_data_",tags[3],".csv"),header = TRUE)[,-1]))
+  dat <- process_sim_output(sim_out, year_range = yearRange, age_range = ageRange)
+  assign(paste0('dat',i),dat)
 }
-
