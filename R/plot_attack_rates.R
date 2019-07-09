@@ -10,13 +10,15 @@
 #' @param c_bands logical. Plot confidence bands or not. Must have columns named Lower and Upper.
 #' @param y_max maximum value for y-axis.
 #' @param no_legend logical. if TRUE legend will be suppressed.
+#' @param legend_x x position of legend.
+#' @param legend_y y position of legend.
 #' @return plot of multi-annual attack rates with vertical dashed line indicating year of start of
 #'         vaccination and a horizontal dashed line indicating mean attack rate prior to start of vaccination.
 #' @keywords morevac
 #' @export
 
 plot_attack_rates <- function(dat, by_vac = FALSE, c_bands = FALSE, y_max = 0.5,
-                              no_legend = FALSE){
+                              no_legend = FALSE, legend_x = 0.95, legend_y = 0.95){
 
   years <- unique(dat$Year)
 
@@ -83,7 +85,7 @@ plot_attack_rates <- function(dat, by_vac = FALSE, c_bands = FALSE, y_max = 0.5,
                       panel.grid.minor = element_blank(),
                       panel.background = element_blank(),
                       axis.line = element_line(colour = "black"),
-                      legend.position = c(.95, .95),
+                      legend.position = c(legend_x, legend_y),
                       legend.justification = c("right", "top"),
                       legend.box.just = "right",
                       legend.margin = margin(6, 6, 6, 6),
@@ -98,7 +100,7 @@ plot_attack_rates <- function(dat, by_vac = FALSE, c_bands = FALSE, y_max = 0.5,
                         panel.grid.minor = element_blank(),
                         panel.background = element_blank(),
                         axis.line = element_line(colour = "black"),
-                        legend.position = c(.95, .95),
+                        legend.position = c(legend_x, legend_y),
                         legend.justification = c("right", "top"),
                         legend.box.just = "right",
                         legend.margin = margin(6, 6, 6, 6),
