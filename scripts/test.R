@@ -54,7 +54,7 @@ bc_inf_hist <- inf_hist[birth_cohort,1:20]
        bc_x <- x[birth_cohort,1:20]
        bc_v <- v[birth_cohort,1:20]
 
-i <- 4
+i <- 5
 person <- data.frame(inf_hist = bc_inf_hist[i,],
                             x = bc_x[i,],
                      vac_hist = bc_vac_hist[i,],
@@ -87,7 +87,8 @@ p_no_vac_suscept <- ggplot(data = person, aes(x = Year, y = no_vac_suscept)) +
                           panel.grid.minor = element_blank(),
                           panel.background = element_blank(),
                           axis.line = element_line(colour = "black"))
-
+p_no_vac_suscept <- p_no_vac_suscept +
+                    geom_vline(xintercept=infections, colour = 'red')
 
 p_suscept <- ggplot(data = person, aes(x = Year, y = suscept)) +
              geom_line() +
@@ -107,3 +108,5 @@ library(cowplot)
 #theme_set(theme_cowplot(font_size=10)) # reduce default font size
 p <- plot_grid(p_vac, p_no_vac_suscept,p_suscept, labels = "AUTO", ncol = 1, align = 'v', axis = 'l')
 p
+
+

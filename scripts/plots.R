@@ -42,6 +42,7 @@ sim_out1 <- list(no_vac = list(attack_rate = read.csv(file = paste0("attack_rate
 # process data to be plotted
 yearRange <- 2000:2019
 ageRange <- 0:19
+y_max <- 0.25
 dat1 <- process_sim_output(sim_out1, year_range = yearRange, age_range = ageRange)
 # plot attack rates
 pa1 <- plot_attack_rates(dat = dat1[[1]], by_vac = TRUE, c_bands = TRUE)
@@ -60,5 +61,30 @@ for (i in 1:length(wane_val)){
                   biannual = list(attack_rate = read.csv(file = paste0(path,"attack_rates/attack_rate_data_",tags[3],".csv"),header = TRUE)[,-1],
                                   lifetime_infections = read.csv(file = paste0(path,"lifetime_infections/lifetime_inf_data_",tags[3],".csv"),header = TRUE)[,-1]))
   dat <- process_sim_output(sim_out, year_range = yearRange, age_range = ageRange)
+  dat[[1]]$wane <- c(rep(as.numeric(wane_val[i]),dim(dat[[1]])[1]))
   assign(paste0('dat',i),dat)
 }
+
+dat_all <- rbind(dat1[[1]],dat2[[1]],dat3[[1]],dat4[[1]],dat5[[1]])
+dat_all$wane <- as.factor(dat_all$wane)
+annual <- dat_all[dat_all$Vac_Strategy == 'Annual',]
+biannual <- dat_all[dat_all$Vac_Strategy == 'Biannual',]
+
+p_wane <- ggplot(data = biannual, aes(x = Year, y = Attack_Rate, colour= wane)) +
+  geom_line() +
+  xlab('Year') +
+  ylab('Attack Rate') +
+  scale_y_continuous(limits = c(0,y_max), expand = c(0,0)) +
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(colour = "black"),
+        legend.position = c(.95, .95),
+        legend.justification = c("right", "top"),
+        legend.box.just = "right",
+        legend.margin = margin(6, 6, 6, 6),
+        legend.key = element_rect(fill = "white"))
+
+p_wane
+
+

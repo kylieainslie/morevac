@@ -1,5 +1,6 @@
 ### For cluster
-setwd('/Volumes/kainslie/cluster')
+#setwd('/Volumes/kainslie/cluster')
+setwd('Q:/cluster')
 # set up your details and which cluster you want (big or small)
 options(didehpc.username = "kainslie",
         didehpc.cluster = "big")
@@ -21,25 +22,25 @@ obj <- didehpc::queue_didehpc(ctx)
 # 'job' is the thing I am running on the cluster
 # separate job for each vac strategy
 job1 <- obj$enqueue(run_sim(sim = 100,nindiv = 10000,vaccov = 0.5,version = 2,
-                            rho = 0.9, wane = 0.84, vac_strategy = 0,
-                            file.out = TRUE, tag = "vs0vc50r09v2w84"))
+                            rho = 0.9, wane = 0, vac_strategy = 0,
+                            file.out = TRUE, tag = "vs0vc50r09v2w0"))
 
 job2 <- obj$enqueue(run_sim(sim = 100,nindiv = 10000,vaccov = 0.5,version = 2,
-                            rho = 0.9, wane = 0.84, vac_strategy = 1,
-                            file.out = TRUE, tag = "vs1vc50r09v2w84"))
+                            rho = 0.9, wane = 0, vac_strategy = 1,
+                            file.out = TRUE, tag = "vs1vc50r09v2w0"))
 
 job3 <- obj$enqueue(run_sim(sim = 100,nindiv = 10000,vaccov = 0.5,version = 2,
-                            rho = 0.9, wane = 0.84, vac_strategy = 2,
-                            file.out = TRUE, tag = "vs2vc50r09v2w84"))
+                            rho = 0.9, wane = 0, vac_strategy = 2,
+                            file.out = TRUE, tag = "vs2vc50r09v2w0"))
 
 job4 <- obj$enqueue(run_sim(sim = 100,nindiv = 10000,vaccov = 0.5,version = 1,
-                            rho = 0.9, wane = 0.84,vac_strategy = 0,
-                            file.out = TRUE, tag = "vs0vc50r09v1w84"))
+                            rho = 0.9, wane = 0,vac_strategy = 0,
+                            file.out = TRUE, tag = "vs0vc50r09v1w0"))
 
 job5 <- obj$enqueue(run_sim(sim = 100,nindiv = 10000,vaccov = 0.5,version = 1,
-                            rho = 0.9, wane = 0.84, vac_strategy = 1,
-                            file.out = TRUE, tag = "vs1vc50r09v1w84"))
+                            rho = 0.9, wane = 0, vac_strategy = 1,
+                            file.out = TRUE, tag = "vs1vc50r09v1w0"))
 
 job6 <- obj$enqueue(run_sim(sim = 100,nindiv = 10000,vaccov = 0.5,version = 1,
-                            rho = 0.9, wane = 0.84, vac_strategy = 2,
-                            file.out = TRUE, tag = "vs2vc50r09v1w84"))
+                            rho = 0.9, wane = 0, vac_strategy = 2,
+                            file.out = TRUE, tag = "vs2vc50r09v1w0"))

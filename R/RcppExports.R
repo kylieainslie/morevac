@@ -13,7 +13,7 @@ suscept_func_cpp <- function(inf_history, vac_history, gamma, drift_x, drift_v, 
     .Call(`_morevac_suscept_func_cpp`, inf_history, vac_history, gamma, drift_x, drift_v, wane_rate, version, constant)
 }
 
-vaccinate_cpp <- function(prior_vac, even_year, vac_cov, vac_strategy, age, rho, randnum_vac, actual_year, start_vac_year, start_vac_age) {
-    .Call(`_morevac_vaccinate_cpp`, prior_vac, even_year, vac_cov, vac_strategy, age, rho, randnum_vac, actual_year, start_vac_year, start_vac_age)
+vaccinate_cpp <- function(prior_vac, vac_this_year, vac_cov, age, rho, randnum_vac, actual_year, start_vac_year, start_vac_age) {
+    .Call(`_morevac_vaccinate_cpp`, prior_vac, vac_this_year, vac_cov, age, rho, randnum_vac, actual_year, start_vac_year, start_vac_age)
 }
 
