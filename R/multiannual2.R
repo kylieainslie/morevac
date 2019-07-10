@@ -80,16 +80,15 @@ multiannual2 <- function(n = 1000,
   # year counter
     year_counter <- 1
     actual_year <- start_year
-    if (actual_year %% 2 == 0){
-      ey <-1
-    } else {ey <- 0}
 
 # start loop over years
   while (year_counter < years+1){
+    vac_this_year <- 1- actual_year %% vac_strategy
   # initialize infection counter for current year
     inf_counter <- null_inf_counter
   # turn off vaccination until start_vac_year
     if (vac_strategy == 0 | actual_year<start_vac_year) {
+      vac_this_year <- 0
       vc <- 0
       mygamma <- 1 - vac_protect
     } else {
@@ -110,6 +109,9 @@ multiannual2 <- function(n = 1000,
         mygamma <- (1-vac_protect)*((1/(1-vaccine_dist[year_counter])))
         } else {mygamma <- 1-vac_protect}
     }
+
+    print(actual_year)
+    print(vac_this_year)
   # generate random numbers for infection and vaccination
     rn_inf <- runif(n,0,1)
     rn_vac <- runif(n,0,1)
@@ -131,9 +133,8 @@ multiannual2 <- function(n = 1000,
       # determine who will be vaccinated
       if (actual_year >= start_vac_year){
        vac_hist_mat[i,a] <- vaccinate_cpp(prior_vac = prior_vac,
-                                          even_year = ey,
+                                          vac_this_year = vac_this_year,
                                           vac_cov = vc,
-                                          vac_strategy = vac_strategy,
                                           age = ages[i],
                                           rho = rho,
                                           randnum_vac = rn_vac[i],
@@ -219,6 +220,8 @@ multiannual2 <- function(n = 1000,
     totals <- apply(inf_counter,1,sum)
     attack_rate[year_counter] <- totals[1]/totals[2]
     attack_rate_by_age[year_counter,] <- inf_counter[1,]/inf_counter[2,]
+  # vaccination coverage
+    #print(totals[4]/n)
   # VE
     ve[year_counter] <- 1-((totals[3]/totals[4])/(totals[5]/totals[6]))
   # update vaccine update counter
