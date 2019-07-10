@@ -1,5 +1,5 @@
 ### testing script ###
-test <- multiannual2(wane = 1, suscept_func_version = 2, vac_strategy = 2)
+test <- multiannual2(wane = 0, vac_coverage = 1, suscept_func_version = 2, vac_strategy = 2)
 p_test <- plot_attack_rates(dat = test$attack_rate)
 p_test
 # check drift and vac update
@@ -54,7 +54,7 @@ bc_inf_hist <- inf_hist[birth_cohort,1:20]
        bc_x <- x[birth_cohort,1:20]
        bc_v <- v[birth_cohort,1:20]
 
-i <- 3
+i <- 4
 person <- data.frame(inf_hist = bc_inf_hist[i,],
                             x = bc_x[i,],
                      vac_hist = bc_vac_hist[i,],
@@ -76,11 +76,21 @@ for (i in 1:20){
 }
 vax <- person$Year[which(person$vac_hist == 1)]
 infections <- person$Year[which(person$inf_hist == 1)]
-
+person
 # plot susceptibility
+p_no_vac_suscept <- ggplot(data = person, aes(x = Year, y = no_vac_suscept)) +
+                    geom_line(colour = 'blue') +
+                    xlab('Year') +
+                    ylab('Susceptibility') +
+                    scale_y_continuous(limits = c(0,1), expand = c(0,0)) +
+                    theme(panel.grid.major = element_blank(),
+                          panel.grid.minor = element_blank(),
+                          panel.background = element_blank(),
+                          axis.line = element_line(colour = "black"))
+
+
 p_suscept <- ggplot(data = person, aes(x = Year, y = suscept)) +
              geom_line() +
-             geom_line(aes(y = no_vac_suscept),colour = 'blue') +
              xlab('Year') +
              ylab('Susceptibility') +
              scale_y_continuous(limits = c(0,1), expand = c(0,0)) +
@@ -92,8 +102,8 @@ p_suscept <- ggplot(data = person, aes(x = Year, y = suscept)) +
 p_suscept <- p_suscept +
              geom_vline(xintercept=vax, linetype="dashed", colour = 'black') +
              geom_vline(xintercept=infections, colour = 'red')
-
+p_suscept
 library(cowplot)
 #theme_set(theme_cowplot(font_size=10)) # reduce default font size
-p <- plot_grid(p_vac, p_suscept, labels = "AUTO", ncol = 1, align = 'v', axis = 'l')
+p <- plot_grid(p_vac, p_no_vac_suscept,p_suscept, labels = "AUTO", ncol = 1, align = 'v', axis = 'l')
 p
