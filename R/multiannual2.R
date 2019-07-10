@@ -110,8 +110,8 @@ multiannual2 <- function(n = 1000,
         } else {mygamma <- 1-vac_protect}
     }
 
-    print(actual_year)
-    print(vac_this_year)
+    #print(actual_year)
+    #print(vac_this_year)
   # generate random numbers for infection and vaccination
     rn_inf <- runif(n,0,1)
     rn_vac <- runif(n,0,1)
