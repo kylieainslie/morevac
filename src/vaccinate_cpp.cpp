@@ -30,7 +30,7 @@ int vaccinate_cpp(int prior_vac,
   int rtn = 0;
 
 // don't vaccinate if it's not a vaccination year or individual is not old enough
-  if (actual_year < start_vac_year || age < start_vac_age || vac_this_year == 0){
+  if (actual_year < start_vac_year || age < start_vac_age || vac_this_year <= 0){
     return(rtn);
   }
 // if it's a vaccination year & individual is old enough -> possibly vaccination
