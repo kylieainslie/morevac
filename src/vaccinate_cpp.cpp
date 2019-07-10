@@ -18,9 +18,8 @@ using namespace Rcpp;
 // @export
 // [[Rcpp::export]]
 int vaccinate_cpp(int prior_vac,
-                  int even_year,
+                  int vac_this_year,
                   double vac_cov,
-                  int vac_strategy,
                   int age,
                   double rho,
                   double randnum_vac,
@@ -31,23 +30,19 @@ int vaccinate_cpp(int prior_vac,
   int rtn = 0;
 
 // don't vaccinate if it's not a vaccination year or individual is not old enough
-  if (actual_year < start_vac_year || age < start_vac_age){
+  if (actual_year < start_vac_year || age < start_vac_age || vac_this_year == 0){
     return(rtn);
   }
 // if it's a vaccination year & individual is old enough -> possibly vaccination
-  if (actual_year >= start_vac_year && age >= start_vac_age){
+  if (actual_year >= start_vac_year && age >= start_vac_age && vac_this_year == 1){
 // determine vaccination probability by incorporating prior vaccination
     if (prior_vac == 1){
       randnum_vac = randnum_vac * (1-rho);
     }
 // vaccinate
   if (randnum_vac <= vac_cov){
-      if (vac_strategy == 1) {
         rtn = 1;
-      } else if (vac_strategy == 2 && even_year == 1){
-        rtn = 1;
-      } else {rtn = 0;}
-    } else {rtn = 0;}
+   } else {rtn = 0;}
   } else {rtn = 0;}
 
 return(rtn);
@@ -55,9 +50,8 @@ return(rtn);
 
 /*** R
 vaccinate_cpp(prior_vac = 1,
-              even_year = 1,
+              vac_this_year = 1,
               vac_cov = 0.5,
-              vac_strategy = 2,
               age = 5,
               rho = 0,
               randnum_vac = 0.7,
