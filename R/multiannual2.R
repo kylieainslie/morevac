@@ -40,8 +40,11 @@ multiannual2 <- function(n = 1000,
                          suscept_func_version = 1,
                          vac_strategy = 1,
                          rho = 0,
-                         wane = 0
+                         wane = 0,
+                         seed = NULL
                          ){
+# set seed
+  if (!is.null(seed)){set.seed(seed)}
 # initialize the population
   init <- initialize_pop(nindiv = n, maxage = maxage)
   # rename matrix from init array
