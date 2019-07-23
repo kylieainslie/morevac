@@ -50,21 +50,22 @@ BEGIN_RCPP
 END_RCPP
 }
 // vaccinate_cpp
-int vaccinate_cpp(int prior_vac, int vac_this_year, double vac_cov, int age, double rho, double randnum_vac, int actual_year, int start_vac_year, int start_vac_age);
-RcppExport SEXP _morevac_vaccinate_cpp(SEXP prior_vacSEXP, SEXP vac_this_yearSEXP, SEXP vac_covSEXP, SEXP ageSEXP, SEXP rhoSEXP, SEXP randnum_vacSEXP, SEXP actual_yearSEXP, SEXP start_vac_yearSEXP, SEXP start_vac_ageSEXP) {
+int vaccinate_cpp(int prior_vac, int vac_this_year, double vac_cov, double take, int age, double rho, double randnum_vac, int actual_year, int start_vac_year, int start_vac_age);
+RcppExport SEXP _morevac_vaccinate_cpp(SEXP prior_vacSEXP, SEXP vac_this_yearSEXP, SEXP vac_covSEXP, SEXP takeSEXP, SEXP ageSEXP, SEXP rhoSEXP, SEXP randnum_vacSEXP, SEXP actual_yearSEXP, SEXP start_vac_yearSEXP, SEXP start_vac_ageSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< int >::type prior_vac(prior_vacSEXP);
     Rcpp::traits::input_parameter< int >::type vac_this_year(vac_this_yearSEXP);
     Rcpp::traits::input_parameter< double >::type vac_cov(vac_covSEXP);
+    Rcpp::traits::input_parameter< double >::type take(takeSEXP);
     Rcpp::traits::input_parameter< int >::type age(ageSEXP);
     Rcpp::traits::input_parameter< double >::type rho(rhoSEXP);
     Rcpp::traits::input_parameter< double >::type randnum_vac(randnum_vacSEXP);
     Rcpp::traits::input_parameter< int >::type actual_year(actual_yearSEXP);
     Rcpp::traits::input_parameter< int >::type start_vac_year(start_vac_yearSEXP);
     Rcpp::traits::input_parameter< int >::type start_vac_age(start_vac_ageSEXP);
-    rcpp_result_gen = Rcpp::wrap(vaccinate_cpp(prior_vac, vac_this_year, vac_cov, age, rho, randnum_vac, actual_year, start_vac_year, start_vac_age));
+    rcpp_result_gen = Rcpp::wrap(vaccinate_cpp(prior_vac, vac_this_year, vac_cov, take, age, rho, randnum_vac, actual_year, start_vac_year, start_vac_age));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -73,7 +74,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_morevac_infect_cpp", (DL_FUNC) &_morevac_infect_cpp, 3},
     {"_morevac_lifetime_infections_cpp", (DL_FUNC) &_morevac_lifetime_infections_cpp, 3},
     {"_morevac_suscept_func_cpp", (DL_FUNC) &_morevac_suscept_func_cpp, 8},
-    {"_morevac_vaccinate_cpp", (DL_FUNC) &_morevac_vaccinate_cpp, 9},
+    {"_morevac_vaccinate_cpp", (DL_FUNC) &_morevac_vaccinate_cpp, 10},
     {NULL, NULL, 0}
 };
 
