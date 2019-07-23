@@ -20,6 +20,7 @@ using namespace Rcpp;
 int vaccinate_cpp(int prior_vac,
                   int vac_this_year,
                   double vac_cov,
+                  double take,
                   int age,
                   double rho,
                   double randnum_vac,
@@ -40,7 +41,7 @@ int vaccinate_cpp(int prior_vac,
       randnum_vac = randnum_vac * (1-rho);
     }
 // vaccinate
-  if (randnum_vac <= vac_cov){
+  if (randnum_vac <= vac_cov * take){
         rtn = 1;
    } else {rtn = 0;}
   } else {rtn = 0;}
@@ -52,9 +53,10 @@ return(rtn);
 vaccinate_cpp(prior_vac = 1,
               vac_this_year = 1,
               vac_cov = 0.5,
+              take = 0.5,
               age = 5,
-              rho = 0,
-              randnum_vac = 0.7,
+              rho = 0.9,
+              randnum_vac = 0.4,
               actual_year = 2008,
               start_vac_year=2000,
               start_vac_age=3)
