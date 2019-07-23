@@ -41,6 +41,7 @@ multiannual2 <- function(n = 1000,
                          vac_strategy = 1,
                          rho = 0,
                          wane = 0,
+                         take = 1,
                          seed = NULL
                          ){
 # set seed
@@ -138,6 +139,7 @@ multiannual2 <- function(n = 1000,
        vac_hist_mat[i,a] <- vaccinate_cpp(prior_vac = prior_vac,
                                           vac_this_year = vac_this_year,
                                           vac_cov = vc,
+                                          take = take,
                                           age = ages[i],
                                           rho = rho,
                                           randnum_vac = rn_vac[i],
