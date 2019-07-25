@@ -2,7 +2,7 @@
 library(Rgraphviz)
 library(proftools)
 
-Rprof(tmp <-tempfile())
+Rprof(tmp <-tempfile(),line.profiling = TRUE)
 multiannual2()
 Rprof()
 summaryRprof(tmp)
