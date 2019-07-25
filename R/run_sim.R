@@ -23,6 +23,7 @@ run_sim <- function(sim = 100,
                     vac_strategy = 1,
                     rho = 0,
                     wane = 0.84,
+                    take = 1,
                     file.out = FALSE,
                     ve.out = FALSE,
                     tag = ""){
@@ -52,7 +53,7 @@ run_sim <- function(sim = 100,
     test <- multiannual2(n = nindiv, vac_coverage = vaccov,
                          suscept_func_version = version,
                          vac_strategy = vac_strategy,  rho = rho,
-                         wane = wane
+                         wane = wane, take = take
                          )
     # attack rate by age
     out[,,s] <- test$attack_rate_by_age
@@ -79,8 +80,7 @@ run_sim <- function(sim = 100,
 
   }
   return(list(attack_rate = ar_out,
-              lifetime_infections = lti_out,
-              ve = ve_out)
+              lifetime_infections = lti_out)
         )
 }
 
