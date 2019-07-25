@@ -11,43 +11,50 @@ library(doParallel)
 # clusterExport(cl, list=ls())
 # test <- foreach(i=1:5, .packages = 'morevac') %dopar% initialize_pop()
 
-vac_status <- c('no vaccination', 'annual', 'biannual')
-vac_cov <- c(0, 0.25, 0.5, 0.75, 1)
-yearRange <- c(2000:2019)
-ageRange <- c(0:19)
-# diff vac covs
-sim_out <- foreach (j=1:5, .packages = c('morevac','Rcpp')) %:%
-            foreach (i=1:3, .packages = c('morevac','Rcpp')) %dopar%
-              run_sim(sim = 25,nindiv = 10000, year_range = yearRange,
-                      age_range = ageRange,vaccov = vac_cov[j],
-                      version = 2, rho = 0, flag = vac_status[i])
+# set parameter values
+ s <- 3
+ n <- 10000
+ vc <- 0.5
+ v <- 2
+ r <- 0.9
+ w <- 1
+ take <- 1
+ vs <- c(0,1,2)
+ tags <- c(paste0('vs',vs[1],'vc',vc,'r',r,'v',v,'w',w,'t',take),
+           paste0('vs',vs[2],'vc',vc,'r',r,'v',v,'w',w,'t',take),
+           paste0('vs',vs[3],'vc',vc,'r',r,'v',v,'w',w,'t',take))
+# parallel all three vac strategies
+sim_out <- foreach (i=1:3, .packages = c('morevac','Rcpp')) %dopar%
+              run_sim(sim = s,nindiv = n,vaccov = vc,version = v,
+                      rho = r, wane = w, take = take, vac_strategy = vs[i],
+                      file.out = TRUE, tag = 'test')
 
-# different rho values
-rhos <- c(0, 0.2, 0.5, 0.9)
-sim_out <- foreach (j=1:4, .packages = 'morevac') %:%
-  foreach (i=1:3, .packages = 'morevac') %do%
-  run_sim(sim = 100,nindiv = 10000, year_range = yearRange,
-          age_range = ageRange,vaccov = 0.5,
-          version = 2, rho = rhos[j], file.out = TRUE)
-
+# process data to be plotted
+dat <- process_sim_output(sim_out, year_range = 2000:2019, age_range = 0:19)
+# plot attack rates
+pa <- plot_attack_rates(dat = dat[[1]], by_vac = TRUE, c_bands = FALSE)
+pa
+# plot lifetime infections
+pl <- plot_lifetime_infections(dat = dat1[[2]], by_vac = TRUE, x=0.5)
+pl
 # submitting individual jobs
-out0 <- run_sim(sim = 5,nindiv = 5000,vaccov = 0.5,version = 2,
-                rho = 0.9, wane = 0.84, vac_strategy = 0,
-                file.out = FALSE)
-out1 <- run_sim(sim = 25,nindiv = 5000,vaccov = 0.5,version = 2,
-                rho = 0, wane = 0.84, vac_strategy = 1,
-                file.out = FALSE)
-out2 <- run_sim(sim = 25,nindiv = 5000,vaccov = 0.5,version = 2,
-                rho = 0, wane = 0.84, vac_strategy = 2,
-                file.out = FALSE)
-
-sim_out <- list(no_vac = list(attack_rate = out0$attack_rate,
-                              lifetime_infections = out0$lifetime_infections),
-                annual = list(attack_rate = out1$attack_rate,
-                              lifetime_infections = out1$lifetime_infections),
-                biannual = list(attack_rate = out2$attack_rate,
-                                lifetime_infections = out2$lifetime_infections))
-#stopCluster(cl)
+# out0 <- run_sim(sim = 5,nindiv = 5000,vaccov = 0.5,version = 2,
+#                 rho = 0.9, wane = 0.84, vac_strategy = 0,
+#                 file.out = FALSE)
+# out1 <- run_sim(sim = 25,nindiv = 5000,vaccov = 0.5,version = 2,
+#                 rho = 0, wane = 0.84, vac_strategy = 1,
+#                 file.out = FALSE)
+# out2 <- run_sim(sim = 25,nindiv = 5000,vaccov = 0.5,version = 2,
+#                 rho = 0, wane = 0.84, vac_strategy = 2,
+#                 file.out = FALSE)
+#
+# sim_out <- list(no_vac = list(attack_rate = out0$attack_rate,
+#                               lifetime_infections = out0$lifetime_infections),
+#                 annual = list(attack_rate = out1$attack_rate,
+#                               lifetime_infections = out1$lifetime_infections),
+#                 biannual = list(attack_rate = out2$attack_rate,
+#                                 lifetime_infections = out2$lifetime_infections))
+stopCluster(cl)
 
 ### output
 library(ggplot2)
