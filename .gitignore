@@ -19,3 +19,6 @@ binaries
 *.o
 *.so
 
+# Profile
+.out
+
