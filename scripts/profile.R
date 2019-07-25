@@ -4,6 +4,6 @@ library(proftools)
 
 Rprof(tmp <-tempfile(),line.profiling = TRUE)
 multiannual2()
-Rprof()
+Rprof(line.profiling = TRUE)
 summaryRprof(tmp)
 plotProfileCallGraph(readProfileData(tmp),score = "total")

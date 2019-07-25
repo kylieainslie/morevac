@@ -24,7 +24,7 @@ obj <- didehpc::queue_didehpc(ctx)
 # set parameter values
 s <- 100
 n <- 10000
-vc <- 0.5
+vc <- 0
 v <- 2
 r <- 0.9
 w <- 1
