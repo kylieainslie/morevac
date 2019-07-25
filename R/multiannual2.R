@@ -20,7 +20,9 @@
 #'        1 = either-or, 2 = multiplicative.
 #' @param vac_strategy Integer value indicating frequency of vaccination (1 = annual, 2 = biannual, 3 =triannual,...)
 #' @param rho correlation of vaccination
-#' @param return_ar_only 0 = no, 1 = return annual attack rates, 2 = return attack rate by age
+#' @param wane amount of protection of vaccine due to waning (0, 1) (inclusive)
+#' @param take percentage of vaccine take (0, 1) (inclusive)
+#' @param seed set random seed
 #' @return list with two elements: 1) a list of infection histories and attack rates and
 #'         2) a plot of annual attack rates by vaccination scenario
 #' @keywords morevac
