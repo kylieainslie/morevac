@@ -10,6 +10,7 @@
 #' @param start_year year to start simulation
 #' @param vac_start_year year that vaccination starts
 #' @param start_vac_age age at which an individual may be vaccinated
+#' @param stop_vac_age age at which vaccination stops
 #' @param vac_coverage vaccination coverage
 #' @param beta_pandemic force of infection when simulation starts
 #' @param beta_epidemic annual force of infection (after initialization of model)
@@ -33,6 +34,7 @@ multiannual2 <- function(n = 1000,
                          start_year = 1820,
                          start_vac_year = 2000,
                          start_vac_age = 3,
+                         stop_vac_age = 11,
                          vac_coverage = 0.5,
                          beta_pandemic = 0.4,
                          beta_epidemic = 0.2,
@@ -89,7 +91,7 @@ multiannual2 <- function(n = 1000,
 
 # start loop over years
   while (year_counter < years+1){
-    vac_this_year <- 1- actual_year %% vac_strategy
+    vac_this_year <- 1 - actual_year %% vac_strategy
   # initialize infection counter for current year
     inf_counter <- null_inf_counter
   # turn off vaccination until start_vac_year
@@ -126,7 +128,7 @@ multiannual2 <- function(n = 1000,
     while(i < n+1){
       #print(i)
       a <- ages[i] + 1
-      inf_counter[2,a] <- inf_counter[2,a] + 1
+      inf_counter[2,a[i]] <- inf_counter[2,a[i]] + 1
     # update current year value from NA to 999 or 0
       if(is.na(x[i,a])){x[i,a]<-999}
       if(is.na(v[i,a])){v[i,a]<-999}
@@ -147,7 +149,8 @@ multiannual2 <- function(n = 1000,
                                           randnum_vac = rn_vac[i],
                                           actual_year = actual_year,
                                           start_vac_year = start_vac_year,
-                                          start_vac_age = start_vac_age)
+                                          start_vac_age = start_vac_age,
+                                          stop_vac_age = stop_vac_age)
         v[i,a] <- v[i,a]*(1-vac_hist_mat[i,a])
       }
       # update number of vac/unvac counters

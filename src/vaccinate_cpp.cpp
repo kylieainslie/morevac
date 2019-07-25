@@ -26,12 +26,13 @@ int vaccinate_cpp(int prior_vac,
                   double randnum_vac,
                   int actual_year,
                   int start_vac_year,
-                  int start_vac_age){
+                  int start_vac_age,
+                  int stop_vac_age){
 
   int rtn = 0;
 
-// don't vaccinate if it's not a vaccination year or individual is not old enough
-  if (actual_year < start_vac_year || age < start_vac_age || vac_this_year <= 0){
+// don't vaccinate if it's not a vaccination year or individual is not old enough or individual is too old
+  if (actual_year < start_vac_year || age < start_vac_age || vac_this_year <= 0 || age > stop_vac_age){
     return(rtn);
   }
 // if it's a vaccination year & individual is old enough -> possibly vaccination
@@ -53,13 +54,14 @@ return(rtn);
 vaccinate_cpp(prior_vac = 1,
               vac_this_year = 1,
               vac_cov = 0.5,
-              take = 0.5,
-              age = 5,
+              take = 1,
+              age = 12,
               rho = 0.9,
               randnum_vac = 0.4,
               actual_year = 2008,
-              start_vac_year=2000,
-              start_vac_age=3)
+              start_vac_year = 2000,
+              start_vac_age = 3,
+              stop_vac_age = 11)
 */
 
 
