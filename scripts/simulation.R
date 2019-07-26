@@ -12,12 +12,12 @@ library(doParallel)
 # test <- foreach(i=1:5, .packages = 'morevac') %dopar% initialize_pop()
 
 # set parameter values
- s <- 5
- n <- 5000
+ s <- 10
+ n <- 10000
  vc <- 0.5
  v <- 2
  r <- 0.9
- w <- 1
+ w <- 0
  take <- 1
  vs <- c(0,1,2)
  tags <- c(paste0('vs',vs[1],'vc',vc,'r',r,'v',v,'w',w,'t',take),
@@ -27,8 +27,9 @@ library(doParallel)
 sim_out <- foreach (i=1:3, .packages = c('morevac','Rcpp')) %dopar%
               run_sim(sim = s,nindiv = n,vaccov = vc,version = v,
                       rho = r, wane = w, take = take, vac_strategy = vs[i],
-                      file.out = FALSE, tag = 'test')
-
+                      file.out = FALSE, tag = 'test', seed = 1234)
+# stop cluster
+stopCluster(cl)
 # process data to be plotted
 dat <- process_sim_output(sim_out, year_range = 2000:2019, age_range = 0:19)
 # plot attack rates
@@ -54,7 +55,6 @@ pl
 #                               lifetime_infections = out1$lifetime_infections),
 #                 biannual = list(attack_rate = out2$attack_rate,
 #                                 lifetime_infections = out2$lifetime_infections))
-stopCluster(cl)
 
 ### output
 library(ggplot2)
