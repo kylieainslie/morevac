@@ -91,7 +91,7 @@ multiannual2 <- function(n = 1000,
 
 # start loop over years
   while (year_counter < years+1){
-    vac_this_year <- 1 - actual_year %% vac_strategy
+    vac_this_year <- actual_year %% vac_strategy
   # initialize infection counter for current year
     inf_counter <- null_inf_counter
   # turn off vaccination until start_vac_year
