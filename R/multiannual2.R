@@ -128,7 +128,7 @@ multiannual2 <- function(n = 1000,
     while(i < n+1){
       #print(i)
       a <- ages[i] + 1
-      inf_counter[2,a[i]] <- inf_counter[2,a[i]] + 1
+      inf_counter[2,a] <- inf_counter[2,a] + 1
     # update current year value from NA to 999 or 0
       if(is.na(x[i,a])){x[i,a]<-999}
       if(is.na(v[i,a])){v[i,a]<-999}

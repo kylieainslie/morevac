@@ -1,5 +1,10 @@
 ### testing script ###
-test <- multiannual2(wane = 0, vac_coverage = 1, take = 0.5, suscept_func_version = 2, vac_strategy = 1)
+test <- multiannual2(n = 10000,
+                     wane = 0,
+                     vac_coverage = 1,
+                     take = 1,
+                     suscept_func_version = 2,
+                     vac_strategy = 2)
 p_test <- plot_attack_rates(dat = test$attack_rate)
 p_test
 # check drift and vac update

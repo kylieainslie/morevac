@@ -12,8 +12,8 @@ library(doParallel)
 # test <- foreach(i=1:5, .packages = 'morevac') %dopar% initialize_pop()
 
 # set parameter values
- s <- 3
- n <- 10000
+ s <- 5
+ n <- 5000
  vc <- 0.5
  v <- 2
  r <- 0.9
@@ -27,7 +27,7 @@ library(doParallel)
 sim_out <- foreach (i=1:3, .packages = c('morevac','Rcpp')) %dopar%
               run_sim(sim = s,nindiv = n,vaccov = vc,version = v,
                       rho = r, wane = w, take = take, vac_strategy = vs[i],
-                      file.out = TRUE, tag = 'test')
+                      file.out = FALSE, tag = 'test')
 
 # process data to be plotted
 dat <- process_sim_output(sim_out, year_range = 2000:2019, age_range = 0:19)
