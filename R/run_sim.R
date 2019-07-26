@@ -26,8 +26,10 @@ run_sim <- function(sim = 100,
                     take = 1,
                     file.out = FALSE,
                     ve.out = FALSE,
-                    tag = ""){
-
+                    tag = "",
+                    seed = NULL){
+### set seed
+if(!is.null(seed)){set.seed(seed)}
 ### create empty arrays for storing information about each simulation
   out <- array(NA,dim=c(200,80,sim))
   life_inf <- matrix(c(rep(NA,sim*length(age_range))),nrow=sim)
