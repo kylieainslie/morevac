@@ -33,8 +33,8 @@ multiannual2 <- function(n = 1000,
                          maxage = 80,
                          start_year = 1820,
                          start_vac_year = 2000,
-                         start_vac_age = 3,
-                         stop_vac_age = 11,
+                         start_vac_age = 2,
+                         stop_vac_age = 10,
                          vac_coverage = 0.5,
                          beta_pandemic = 0.4,
                          beta_epidemic = 0.2,
@@ -63,9 +63,9 @@ multiannual2 <- function(n = 1000,
   end_year <- start_year + years - 1
 # create empty vectors
   # vaccine strain update
-    vaccine_dist <- c(rep(NA,years))
-    update <- c(rep(NA,years))
-    years_since_vac_update <- c(rep(NA,years))
+    vaccine_dist <- numeric(years)
+    update <- vaccine_dist
+    years_since_vac_update <- vaccine_dist
   # attack rate and ve
     attack_rate <- c(rep(NA,years))
     ve <- attack_rate
@@ -85,41 +85,34 @@ multiannual2 <- function(n = 1000,
 
   # calculate drift for each year
     drift <- drift_func(years = years, rate = 0.5)
+  # determine years of vaccination
+    actual_year_vec <- start_year:end_year
+    vac_this_year <- ifelse(actual_year_vec>=start_vac_year & actual_year_vec %% vac_strategy == 0, 1, 0)
+    vac_this_year <- ifelse(is.na(vac_this_year),0,vac_this_year)
+
   # year counter
     year_counter <- 1
     actual_year <- start_year
 
 # start loop over years
   while (year_counter < years+1){
-    vac_this_year <- actual_year %% vac_strategy
   # initialize infection counter for current year
     inf_counter <- null_inf_counter
-  # turn off vaccination until start_vac_year
-    if (vac_strategy == 0 | actual_year<start_vac_year) {
-      vac_this_year <- 0
-      vc <- 0
-      mygamma <- 1 - vac_protect
-    } else {
-      if (actual_year == start_vac_year){years_since_vac_update[year_counter] <- 0}
-        vc <- vac_coverage
-      # determine vaccine distance from circulating strain
-        vaccine_dist[year_counter] <- min(1,sum(drift[(year_counter-years_since_vac_update[year_counter]):year_counter]))
-      # update vaccine?
-        update[year_counter] <- vaccine_update(years_since_vac_update = years_since_vac_update[year_counter],
-                                               accumulated_drift = vaccine_dist[year_counter])
-      # change years since vac update to 0 if updated in current year
-        years_since_vac_update[year_counter] <- years_since_vac_update[year_counter] *
-                                                (1 - update[year_counter]) +
-                                                (1 - update[year_counter])
+    # calculate vaccine distance from circulating strain
+    vaccine_dist[year_counter] <- min(1,sum(drift[(year_counter-years_since_vac_update[year_counter]):year_counter]))
+    # update vaccine?
+    update[year_counter] <- vaccine_update(years_since_vac_update = years_since_vac_update[year_counter],
+                                           accumulated_drift = vaccine_dist[year_counter])
+    # change years since vac update to 0 if updated in current year
+    years_since_vac_update[year_counter] <- years_since_vac_update[year_counter] *
+      (1 - update[year_counter]) +
+      (1 - update[year_counter])
 
-      # determine protective effect of vaccine based on distance from circulating strain
-        if (update[year_counter] == 0){
-        mygamma <- (1-vac_protect)*((1/(1-vaccine_dist[year_counter])))
-        } else {mygamma <- 1-vac_protect}
-    }
+    # determine protective effect of vaccine based on distance from circulating strain
+    if (update[year_counter] == 0){
+      mygamma <- (1-vac_protect)*((1/(1-vaccine_dist[year_counter])))
+    } else {mygamma <- 1-vac_protect}
 
-    #print(actual_year)
-    #print(vac_this_year)
   # generate random numbers for infection and vaccination
     rn_inf <- runif(n,0,1)
     rn_vac <- runif(n,0,1)
@@ -141,8 +134,8 @@ multiannual2 <- function(n = 1000,
       # determine who will be vaccinated
       if (actual_year >= start_vac_year){
        vac_hist_mat[i,a] <- vaccinate_cpp(prior_vac = prior_vac,
-                                          vac_this_year = vac_this_year,
-                                          vac_cov = vc,
+                                          vac_this_year = vac_this_year[year_counter],
+                                          vac_cov = vac_coverage,
                                           take = take,
                                           age = ages[i],
                                           rho = rho,
