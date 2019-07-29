@@ -18,6 +18,7 @@ run_sim <- function(sim = 100,
                     nindiv = 1000,
                     year_range = c(2000:2019),
                     age_range = c(0:19),
+                    stop_vac_age = 10,
                     vaccov = 0.5,
                     version = 1,
                     vac_strategy = 1,
@@ -55,7 +56,7 @@ if(!is.null(seed)){set.seed(seed)}
     test <- multiannual2(n = nindiv, vac_coverage = vaccov,
                          suscept_func_version = version,
                          vac_strategy = vac_strategy,  rho = rho,
-                         wane = wane, take = take
+                         wane = wane, take = take, stop_vac_age = stop_vac_age
                          )
     # attack rate by age
     out[,,s] <- test$attack_rate_by_age
