@@ -2,6 +2,7 @@
 test <- multiannual2(n = 10000,
                      wane = 0,
                      vac_coverage = 1,
+                     stop_vac_age = 80,
                      take = 1,
                      suscept_func_version = 2,
                      vac_strategy = 2)

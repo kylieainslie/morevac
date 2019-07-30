@@ -3,6 +3,7 @@
 library(foreach)
 library(doParallel)
 
+setwd('Q:/morevac_sims/data')
 # make cluster
  ncl <- detectCores()
  cl <- makeCluster(ncl)
@@ -12,22 +13,25 @@ library(doParallel)
 # test <- foreach(i=1:5, .packages = 'morevac') %dopar% initialize_pop()
 
 # set parameter values
- s <- 10
- n <- 10000
+ s <- 50
+ n <- 15000
  vc <- 0.5
  v <- 2
  r <- 0.9
- w <- 0
+ w <- 0.75
  take <- 1
+ sva <- 10
  vs <- c(0,1,2)
- tags <- c(paste0('vs',vs[1],'vc',vc,'r',r,'v',v,'w',w,'t',take),
-           paste0('vs',vs[2],'vc',vc,'r',r,'v',v,'w',w,'t',take),
-           paste0('vs',vs[3],'vc',vc,'r',r,'v',v,'w',w,'t',take))
+ tags <- c(paste0('vs',vs[1],'vc',vc,'r',r,'v',v,'w',w,'t',take,'sva',sva),
+           paste0('vs',vs[2],'vc',vc,'r',r,'v',v,'w',w,'t',take,'sva',sva),
+           paste0('vs',vs[3],'vc',vc,'r',r,'v',v,'w',w,'t',take,'sva',sva))
 # parallel all three vac strategies
 sim_out <- foreach (i=1:3, .packages = c('morevac','Rcpp')) %dopar%
               run_sim(sim = s,nindiv = n,vaccov = vc,version = v,
                       rho = r, wane = w, take = take, vac_strategy = vs[i],
-                      file.out = FALSE, tag = 'test', seed = 1234)
+                      stop_vac_age = sva,
+                      file.out = TRUE, tag = tags[i])
+
 # stop cluster
 stopCluster(cl)
 # process data to be plotted
@@ -36,7 +40,7 @@ dat <- process_sim_output(sim_out, year_range = 2000:2019, age_range = 0:19)
 pa <- plot_attack_rates(dat = dat[[1]], by_vac = TRUE, c_bands = FALSE)
 pa
 # plot lifetime infections
-pl <- plot_lifetime_infections(dat = dat1[[2]], by_vac = TRUE, x=0.5)
+pl <- plot_lifetime_infections(dat = dat[[2]], by_vac = TRUE, x=0.5)
 pl
 # submitting individual jobs
 # out0 <- run_sim(sim = 5,nindiv = 5000,vaccov = 0.5,version = 2,
