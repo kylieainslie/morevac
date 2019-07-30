@@ -20,25 +20,6 @@ initialize_pop <- function(nindiv=1000,maxage=80){
     init <- array(NA,dim=c(nindiv,maxage,5))
     colnames(init) <- c(paste0("Age",0:(maxage-1)))
     rownames(init) <- ages
-  # # infection status matrix
-  #   inf_stat_mat <- matrix(c(rep(NA, maxage*nindiv)),nrow=nindiv)
-  #   colnames(inf_stat_mat) <- c(paste0("Age",0:(maxage-1)))
-  # # years since last infection matrix
-  #   x <- matrix(c(rep(999, maxage*nindiv)),nrow=nindiv)
-  #   colnames(x) <- c(paste0("Age",0:(maxage-1)))
-  # # vaccination history matrix
-  #   vac_hist_mat <- matrix(c(rep(NA, maxage*nindiv)),nrow=nindiv)
-  #   colnames(vac_hist_mat) <- c(paste0("Age",0:(maxage-1)))
-  # # years since vaccination matrix
-  #   v <- matrix(c(rep(999, maxage*nindiv)),nrow=nindiv)
-  #   colnames(v) <- c(paste0("Age",0:(maxage-1)))
-  # # susceptibility matrix
-  #   suscept_mat <- matrix(c(rep(1, maxage*nindiv)),nrow=nindiv)
-  #   colnames(suscept_mat) <- c(paste0("Age",0:(maxage-1)))
-  # # infection status matrix
-  #   lifetime_inf <- array(NA,dim=c(nindiv,maxage,years))
-  #   colnames(lifetime_inf) <- c(paste0("Age",0:(maxage-1)))
-
 
   # create naive matrices for population for first year (0 = not infected, NA = not alive)
     for (i in 1:nindiv){
@@ -47,7 +28,6 @@ initialize_pop <- function(nindiv=1000,maxage=80){
         init[i,,3] <- c(rep(1,ages[i]+1),rep(NA,(maxage-1)-ages[i]))   # susceptibility matrix
         init[i,,4] <- c(rep(999,ages[i]+1),rep(NA,(maxage-1)-ages[i])) # years since infection matrix
         init[i,,5] <- c(rep(999,ages[i]+1),rep(NA,(maxage-1)-ages[i])) # years since vaccination matrix
-    #    init[i,,6] <- c(rep(0,ages[i]+1),rep(NA,(maxage-1)-ages[i]))   # lifetime infections matrix
     }
 
     return(init)
