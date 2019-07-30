@@ -51,13 +51,18 @@ multiannual <- function(n = 1000,
   # set seed
     if (!is.null(seed)){set.seed(seed)}
   # initialize the population
-    ages <- sample(0:maxage-1,n,replace = TRUE)
-    init <- initialize_pop_cpp(n = n, maxage = maxage, ages)
+    init_age_vec <- sample(0:maxage-1,n,replace = TRUE)
+    init <- initialize_pop_cpp(n = n, maxage = maxage, init_ages = init_age_vec)
 
   # determine drift
-    drift <- drift_func(nyears = years, rate = 0.5)
+    drift <- drift_func(nyears = length(years), rate = 0.5)
   # determine vaccine update schedule
-
+    run_update <- vaccine_update_cpp(drift = drift, threshold = 0.5, vac_protect = vac_protect)
+    vac_update <- run_update$update
+  # determine value of protection from infection due to vaccination
+  # (the value of protection is dependent on the distance of the
+  # vaccination strain relative to the circulating strain)
+    gammas <- run_update$gammas
   # determine years of vaccination (based on vac_strategy)
     vac_this_year <- ifelse(years>=start_vac_year & years %% vac_strategy == 0, 1, 0)
     vac_this_year <- ifelse(is.na(vac_this_year),0,vac_this_year)
