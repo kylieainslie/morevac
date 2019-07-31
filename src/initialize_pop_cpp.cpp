@@ -16,7 +16,7 @@ using namespace Rcpp;
 // @keywords morevac
 // @export
 // [[Rcpp::export]]
-List initialize_pop_cpp(int n,int nyears, NumericVector init_ages) {
+List initialize_pop_cpp(int n,int nyears, NumericVector init_ages, int max_age) {
 
 // initial array
   NumericMatrix inf_hist_mat(n, nyears);
@@ -26,24 +26,26 @@ List initialize_pop_cpp(int n,int nyears, NumericVector init_ages) {
   NumericMatrix v(n, nyears);
   NumericMatrix ages_mat(n, nyears);
 
-// create naive matrices for population for first year (0 = not infected, NA = not alive)
+// create naive matrices for population for first year
     for (int i = 0; i < n; ++i){
       for(int j = 0; j < nyears; ++j){
-        if(j <= init_ages[i]){
-          inf_hist_mat(i,j) = 0;   // infection history matrix
-          vac_hist_mat(i,j) = 0;   // vaccination history matrix
-          suscept_mat(i,j) = 1;    // susceptibility matrix
-          x(i,j) = 999;            // time since last infection matrix
-          v(i,j) = 999;            // time since last vaccination matrix
-          ages_mat(i,j) = j;       // age matrix (the age of an individual in each year)
+
+        x(i,j) = 999;            // time since last infection matrix
+        v(i,j) = 999;            // time since last vaccination matrix
+
+        if(j == 0){
+          inf_hist_mat(i,j) = 0;        // infection history matrix
+          vac_hist_mat(i,j) = 0;        // vaccination history matrix
+          suscept_mat(i,j) = 1;         // susceptibility matrix
+          ages_mat(i,j) = init_ages[i]; // age matrix (the age of an individual in each year)
         } else {
           inf_hist_mat(i,j) = 999;
           vac_hist_mat(i,j) = 999;
           suscept_mat(i,j) = 999;
-          x(i,j) = 999;
-          v(i,j) = 999;
-          ages_mat(i,j) = 999;
-        }
+          if (ages_mat(i,j-1) < max_age - 1){
+            ages_mat(i,j) = ages_mat(i,j-1) + 1;
+          } else {ages_mat(i,j) = 0;}
+         }
       }
     }
 
@@ -59,5 +61,6 @@ List initialize_pop_cpp(int n,int nyears, NumericVector init_ages) {
 }
 
 /*** R
-initialize_pop_cpp(n = 10, nyears = 10, init_ages = sample(1:10,10,replace=TRUE))
+initialize_pop_cpp(n = 10, nyears = 10, init_ages = sample(1:9,10,replace=TRUE),
+                   max_age = 10)
 */
