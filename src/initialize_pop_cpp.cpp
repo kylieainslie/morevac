@@ -1,8 +1,20 @@
 #include <Rcpp.h>
-#include <algorithm>    // std::fill
 using namespace Rcpp;
 
-
+// Initialize population function
+//
+// @param n Number of individuals in the population.
+// @param nyears Number of years.
+// @param init_ages Vector of ages for each individuals.
+// @return A list of matrices:
+//         1. Infection history matrix
+//         2. Vaccination history matrix
+//         3. Susceptibility matrix
+//         4. Matrix of years since last infection
+//         5. Matrix of years since last vaccination
+//         6. Age matrix (age of each individual in each year)
+// @keywords morevac
+// @export
 // [[Rcpp::export]]
 List initialize_pop_cpp(int n,int nyears, NumericVector init_ages) {
 
@@ -11,13 +23,13 @@ List initialize_pop_cpp(int n,int nyears, NumericVector init_ages) {
   NumericMatrix vac_hist_mat(n, nyears);
   NumericMatrix suscept_mat(n, nyears);
   NumericMatrix x(n, nyears);
-  NumericMatrix v(n, nears);
-  NumericMatrix ages_mat(n, nyears)
+  NumericMatrix v(n, nyears);
+  NumericMatrix ages_mat(n, nyears);
 
 // create naive matrices for population for first year (0 = not infected, NA = not alive)
     for (int i = 0; i < n; ++i){
       for(int j = 0; j < nyears; ++j){
-        if(j <= ages[i]){
+        if(j <= init_ages[i]){
           inf_hist_mat(i,j) = 0;   // infection history matrix
           vac_hist_mat(i,j) = 0;   // vaccination history matrix
           suscept_mat(i,j) = 1;    // susceptibility matrix
@@ -47,5 +59,5 @@ List initialize_pop_cpp(int n,int nyears, NumericVector init_ages) {
 }
 
 /*** R
-initialize_pop_cpp(n=10,maxage=10, ages = sample(1:10,10,replace=TRUE))
+initialize_pop_cpp(n = 10, nyears = 10, init_ages = sample(1:10,10,replace=TRUE))
 */
