@@ -3,65 +3,61 @@ using namespace Rcpp;
 
 // Vaccinate function
 //
-// @param prior_vac Indicator of vaccination in previous year (0=no, 1=yes).
-// @param even_year Indicator of whether the current year is an even year (0=no, 1=yes).
-// @param vac_cov Number between 0 and 1 (inclusive) indicacting percentage of vaccination coverage.
-// @param vac_strategy Vaccination strategy (1=annual, 2=biannual).
-// @param age Integer value of age.
+// @param vac_hist_mat
+// @param ages_mat
+// @param vac_this_year
+// @param vac_cov
+// @param take
 // @param rho Number between 0 and 1 (inclusive) indicacting correlation of prior vaccination.
-// @param randnum_vac Random number between 0 and 1.
-// @param actual_year integer, YYYY year during simulation.
-// @param start_vac_year integer of first vaccination year (YYYY)
+// @param randnum_vac Vector of random numbers between 0 and 1.
 // @param start_vac_age Integer value of start age of vaccination.
-// @return Indicator of vaccination (0 = unvaccinated, 1 = vaccinated).
+// @param vac_strategy Vaccination strategy (e.g., 1=annual, 2=every other year).
+// @return Matric of vaccination histories of every individual.
 // @keywords morevac
 // @export
 // [[Rcpp::export]]
-int vaccinate_cpp(int prior_vac,
-                  int vac_this_year,
-                  double vac_cov,
-                  double take,
-                  int age,
-                  double rho,
-                  double randnum_vac,
-                  int actual_year,
-                  int start_vac_year,
-                  int start_vac_age,
-                  int stop_vac_age){
+NumericMatrix vaccinate_cpp_2(NumericMatrix vac_hist_mat,
+                              IntegerMatrix ages_mat,
+                              IntegerVector vac_this_year,
+                              double vac_cov,
+                              double take,
+                              double rho,
+                              NumericVector randnum_vac,
+                              int start_vac_age,
+                              int stop_vac_age,
+                              int vac_strategy){
 
-  int rtn = 0;
+  int nyears = vac_this_year.size();
+  int nindiv = vac_hist_mat.ncol();
 
-// don't vaccinate if it's not a vaccination year or individual is not old enough or individual is too old
-  if (actual_year < start_vac_year || age < start_vac_age || vac_this_year <= 0 || age > stop_vac_age){
-    return(rtn);
-  }
-// if it's a vaccination year & individual is old enough -> possibly vaccination
-  if (actual_year >= start_vac_year && age >= start_vac_age && vac_this_year == 1){
-// determine vaccination probability by incorporating prior vaccination
-    if (prior_vac == 1){
-      randnum_vac = randnum_vac * (1-rho);
+  for(int j = 0; j < nyears; ++j){
+      for (int i = 0; i < nindiv; ++i){
+        if (vac_this_year[j] == 0){
+          vac_hist_mat(i,j) = 0;
+        } else{
+      // if it's a vaccination year & individual is old enough -> possibly vaccination
+        if (ages_mat(i,j) >= start_vac_age){
+        // determine vaccination probability by incorporating prior vaccination
+          if (vac_hist_mat(i,j)-vac_strategy == 1){
+            randnum_vac[i] = randnum_vac[i] * (1-rho);
+          }
+        // vaccinate
+          if (randnum_vac[i] <= vac_cov * take){
+            vac_hist_mat(i,j) = 1;
+          } else {vac_hist_mat(i,j) = 0;}
+        } else {vac_hist_mat(i,j) = 0;}
+      }
     }
-// vaccinate
-  if (randnum_vac <= vac_cov * take){
-        rtn = 1;
-   } else {rtn = 0;}
-  } else {rtn = 0;}
-
-return(rtn);
+  }
+  return(vac_hist_mat);
 }
 
 /*** R
-vaccinate_cpp(prior_vac = 1,
-              vac_this_year = 1,
-              vac_cov = 0.5,
-              take = 1,
-              age = 12,
-              rho = 0.9,
-              randnum_vac = 0.4,
-              actual_year = 2008,
-              start_vac_year = 2000,
-              start_vac_age = 3,
-              stop_vac_age = 11)
+init_pop <- initialize_pop_cpp(n = 10, nyears = 10, init_ages = sample(1:9,10,replace=TRUE),max_age = 10)
+vac_this_year <- c(0,0,0,0,0,1,0,1,0,1)
+vaccinate_cpp_2(vac_hist_mat = init_pop$vac_hist_mat, ages_mat = init_pop$ages_mat, vac_this_year = vac_this_year,
+              vac_cov = 0.5, take = 1, rho = 1, randnum_vac = runif(10), start_vac_age = 2, stop_vac_age = 5,
+              vac_strategy = 2)
 */
 
 
