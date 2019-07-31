@@ -30,7 +30,7 @@
 #' @export
 multiannual <- function(n = 1000,
                          years = 1820:2019,
-                         maxage = 80,
+                         max_age = 80,
                          start_vac_year = 2000,
                          start_vac_age = 2,
                          stop_vac_age = 10,
@@ -52,7 +52,8 @@ multiannual <- function(n = 1000,
     if (!is.null(seed)){set.seed(seed)}
   # initialize the population
     init_age_vec <- sample(0:maxage-1,n,replace = TRUE)
-    init <- initialize_pop_cpp(n = n, maxage = maxage, init_ages = init_age_vec)
+    init_pop <- initialize_pop_cpp(n = n, nyears = length(years),
+                                   init_ages = init_ages_vec, max_age = max_age)
 
   # determine drift
     drift <- drift_func(nyears = length(years), rate = 0.5)
@@ -66,6 +67,19 @@ multiannual <- function(n = 1000,
   # determine years of vaccination (based on vac_strategy)
     vac_this_year <- ifelse(years>=start_vac_year & years %% vac_strategy == 0, 1, 0)
     vac_this_year <- ifelse(is.na(vac_this_year),0,vac_this_year)
+  # generate random numbers for infection and vaccination
+    rn_inf <- runif(n,0,1)
+    rn_vac <- runif(n,0,1)
+  # vaccinate
+    vac_hist_mat <- vaccinate_cpp_2(vac_hist_mat = init_pop$vac_hist_mat,
+                                    ages_mat = init_pop$ages_mat,
+                                    vac_this_year = vac_this_year,
+                                    vac_cov = 0.5, take = 1, rho = 1,
+                                    randnum_vac = rn_vac,
+                                    start_vac_age = start_vac_age,
+                                    stop_vac_age = stop_vac_age,
+                                    vac_strategy = vac_strategy)
+
 
 
 
