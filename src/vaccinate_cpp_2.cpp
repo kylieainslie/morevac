@@ -31,12 +31,6 @@ List vaccinate_cpp_2(NumericMatrix vac_hist_mat,
   int nyears = vac_this_year.size();
   int nindiv = vac_hist_mat.ncol();
 
-//  if (v[i,a]>=999){
-//    new_delta_v <- 1
-//  } else if (v[i,a] == 0){
-//    new_delta_v <- 0
-//  } else {new_delta_v <- min(1,sum(drift[(year_counter-v[i,a]+1):year_counter]))}
-
   for(int j = 0; j < nyears; ++j){
       for (int i = 0; i < nindiv; ++i){
         if (vac_this_year[j] == 0){
