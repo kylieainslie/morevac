@@ -9,7 +9,7 @@ using namespace Rcpp;
 // @keywords morevac
 // @export
 // [[Rcpp::export]]
-List vaccine_update(NumericVector drift,double threshold, double vac_protect) {
+List vaccine_update_cpp(NumericVector drift,double threshold, double vac_protect) {
 
   double vaccine_dist;
   IntegerVector update(drift.size());
@@ -47,5 +47,5 @@ List vaccine_update(NumericVector drift,double threshold, double vac_protect) {
 //
 
 /*** R
-vaccine_update(drift = drift_vec, threshold = 0.5, vac_protect = 0.7)
+vaccine_update_cpp(drift = drift_vec, threshold = 0.5, vac_protect = 0.7)
 */

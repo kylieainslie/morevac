@@ -40,7 +40,7 @@ init_pop <- initialize_pop_cpp(n = 10, nyears = 10, init_ages = sample(1:9,10,re
 vac_this_year <- c(0,0,0,0,0,1,0,1,0,1)
 vac_pop <- vaccinate_cpp_2(vac_hist_mat = init_pop$vac_hist_mat, ages_mat = init_pop$ages_mat,
                 v = init_pop$time_since_last_vac,vac_this_year = vac_this_year, vac_cov = 0.5,
-                take = 1, rho = 1, randnum_vac = runif(10),
+                take = 1, rho = 1,
                 start_vac_age = 2, stop_vac_age = 5, vac_strategy = 2)
 vac_pop$v
 delta_v <- find_delta_v(v = vac_pop$v, drift = drift)

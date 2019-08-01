@@ -189,7 +189,7 @@ multiannual2 <- function(n = 1000,
           mybeta <-beta_pandemic
         } else {mybeta <- beta_epidemic}
 
-      # infect person i if random number < beta*susceptability
+      # infect person i
         inf_hist_mat[i,a] <- infect_cpp(susceptibility = suscept_mat[i,a], foi = mybeta, randnum_inf = rn_inf[i])
         x[i,a] <- x[i,a]*(1-inf_hist_mat[i,a])
         suscept_mat[i,a] <- suscept_mat[i,a]*(1-inf_hist_mat[i,a])

@@ -67,19 +67,20 @@ multiannual <- function(n = 1000,
   # determine years of vaccination (based on vac_strategy)
     vac_this_year <- ifelse(years>=start_vac_year & years %% vac_strategy == 0, 1, 0)
     vac_this_year <- ifelse(is.na(vac_this_year),0,vac_this_year)
-  # generate random numbers for infection and vaccination
-    rn_inf <- runif(n,0,1)
-    rn_vac <- runif(n,0,1)
   # vaccinate
-    vac_hist_mat <- vaccinate_cpp_2(vac_hist_mat = init_pop$vac_hist_mat,
-                                    ages_mat = init_pop$ages_mat,
-                                    vac_this_year = vac_this_year,
-                                    vac_cov = 0.5, take = 1, rho = 1,
-                                    randnum_vac = rn_vac,
-                                    start_vac_age = start_vac_age,
-                                    stop_vac_age = stop_vac_age,
-                                    vac_strategy = vac_strategy)
+    vac <- vaccinate_cpp_2(vac_hist_mat = init_pop$vac_hist_mat,
+                           ages_mat = init_pop$ages_mat,
+                           vac_this_year = vac_this_year,
+                           vac_cov = 0.5, take = 1, rho = 1,
+                           randnum_vac = rn_vac,
+                           start_vac_age = start_vac_age,
+                           stop_vac_age = stop_vac_age,
+                           vac_strategy = vac_strategy)
 
+    # calculate delta_v values
+      delta_v <- find_delta_v(v = vac$v, drift = drift)
+    # run infection model
+      infect_pop <- infect_cpp_2()
 
 
 

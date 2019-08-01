@@ -5,6 +5,18 @@
 
 using namespace Rcpp;
 
+// find_delta_v
+NumericMatrix find_delta_v(NumericMatrix v, NumericVector drift);
+RcppExport SEXP _morevac_find_delta_v(SEXP vSEXP, SEXP driftSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type v(vSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type drift(driftSEXP);
+    rcpp_result_gen = Rcpp::wrap(find_delta_v(v, drift));
+    return rcpp_result_gen;
+END_RCPP
+}
 // infect_cpp
 int infect_cpp(double susceptibility, double foi, double randnum_inf);
 RcppExport SEXP _morevac_infect_cpp(SEXP susceptibilitySEXP, SEXP foiSEXP, SEXP randnum_infSEXP) {
@@ -18,16 +30,38 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// infect_cpp_2
+List infect_cpp_2(NumericMatrix inf_history, NumericMatrix vac_history, NumericMatrix suscept_mat, NumericMatrix x, NumericMatrix ages_mat, NumericMatrix delta_v, NumericVector gammas, NumericVector drift, NumericVector foi, double wane_rate, int version);
+RcppExport SEXP _morevac_infect_cpp_2(SEXP inf_historySEXP, SEXP vac_historySEXP, SEXP suscept_matSEXP, SEXP xSEXP, SEXP ages_matSEXP, SEXP delta_vSEXP, SEXP gammasSEXP, SEXP driftSEXP, SEXP foiSEXP, SEXP wane_rateSEXP, SEXP versionSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type inf_history(inf_historySEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type vac_history(vac_historySEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type suscept_mat(suscept_matSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type x(xSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type ages_mat(ages_matSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type delta_v(delta_vSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type gammas(gammasSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type drift(driftSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type foi(foiSEXP);
+    Rcpp::traits::input_parameter< double >::type wane_rate(wane_rateSEXP);
+    Rcpp::traits::input_parameter< int >::type version(versionSEXP);
+    rcpp_result_gen = Rcpp::wrap(infect_cpp_2(inf_history, vac_history, suscept_mat, x, ages_mat, delta_v, gammas, drift, foi, wane_rate, version));
+    return rcpp_result_gen;
+END_RCPP
+}
 // initialize_pop_cpp
-List initialize_pop_cpp(int n, int nyears, NumericVector init_ages);
-RcppExport SEXP _morevac_initialize_pop_cpp(SEXP nSEXP, SEXP nyearsSEXP, SEXP init_agesSEXP) {
+List initialize_pop_cpp(int n, int nyears, NumericVector init_ages, int max_age);
+RcppExport SEXP _morevac_initialize_pop_cpp(SEXP nSEXP, SEXP nyearsSEXP, SEXP init_agesSEXP, SEXP max_ageSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< int >::type n(nSEXP);
     Rcpp::traits::input_parameter< int >::type nyears(nyearsSEXP);
     Rcpp::traits::input_parameter< NumericVector >::type init_ages(init_agesSEXP);
-    rcpp_result_gen = Rcpp::wrap(initialize_pop_cpp(n, nyears, init_ages));
+    Rcpp::traits::input_parameter< int >::type max_age(max_ageSEXP);
+    rcpp_result_gen = Rcpp::wrap(initialize_pop_cpp(n, nyears, init_ages, max_age));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -84,48 +118,49 @@ BEGIN_RCPP
 END_RCPP
 }
 // vaccinate_cpp_2
-int vaccinate_cpp_2(int prior_vac, int vac_this_year, double vac_cov, double take, int age, double rho, double randnum_vac, int actual_year, int start_vac_year, int start_vac_age, int stop_vac_age);
-RcppExport SEXP _morevac_vaccinate_cpp_2(SEXP prior_vacSEXP, SEXP vac_this_yearSEXP, SEXP vac_covSEXP, SEXP takeSEXP, SEXP ageSEXP, SEXP rhoSEXP, SEXP randnum_vacSEXP, SEXP actual_yearSEXP, SEXP start_vac_yearSEXP, SEXP start_vac_ageSEXP, SEXP stop_vac_ageSEXP) {
+List vaccinate_cpp_2(NumericMatrix vac_hist_mat, NumericMatrix v, IntegerMatrix ages_mat, IntegerVector vac_this_year, double vac_cov, double take, double rho, int start_vac_age, int stop_vac_age, int vac_strategy);
+RcppExport SEXP _morevac_vaccinate_cpp_2(SEXP vac_hist_matSEXP, SEXP vSEXP, SEXP ages_matSEXP, SEXP vac_this_yearSEXP, SEXP vac_covSEXP, SEXP takeSEXP, SEXP rhoSEXP, SEXP start_vac_ageSEXP, SEXP stop_vac_ageSEXP, SEXP vac_strategySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type prior_vac(prior_vacSEXP);
-    Rcpp::traits::input_parameter< int >::type vac_this_year(vac_this_yearSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type vac_hist_mat(vac_hist_matSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type v(vSEXP);
+    Rcpp::traits::input_parameter< IntegerMatrix >::type ages_mat(ages_matSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type vac_this_year(vac_this_yearSEXP);
     Rcpp::traits::input_parameter< double >::type vac_cov(vac_covSEXP);
     Rcpp::traits::input_parameter< double >::type take(takeSEXP);
-    Rcpp::traits::input_parameter< int >::type age(ageSEXP);
     Rcpp::traits::input_parameter< double >::type rho(rhoSEXP);
-    Rcpp::traits::input_parameter< double >::type randnum_vac(randnum_vacSEXP);
-    Rcpp::traits::input_parameter< int >::type actual_year(actual_yearSEXP);
-    Rcpp::traits::input_parameter< int >::type start_vac_year(start_vac_yearSEXP);
     Rcpp::traits::input_parameter< int >::type start_vac_age(start_vac_ageSEXP);
     Rcpp::traits::input_parameter< int >::type stop_vac_age(stop_vac_ageSEXP);
-    rcpp_result_gen = Rcpp::wrap(vaccinate_cpp_2(prior_vac, vac_this_year, vac_cov, take, age, rho, randnum_vac, actual_year, start_vac_year, start_vac_age, stop_vac_age));
+    Rcpp::traits::input_parameter< int >::type vac_strategy(vac_strategySEXP);
+    rcpp_result_gen = Rcpp::wrap(vaccinate_cpp_2(vac_hist_mat, v, ages_mat, vac_this_year, vac_cov, take, rho, start_vac_age, stop_vac_age, vac_strategy));
     return rcpp_result_gen;
 END_RCPP
 }
-// vaccine_update
-List vaccine_update(NumericVector drift, double threshold, double vac_protect);
-RcppExport SEXP _morevac_vaccine_update(SEXP driftSEXP, SEXP thresholdSEXP, SEXP vac_protectSEXP) {
+// vaccine_update_cpp
+List vaccine_update_cpp(NumericVector drift, double threshold, double vac_protect);
+RcppExport SEXP _morevac_vaccine_update_cpp(SEXP driftSEXP, SEXP thresholdSEXP, SEXP vac_protectSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericVector >::type drift(driftSEXP);
     Rcpp::traits::input_parameter< double >::type threshold(thresholdSEXP);
     Rcpp::traits::input_parameter< double >::type vac_protect(vac_protectSEXP);
-    rcpp_result_gen = Rcpp::wrap(vaccine_update(drift, threshold, vac_protect));
+    rcpp_result_gen = Rcpp::wrap(vaccine_update_cpp(drift, threshold, vac_protect));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_morevac_find_delta_v", (DL_FUNC) &_morevac_find_delta_v, 2},
     {"_morevac_infect_cpp", (DL_FUNC) &_morevac_infect_cpp, 3},
-    {"_morevac_initialize_pop_cpp", (DL_FUNC) &_morevac_initialize_pop_cpp, 3},
+    {"_morevac_infect_cpp_2", (DL_FUNC) &_morevac_infect_cpp_2, 11},
+    {"_morevac_initialize_pop_cpp", (DL_FUNC) &_morevac_initialize_pop_cpp, 4},
     {"_morevac_lifetime_infections_cpp", (DL_FUNC) &_morevac_lifetime_infections_cpp, 3},
     {"_morevac_suscept_func_cpp", (DL_FUNC) &_morevac_suscept_func_cpp, 8},
     {"_morevac_vaccinate_cpp", (DL_FUNC) &_morevac_vaccinate_cpp, 11},
-    {"_morevac_vaccinate_cpp_2", (DL_FUNC) &_morevac_vaccinate_cpp_2, 11},
-    {"_morevac_vaccine_update", (DL_FUNC) &_morevac_vaccine_update, 3},
+    {"_morevac_vaccinate_cpp_2", (DL_FUNC) &_morevac_vaccinate_cpp_2, 10},
+    {"_morevac_vaccine_update_cpp", (DL_FUNC) &_morevac_vaccine_update_cpp, 3},
     {NULL, NULL, 0}
 };
 
