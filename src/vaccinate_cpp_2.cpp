@@ -23,7 +23,6 @@ List vaccinate_cpp_2(NumericMatrix vac_hist_mat,
                               double vac_cov,
                               double take,
                               double rho,
-                              NumericVector randnum_vac,
                               int start_vac_age,
                               int stop_vac_age,
                               int vac_strategy){
@@ -32,6 +31,7 @@ List vaccinate_cpp_2(NumericMatrix vac_hist_mat,
   int nindiv = vac_hist_mat.ncol();
 
   for(int j = 0; j < nyears; ++j){
+    NumericVector randnum_vac = runif(nindiv);
       for (int i = 0; i < nindiv; ++i){
         if (vac_this_year[j] == 0){
           vac_hist_mat(i,j) = 0;
@@ -70,9 +70,6 @@ init_pop <- initialize_pop_cpp(n = 10, nyears = 10, init_ages = sample(1:9,10,re
 vac_this_year <- c(0,0,0,0,0,1,0,1,0,1)
 vaccinate_cpp_2(vac_hist_mat = init_pop$vac_hist_mat, ages_mat = init_pop$ages_mat,
                 v = init_pop$time_since_last_vac,vac_this_year = vac_this_year, vac_cov = 0.5,
-                take = 1, rho = 1, randnum_vac = runif(10),
+                take = 1, rho = 1,
                 start_vac_age = 2, stop_vac_age = 5, vac_strategy = 2)
 */
-
-
-
