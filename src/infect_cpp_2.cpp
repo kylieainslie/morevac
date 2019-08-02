@@ -6,9 +6,14 @@ using namespace Rcpp;
 //
 // @param inf_history Number years since last infection
 // @param vac_history Number of years since last vaccination
-// @param ve Vaccine efficacy
-// @param drift_x Amount of drift from infection
-// @param drift_v Amount of drift from vaccination
+// @param suscept_mat
+// @param x
+// @param ages_mat
+// @param delta_v
+// @param gammas
+// @param drift
+// @param foi
+// @param wane_rate
 // @param version Which susceptibility function to use: 1 = either-or, 2 = multiplicative
 // @return Numeric value of susceptibility
 // @keywords morevac
@@ -27,8 +32,8 @@ List infect_cpp_2(NumericMatrix inf_history,
                         int version
                         ) {
 
-  int nyears = inf_history.nrow();
-  int nindiv = inf_history.ncol();
+  int nyears = inf_history.ncol();
+  int nindiv = inf_history.nrow();
   double w = 0;                          // initialize waning
   int vac_ind = 0;                       // initialize vac_ind
   NumericMatrix delta_x(nindiv,nyears);
@@ -75,8 +80,10 @@ List infect_cpp_2(NumericMatrix inf_history,
           suscept_mat(i,j) = 0;
         } else {inf_history(i,j) = 0;}
       // update x(i,j+1)
-        if (ages_mat(i,j+1) > 0 && j < nyears - 1){
-            x(i,j+1) = x(i,j) + 1;
+        if (j < nyears - 1){
+          if (ages_mat(i,j+1) > 0){
+              x(i,j+1) = x(i,j) + 1;
+          }
         }
       }
     }
@@ -89,26 +96,32 @@ List infect_cpp_2(NumericMatrix inf_history,
 }
 
 /*** R
-init_pop <- initialize_pop_cpp(n = 10, nyears = 10, init_ages = sample(1:9,10,replace=TRUE),max_age = 10)
-vac_this_year <- c(0,0,0,0,0,1,1,1,1,1)
-drift <- drift_func(nyears = 10, rate = 0.5)
+# input parameter values
+nyears <- 10
+maxage <- 10
+nindiv <- 20
+betas <- c(0.4, rep(0.2,nyears-1))
+# initialize population
+init_age_vec <- sample(0:maxage-1,nindiv,replace=TRUE)
+init_pop <- initialize_pop_cpp(n = nindiv, nyears = nyears, init_ages = init_age_vec, max_age = maxage)
+vac_this_year <- c(rep(0,nyears))
+drift <- drift_func(nyears = nyears, rate = 0.5)
 # determine vaccine update schedule
 run_update <- vaccine_update_cpp(drift = drift, threshold = 0.5, vac_protect = 0.7)
 gammas <- run_update$gammas
 vac <- vaccinate_cpp_2(vac_hist_mat = init_pop$vac_hist_mat, ages_mat = init_pop$ages_mat,
                        v = init_pop$time_since_last_vac,vac_this_year = vac_this_year, vac_cov = 0.5,
-                       take = 1, rho = 1,
-                       start_vac_age = 2, stop_vac_age = 5, vac_strategy = 2)
+                       take = 1, rho = 1, start_vac_age = 2, stop_vac_age = 5, vac_strategy = 2)
 delta_v <- find_delta_v(v = vac$v, drift = drift)
-infect_cpp_2(inf_history = init_pop$inf_hist_mat,
-             vac_history = vac$vac_hist_mat,
-             suscept_mat = init_pop$suscept_mat,
-             x = init_pop$time_since_last_inf,
-             ages_mat = init_pop$ages_mat,
-             drift = drift,
-             delta_v = delta_v,
-             gammas = gammas,
-             foi = c(0.4, rep(0.2,9)),
-             wane_rate = 0,
-             version = 2)
+infect_pop <- infect_cpp_2(inf_history = init_pop$inf_hist_mat,
+                           vac_history = vac$vac_hist_mat,
+                           suscept_mat = init_pop$suscept_mat,
+                           x = init_pop$time_since_last_inf,
+                           ages_mat = init_pop$ages_mat,
+                           drift = drift,
+                           delta_v = delta_v,
+                           gammas = gammas,
+                           foi = betas,
+                           wane_rate = 0,
+                           version = 2)
 */
