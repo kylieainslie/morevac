@@ -41,7 +41,7 @@ List infect_cpp_2(NumericMatrix inf_history,
         if (x(i,j) >= 999){
           delta_x(i,j) = 1;
         } else if (x(i,j) == 0){
-          delta_x = 0;
+          delta_x(i,j) = 0;
           tmp_delta[i] = 0;
         } else {
           tmp_delta[i] += drift[j];
@@ -53,7 +53,7 @@ List infect_cpp_2(NumericMatrix inf_history,
           suscept_mat(i,j) = 0;
         } else {
         // determine if individual was vaccinated in current year
-          if(vac_history(i,j) == 0){
+          if(vac_history(i,j) == 1){
             vac_ind = 1;
           } else {vac_ind = 0;}
         // determine amount of waning
