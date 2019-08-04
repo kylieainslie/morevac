@@ -44,7 +44,7 @@ multiannual <- function(n = 1000,
   # set seed
     if (!is.null(seed)){set.seed(seed)}
   # initialize the population
-    init_age_vec <- sample(0:max_age-1,n,replace = TRUE)
+    init_age_vec <- sample(1:max_age-1,n,replace = TRUE)
     init_pop <- initialize_pop_cpp(n = n, nyears = length(years), init_ages = init_age_vec, max_age = max_age)
 
   # determine drift
