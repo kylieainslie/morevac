@@ -20,7 +20,7 @@ List vaccinate_cpp_2(NumericMatrix vac_hist_mat,
                               NumericMatrix v,
                               IntegerMatrix ages_mat,
                               IntegerVector vac_this_year,
-                              double vac_cov,
+                              NumericVector vac_cov,
                               double take,
                               double rho,
                               int start_vac_age,
@@ -44,7 +44,7 @@ List vaccinate_cpp_2(NumericMatrix vac_hist_mat,
             randnum_vac[i] = randnum_vac[i] * (1-rho);
           }
         // vaccinate
-          if (randnum_vac[i] <= vac_cov * take){
+          if (randnum_vac[i] <= vac_cov[ages_mat(i,j)] * take){
             vac_hist_mat(i,j) = 1;
             v(i,j) = 0;
           } else {
