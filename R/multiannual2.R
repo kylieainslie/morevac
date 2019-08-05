@@ -84,7 +84,7 @@ multiannual2 <- function(n = 1000,
     colnames(null_inf_counter) <- c(paste0("Age",0:(maxage-1)))
 
   # calculate drift for each year
-    drift <- drift_func(years = years, rate = 0.5)
+    drift <- drift_func(nyears = years, rate = 0.5)
   # determine years of vaccination
     actual_year_vec <- start_year:end_year
     vac_this_year <- ifelse(actual_year_vec>=start_vac_year & actual_year_vec %% vac_strategy == 0, 1, 0)
