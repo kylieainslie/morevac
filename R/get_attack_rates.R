@@ -1,24 +1,20 @@
 #' Multi-annual model of infection and vaccination (version 2)
 #'
 #' This function initializes the population before running the model.
-#' @param n number of individuals to be simulated
+#' @param inf_history
+#' @param ages_mat
+#' @param vac_history
 #' @param years vector of years to run simulation over (YYYY format)
-#' @param max_age maximum age of an individual (removed from population after max_age)
-#' @param vac_start_year year that vaccination starts (YYYY)
-#' @param start_vac_age age at which an individual may be vaccinated
-#' @param stop_vac_age age at which vaccination stops
-#' @param vac_coverage vaccination coverage
-#' @return list with two elements: 1) a list of infection histories and attack rates and
-#'         2) a plot of annual attack rates by vaccination scenario
+#' @return data frame or list of data frames with attack rates
 #' @keywords morevac
 #' @export
-get_attack_rates <- function(inf_history, ages_mat = NULL, vac_history = NULL){
+get_attack_rates <- function(inf_history, ages_mat = NULL, vac_history = NULL, years){
 
   n <- nrow(inf_history)
   nyears <- ncol(inf_history)
 
-  attack_rates <- colSums(inf_history)/nindiv
-
+  attack_rates <- colSums(inf_history)/n
+  attack_rate_dat <- data.frame(Year = years, Attack_Rate = attack_rates)
   # if (!is.null(vac_history)){
   #   ar_by_vac <-
   # }
@@ -39,13 +35,18 @@ get_attack_rates <- function(inf_history, ages_mat = NULL, vac_history = NULL){
       if (shift == no_ages){shift <- 0}
       shift_row <- c(tail(ar_by_age[,j],shift), head(ar_by_age[,j],no_ages-shift))
       ar_by_age[,j] <- shift_row
-     }
+    }
+    # convert to long data.frame
+    ar_by_age_dat <- data.frame(Age = rownames(ar_by_age),ar_by_age)
+    colnames(ar_by_age_dat) <- c("Age", paste0("Year",years))
+    ar_by_age_dat <- gather(ar_by_age_dat, Year, Attack_Rate, paste0("Year",years), factor_key=TRUE)
+    ar_by_age_dat$Year <- as.factor(str_remove(ar_by_age_dat$Year, 'Year'))
   }
 
   if (!is.null(ages_mat)){
-    rtn <- list(attack_rates = attack_rates,
-                ar_by_age = ar_by_age)
-  } else {rtn <- attack_rates}
+    rtn <- list(attack_rates = attack_rate_dat,
+                ar_by_age = ar_by_age_dat)
+  } else {rtn <- attack_rate_dat}
 
   return(rtn)
 }
