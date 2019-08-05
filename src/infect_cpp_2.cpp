@@ -97,9 +97,9 @@ List infect_cpp_2(NumericMatrix inf_history,
 
 /*** R
 # input parameter values
-nyears <- 10
-maxage <- 10
-nindiv <- 20
+nyears <- 200
+maxage <- 80
+nindiv <- 1000
 betas <- c(0.4, rep(0.2,nyears-1))
 # initialize population
 init_age_vec <- sample(0:maxage-1,nindiv,replace=TRUE)
