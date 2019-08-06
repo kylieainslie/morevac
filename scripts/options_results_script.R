@@ -47,7 +47,9 @@ age_group_dat$Age_Group <- factor(age_group_dat$Age_Group,levels(age_group_dat$A
 # plot attack rates by age group
 p2 <- plot_attack_rates(dat = age_group_dat, by_age_group = TRUE)
 
-# simulation - returns 3 arrays with inf_hist_mat, vac_hist_mat, and ages_mat from each sim
+### simulation
+## single run
+# returns 3 arrays with inf_hist_mat, vac_hist_mat, and ages_mat from each sim
 sim_test <- run_sim_2()
 
 # post process sim results
@@ -72,6 +74,23 @@ sim_ar_dat$Upper <- sim_ar_dat$Attack_Rate + (qnorm(0.975)*sim_ar_dat$SD_AR/sqrt
 # plot results
 p_ar <- plot_attack_rates(dat = sim_ar_dat, c_bands = TRUE)
 p_ar
+
+## multiple run
+library(foreach)
+library(doParallel)
+# make cluster
+ncl <- detectCores()
+cl <- makeCluster(ncl)
+registerDoParallel(cl)
+# input parameters
+s <- 100; n <- 10000; vc <- vac_cov_dat$By_Group
+v <- 2; r <- 0.9; w <- 1; take <- 1; vs <- c(0,1,2)
+# parallel all three vac strategies
+sim_out <- foreach (i=1:3, .packages = c('morevac','Rcpp')) %dopar%
+  run_sim_2(sim = s,n = n,vac_cov = vc, suscept_version = v,
+            rho = r, wane = w, take = take, vac_strategy = vs[i])
+# stop cluster
+stopCluster(cl)
 
 
 
