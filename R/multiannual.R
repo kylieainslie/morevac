@@ -24,7 +24,7 @@
 #'         2) a plot of annual attack rates by vaccination scenario
 #' @keywords morevac
 #' @export
-multiannual <- function(n = 1000,
+multiannual <- function(n = 10000,
                         years = 1820:2019,
                         max_age = 80,
                         start_vac_year = 2000,
@@ -33,7 +33,7 @@ multiannual <- function(n = 1000,
                         vac_protect = 0.7,
                         suscept_func_version = 2,
                         vac_strategy = 1,
-                        rho = 0,
+                        rho = 0.9,
                         wane = 0,
                         take = 1,
                         seed = NULL
@@ -69,7 +69,7 @@ multiannual <- function(n = 1000,
       delta_v <- find_delta_v(v = vac_pop$v, drift = drift)
     # run infection model
       infect_pop <- infect_cpp_2(inf_history = init_pop$inf_hist_mat,
-                                 vac_history = vac_pop$vac_hist_mat,
+                                 years_since_last_vac = vac_pop$v,
                                  suscept_mat = init_pop$suscept_mat,
                                  x = init_pop$time_since_last_inf,
                                  ages_mat = init_pop$ages_mat,
@@ -81,7 +81,9 @@ multiannual <- function(n = 1000,
       # return
       rtn <- list(inf_history = infect_pop,
                   vac_history = vac_pop,
-                  ages = init_pop$ages_mat
+                  ages = init_pop$ages_mat,
+                  drift = drift,
+                  vac_this_year = vac_this_year
       )
       return(rtn)
 
