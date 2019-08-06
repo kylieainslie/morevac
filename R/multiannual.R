@@ -28,8 +28,6 @@ multiannual <- function(n = 1000,
                         years = 1820:2019,
                         max_age = 80,
                         start_vac_year = 2000,
-                        start_vac_age = 2,
-                        stop_vac_age = 10,
                         vac_coverage = c(rep(0.5,80)),
                         betas = c(0.4,rep(0.2,199)),
                         vac_protect = 0.7,
@@ -65,9 +63,7 @@ multiannual <- function(n = 1000,
                                ages_mat = init_pop$ages_mat,
                                vac_this_year = vac_this_year,
                                vac_cov = vac_coverage, take = take,
-                               rho = rho, start_vac_age = start_vac_age,
-                               stop_vac_age = stop_vac_age,
-                               vac_strategy = vac_strategy)
+                               rho = rho, vac_strategy = vac_strategy)
 
     # calculate delta_v values
       delta_v <- find_delta_v(v = vac_pop$v, drift = drift)
