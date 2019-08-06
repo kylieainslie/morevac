@@ -9,8 +9,8 @@ infect_cpp <- function(susceptibility, foi, randnum_inf) {
     .Call(`_morevac_infect_cpp`, susceptibility, foi, randnum_inf)
 }
 
-infect_cpp_2 <- function(inf_history, vac_history, suscept_mat, x, ages_mat, delta_v, gammas, drift, foi, wane_rate, version) {
-    .Call(`_morevac_infect_cpp_2`, inf_history, vac_history, suscept_mat, x, ages_mat, delta_v, gammas, drift, foi, wane_rate, version)
+infect_cpp_2 <- function(inf_history, years_since_last_vac, suscept_mat, x, ages_mat, delta_v, gammas, drift, foi, wane_rate, version) {
+    .Call(`_morevac_infect_cpp_2`, inf_history, years_since_last_vac, suscept_mat, x, ages_mat, delta_v, gammas, drift, foi, wane_rate, version)
 }
 
 initialize_pop_cpp <- function(n, nyears, init_ages, max_age) {
@@ -29,8 +29,8 @@ vaccinate_cpp <- function(prior_vac, vac_this_year, vac_cov, take, age, rho, ran
     .Call(`_morevac_vaccinate_cpp`, prior_vac, vac_this_year, vac_cov, take, age, rho, randnum_vac, actual_year, start_vac_year, start_vac_age, stop_vac_age)
 }
 
-vaccinate_cpp_2 <- function(vac_hist_mat, v, ages_mat, vac_this_year, vac_cov, take, rho, start_vac_age, stop_vac_age, vac_strategy) {
-    .Call(`_morevac_vaccinate_cpp_2`, vac_hist_mat, v, ages_mat, vac_this_year, vac_cov, take, rho, start_vac_age, stop_vac_age, vac_strategy)
+vaccinate_cpp_2 <- function(vac_hist_mat, v, ages_mat, vac_this_year, vac_cov, take, rho, vac_strategy) {
+    .Call(`_morevac_vaccinate_cpp_2`, vac_hist_mat, v, ages_mat, vac_this_year, vac_cov, take, rho, vac_strategy)
 }
 
 vaccine_update_cpp <- function(drift, threshold, vac_protect) {
