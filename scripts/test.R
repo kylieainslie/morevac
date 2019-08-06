@@ -115,4 +115,32 @@ library(cowplot)
 p <- plot_grid(p_vac, p_no_vac_suscept,p_suscept, labels = "AUTO", ncol = 1, align = 'v', axis = 'l')
 p
 
+### test multiannual() ###
+test <- multiannual(n = 1000, years = 2000:2019, max_age = 20, vac_coverage = c(rep(1,10)),
+                    betas = c(0.4,rep(0.2,19)), start_vac_year = 2010)
+# get attack rates
+ar_test <- get_attack_rates(inf_history = test$inf_history$inf_hist_mat,
+                           ages_mat = test$ages, years = 2000:2019)
+# plot total attack rates
+p1 <- plot_attack_rates(dat = ar_test$attack_rates)
+p1
+
+### Debugging ###
+i <- 2 # choose random person
+person <- data.frame(Year = 2000:2019, Vac_History = test$vac_history$vac_hist_mat[i,],
+                     V = test$vac_history$v[i,],
+                     Inf_History = test$inf_history$inf_hist_mat[i,],
+                     X = test$inf_history$x[i,],
+                     Delta_X = test$inf_history$delta_x[i,],
+                     Susceptibility = test$inf_history$suscept_mat[i,],
+                     Drift = test$drift,
+                     Vac_This_Year = test$vac_this_year
+                     )
+
+
+# number vaccinated in each year
+
+vac_numbers <- colSums(out$vac_history$vac_hist_mat)
+#################
+
 
