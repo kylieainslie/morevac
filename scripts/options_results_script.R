@@ -46,3 +46,36 @@ age_group_dat$Age_Group <- as.factor(age_group_dat$Age_Group)
 age_group_dat$Age_Group <- factor(age_group_dat$Age_Group,levels(age_group_dat$Age_Group)[c(1,4,5,2,3,6)])
 # plot attack rates by age group
 p2 <- plot_attack_rates(dat = age_group_dat, by_age_group = TRUE)
+
+# simulation - returns 3 arrays with inf_hist_mat, vac_hist_mat, and ages_mat from each sim
+sim_test <- run_sim_2()
+
+# post process sim results
+# overall attack rates
+sim = 100
+years <- 1820:2019
+sim_ar <- matrix(numeric(length(years)*sim),nrow = length(years))
+
+for (s in 1: sim){
+  sim_ar[,s] <- get_attack_rates(sim_test$inf_history[,,s], years = years)$Attack_Rate
+}
+sim_ar <- cbind(years,sim_ar)
+colnames(sim_ar) <- c("Year",paste0("Sim",1:sim))
+# find mean and 95% CI of AR in each year (ARs within a given year are assumed Normally distributed)
+# shapiro.test(sim_ar[1,-1]): returns p-value>0.05
+sim_ar_dat <- data.frame(Year = sim_ar[,1],
+                         Attack_Rate = apply(sim_ar[,-1],1,mean),
+                         SD_AR = apply(sim_ar[,-1],1,sd))
+sim_ar_dat$Lower <- sim_ar_dat$Attack_Rate - (qnorm(0.975)*sim_ar_dat$SD_AR/sqrt(sim))
+sim_ar_dat$Upper <- sim_ar_dat$Attack_Rate + (qnorm(0.975)*sim_ar_dat$SD_AR/sqrt(sim))
+
+# plot results
+p_ar <- plot_attack_rates(dat = sim_ar_dat, c_bands = TRUE)
+p_ar
+
+
+
+
+
+
+
