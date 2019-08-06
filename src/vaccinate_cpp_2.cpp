@@ -45,7 +45,7 @@ List vaccinate_cpp_2(NumericMatrix vac_hist_mat,
           v(i,j) = 0;
         } else {
           vac_hist_mat(i,j) = 0;
-          v(i,j) = v(i,j-1) + 1;
+          if(j > 0){v(i,j) = v(i,j-1) + 1;}
         }
       }
      }
@@ -59,7 +59,7 @@ List vaccinate_cpp_2(NumericMatrix vac_hist_mat,
 
 /*** R
 init_pop <- initialize_pop_cpp(n = 10, nyears = 10, init_ages = sample(1:9,10,replace=TRUE),max_age = 10)
-vac_this_year <- c(0,0,0,0,0,1,0,1,0,1)
+vac_this_year <- c(1,1,1,1,1,1,1,1,1,1)
 vaccinate_cpp_2(vac_hist_mat = init_pop$vac_hist_mat, ages_mat = init_pop$ages_mat,
                 v = init_pop$time_since_last_vac,vac_this_year = vac_this_year,
                 vac_cov = c(rep(0.24,10)),take = 1, rho = 1,vac_strategy = 2)
