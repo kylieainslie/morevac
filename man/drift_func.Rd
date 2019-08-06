@@ -4,10 +4,10 @@
 \alias{drift_func}
 \title{Drift generating function}
 \usage{
-drift_func(years = 200, rate = 1)
+drift_func(nyears = 200, rate = 1)
 }
 \arguments{
-\item{years}{number of years to determine drift for}
+\item{nyears}{number of years to determine drift for}
 
 \item{rate}{rate of exponential distribution to draw from}
 }

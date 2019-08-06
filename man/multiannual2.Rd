@@ -5,10 +5,11 @@
 \title{Multi-annual model of infection and vaccination (version 2)}
 \usage{
 multiannual2(n = 1000, years = 200, maxage = 80, start_year = 1820,
-  start_vac_year = 2000, start_vac_age = 3, vac_coverage = 0.5,
-  beta_pandemic = 0.4, beta_epidemic = 0.15, delta_x = NULL,
-  delta_v = NULL, vac_protect = 0.7, suscept_func_version = 1,
-  vac_strategy = 1, rho = 0, return_ar_only = 0)
+  start_vac_year = 2000, start_vac_age = 2, stop_vac_age = 10,
+  vac_coverage = 0.5, beta_pandemic = 0.4, beta_epidemic = 0.2,
+  delta_x = NULL, delta_v = NULL, vac_protect = 0.7,
+  suscept_func_version = 1, vac_strategy = 1, rho = 0, wane = 0,
+  take = 1, seed = NULL)
 }
 \arguments{
 \item{n}{number of individuals to be simulated}
@@ -20,6 +21,8 @@ multiannual2(n = 1000, years = 200, maxage = 80, start_year = 1820,
 \item{start_year}{year to start simulation}
 
 \item{start_vac_age}{age at which an individual may be vaccinated}
+
+\item{stop_vac_age}{age at which vaccination stops}
 
 \item{vac_coverage}{vaccination coverage}
 
@@ -38,7 +41,11 @@ multiannual2(n = 1000, years = 200, maxage = 80, start_year = 1820,
 
 \item{rho}{correlation of vaccination}
 
-\item{return_ar_only}{0 = no, 1 = return annual attack rates, 2 = return attack rate by age}
+\item{wane}{amount of protection of vaccine due to waning (0, 1) (inclusive)}
+
+\item{take}{percentage of vaccine take (0, 1) (inclusive)}
+
+\item{seed}{set random seed}
 
 \item{vac_start_year}{year that vaccination starts}
 
