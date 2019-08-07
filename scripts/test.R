@@ -142,5 +142,31 @@ person <- data.frame(Year = 2000:2019, Vac_History = test$vac_history$vac_hist_m
 
 vac_numbers <- colSums(out$vac_history$vac_hist_mat)
 #################
+library(foreach)
+library(doParallel)
+# make cluster
+ncl <- detectCores()
+cl <- makeCluster(ncl)
+registerDoParallel(cl)
+
+foreach_test <- foreach (i=1:5, .packages = c('morevac','Rcpp')) %dopar%
+  morevac::multiannual(n = 10000,
+              years = 1820:2019,
+              max_age = 80,
+              start_vac_year = 2000,
+              vac_coverage = c(rep(0.5,80)),
+              betas = c(0.4,rep(0.2,199)),
+              vac_protect = 0.7,
+              suscept_func_version = 2,
+              vac_strategy = 1,
+              rho = 0.9,
+              wane = 0,
+              take = 1,
+              seed = NULL)
+  # run_sim_2(sim = s,n = n,vac_cov = vc, suscept_version = v,
+  #           rho = r, wane = w, take = take, vac_strategy = vs[i])
+# stop cluster
+stopCluster(cl)
+
 
 
