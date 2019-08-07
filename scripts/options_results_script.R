@@ -6,6 +6,8 @@ library(tidyr)
 library(reshape2)
 library(cowplot)
 library(stringr)
+library(foreach)
+library(doParallel)
 
 # load morevac package
 # setwd("C:/Users/kainslie/Documents/GitHub/morevac")
@@ -75,9 +77,7 @@ sim_ar_dat$Upper <- sim_ar_dat$Attack_Rate + (qnorm(0.975)*sim_ar_dat$SD_AR/sqrt
 p_ar <- plot_attack_rates(dat = sim_ar_dat, c_bands = TRUE)
 p_ar
 
-## multiple run
-library(foreach)
-library(doParallel)
+## multiple run - foreach causes error
 # make cluster
 ncl <- detectCores()
 cl <- makeCluster(ncl)
@@ -91,6 +91,47 @@ sim_out <- foreach (i=1:3, .packages = c('morevac','Rcpp')) %dopar%
             rho = r, wane = w, take = take, vac_strategy = vs[i])
 # stop cluster
 stopCluster(cl)
+
+# post process sim results
+# overall attack rates
+sim <- s
+years <- 1820:2019
+nyears <- length(years)
+sim_ar0 <- matrix(numeric(length(years)*s),nrow = length(years)); sim_ar1 <- sim_ar0; sim_ar2 <- sim_ar0
+
+for (s in 1: sim){
+  sim_ar0[,s] <- get_attack_rates(sim_out[[1]]$inf_history[,,s], years = years)$Attack_Rate
+  sim_ar1[,s] <- get_attack_rates(sim_out[[2]]$inf_history[,,s], years = years)$Attack_Rate
+  sim_ar2[,s] <- get_attack_rates(sim_out[[3]]$inf_history[,,s], years = years)$Attack_Rate
+}
+sim_ar <- rbind(sim_ar0,sim_ar1,sim_ar2)
+# find mean and 95% CI of AR in each year (ARs within a given year are assumed Normally distributed)
+# shapiro.test(sim_ar[1,-c(1,2)]): returns p-value>0.05
+vac_strategy <- c(rep("No Vaccination",nyears),rep("Annual",nyears),rep("Every Other Year",nyears))
+years_x3 <- c(rep(years,3))
+sim_ar_dat <- data.frame(Year = years_x3,
+                         Vac_Strategy = vac_strategy,
+                         Attack_Rate = apply(sim_ar,1,mean),
+                         SD_AR = apply(sim_ar,1,sd))
+sim_ar_dat$Lower <- sim_ar_dat$Attack_Rate - (qnorm(0.975)*sim_ar_dat$SD_AR/sqrt(sim))
+sim_ar_dat$Upper <- sim_ar_dat$Attack_Rate + (qnorm(0.975)*sim_ar_dat$SD_AR/sqrt(sim))
+
+# plot results
+# p_ar <- plot_attack_rates(dat = sim_ar_dat, by_vac = TRUE, by_age_group = FALSE, c_bands = TRUE)
+# p_ar
+
+p1 <- ggplot(data = sim_ar_dat, aes(x = Year, y = Attack_Rate, colour= Vac_Strategy)) +
+      geom_line() +
+      geom_ribbon(aes(x=Year,ymin=Lower,ymax=Upper,linetype=NA,fill=Vac_Strategy),alpha=0.2)+
+      xlab('Year') +
+      ylab('Attack Rate') +
+      scale_y_continuous(limits = c(0,0.5), expand = c(0,0)) +
+      theme(panel.grid.major = element_blank(),
+            panel.grid.minor = element_blank(),
+            panel.background = element_blank(),
+            axis.line = element_line(colour = "black")
+  )
+p1
 
 
 
