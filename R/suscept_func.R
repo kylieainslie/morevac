@@ -14,8 +14,6 @@
 #' @return Numeric value of susceptibility
 #' @keywords morevac
 #' @export
-#' @examples
-#' suscept_func()
 suscept_func <- function(inf_history, vac_history = 999, gamma = 0.4, drift_x = 0.2, drift_v = 0.2, version = 1){
   # version = 1 is either-or
   # version = 2 is multiplicative
