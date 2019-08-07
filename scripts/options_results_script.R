@@ -8,7 +8,7 @@ library(cowplot)
 library(stringr)
 library(foreach)
 library(doParallel)
-
+library(dplyr)
 # load morevac package
 # setwd("C:/Users/kainslie/Documents/GitHub/morevac")
   setwd("~/Documents/morevac")
@@ -83,8 +83,8 @@ ncl <- detectCores()
 cl <- makeCluster(ncl)
 registerDoParallel(cl)
 # input parameters
-s <- 100; n <- 10000; vc <- vac_cov_dat$By_Group
-v <- 2; r <- 0.9; w <- 1; take <- 1; vs <- c(0,1,2)
+s <- 100; n <- 10000; vc <- vac_cov_dat$Total_Vac
+v <- 2; r <- 0.9; w <- 0; take <- 1; vs <- c(0,1,2)
 # parallel all three vac strategies
 sim_out <- foreach (i=1:3, .packages = c('morevac','Rcpp')) %dopar%
   run_sim_2(sim = s,n = n,vac_cov = vc, suscept_version = v,
@@ -125,12 +125,17 @@ p1 <- ggplot(data = sim_ar_dat, aes(x = Year, y = Attack_Rate, colour= Vac_Strat
       geom_ribbon(aes(x=Year,ymin=Lower,ymax=Upper,linetype=NA,fill=Vac_Strategy),alpha=0.2)+
       xlab('Year') +
       ylab('Attack Rate') +
-      scale_y_continuous(limits = c(0,0.5), expand = c(0,0)) +
+      scale_y_continuous(limits = c(0,0.41), expand = c(0,0)) +
       theme(panel.grid.major = element_blank(),
             panel.grid.minor = element_blank(),
             panel.background = element_blank(),
-            axis.line = element_line(colour = "black")
-  )
+            axis.line = element_line(colour = "black"),
+            legend.position = c(0.95, 0.95),
+            legend.justification = c("right", "top"),
+            legend.box.just = "right",
+            legend.margin = margin(6, 6, 6, 6),
+            legend.key = element_rect(fill = "white")
+            )
 p1
 
 
