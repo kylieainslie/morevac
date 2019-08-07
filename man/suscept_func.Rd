@@ -26,7 +26,4 @@ Numeric value of susceptibility
 \description{
 This function initializes the population before running the model.
 }
-\examples{
-suscept_func()
-}
 \keyword{morevac}
