@@ -116,8 +116,8 @@ p <- plot_grid(p_vac, p_no_vac_suscept,p_suscept, labels = "AUTO", ncol = 1, ali
 p
 
 ### test multiannual() ###
-test <- multiannual(n = 1000, years = 2000:2019, max_age = 20, vac_coverage = c(rep(1,10)),
-                    betas = c(0.4,rep(0.2,19)), start_vac_year = 2010)
+test <- multiannual(n = 1000, years = 2000:2019, max_age = 20, vac_coverage = c(rep(1,20)),
+                    betas = c(0.4,rep(0.2,19)), start_vac_year = 2010, vac_protect = 1)
 # get attack rates
 ar_test <- get_attack_rates(inf_history = test$inf_history$inf_hist_mat,
                            ages_mat = test$ages, years = 2000:2019)
@@ -126,8 +126,9 @@ p1 <- plot_attack_rates(dat = ar_test$attack_rates)
 p1
 
 ### Debugging ###
-i <- 2 # choose random person
-person <- data.frame(Year = 2000:2019, Vac_History = test$vac_history$vac_hist_mat[i,],
+i <- 101 # choose random person
+person <- data.frame(Year = 2000:2019, Age = test$ages[i,],
+                     Vac_History = test$vac_history$vac_hist_mat[i,],
                      V = test$vac_history$v[i,],
                      Inf_History = test$inf_history$inf_hist_mat[i,],
                      X = test$inf_history$x[i,],
@@ -136,7 +137,7 @@ person <- data.frame(Year = 2000:2019, Vac_History = test$vac_history$vac_hist_m
                      Drift = test$drift,
                      Vac_This_Year = test$vac_this_year
                      )
-
+person
 
 # number vaccinated in each year
 
