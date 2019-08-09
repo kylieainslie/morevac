@@ -10,10 +10,9 @@ library(foreach)
 library(doParallel)
 library(dplyr)
 # load morevac package
-# setwd("C:/Users/kainslie/Documents/GitHub/morevac")
   setwd("~/Documents/morevac")
   devtools::load_all()
-
+  library(morevac)
 # determine vaccination coverages by age
 # vaccine coverage data from PHE Seasonal influenza vaccine uptake in GP patients: winter season 2018 to 2019
 # https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/804889/Seasonal_influenza_vaccine_uptake_in_GP_patients_1819.pdf
@@ -21,16 +20,31 @@ vac_cov_dat <- data.frame(Age = 0:79,
                           Same_Vac = c(rep(0.24,80)), # vaccination coverage is 24% for everyone
                           By_Group = c(rep(0.005,2),rep(0.44,2),0.379,
                                        rep(0.233,11),rep(0.105,49),rep(0.729,15)),
+                          Off_At_10 = c(rep(0.005,2),rep(0.44,2),0.379,
+                                        rep(0.233,6),rep(0,7),rep(0.105,47),rep(0.729,15)),
+                          Off_At_16 = c(rep(0.005,2),rep(0.44,2),0.379,
+                                        rep(0.233,11),rep(0,2),rep(0.105,47),rep(0.729,15)),
                           Total_Vac = c(rep(1,80))) # vaccination coverage is 100% for everyone
 # run multi-annual model
 out <- multiannual(n=100000, vac_coverage = vac_cov_dat$By_Group)
-
 # get attack rates
 ar_out <- get_attack_rates(inf_history = out$inf_history$inf_hist_mat,
                            ages_mat = out$ages, years = 1820:2019)
 # plot total attack rates
 p1 <- plot_attack_rates(dat = ar_out$attack_rates)
 p1
+
+# isolate birth cohort in 2000
+birth_cohort <- which(out$ages[,181]==0)
+bc_inf_hist <- out$inf_history$inf_hist_mat[birth_cohort,181:200]
+bc_vac_hist <- out$vac_history$vac_hist_mat[birth_cohort,181:200]
+bc_ages <- out$ages[birth_cohort,181:200]
+# get attack rates for birth cohort
+ar_bc <- get_attack_rates(inf_history = bc_inf_hist, ages_mat = bc_ages, years = 2000:2019)
+# plot attack rates for birth cohort
+p2 <- plot_attack_rates(dat = ar_bc$attack_rates)
+p2
+
 # bin ages into groups
 age_group_dat <- ar_out$ar_by_age
 age_group_dat$Year <- as.numeric(as.character(age_group_dat$Year))
@@ -79,12 +93,12 @@ p_ar
 
 ## multiple run - foreach causes error
 # make cluster
-ncl <- detectCores()
-cl <- makeCluster(ncl)
+# ncl <- detectCores()
+cl <- makeCluster(3)
 registerDoParallel(cl)
 # input parameters
-s <- 100; n <- 10000; vc <- vac_cov_dat$Total_Vac
-v <- 2; r <- 0.9; w <- 0; take <- 1; vs <- c(0,1,2)
+sim <- 100; n <- 50000; vc <- vac_cov_dat$By_Group
+v <- 2; r <- 0.9; w <- 0.5; take <- 0.75; vs <- c(0,1,2)
 # parallel all three vac strategies
 sim_out <- foreach (i=1:3, .packages = c('morevac','Rcpp')) %dopar%
   run_sim_2(sim = s,n = n,vac_cov = vc, suscept_version = v,
@@ -94,15 +108,24 @@ stopCluster(cl)
 
 # post process sim results
 # overall attack rates
-sim <- s
-years <- 1820:2019
+years <- 2000:2019
+year_index <- 181:200
 nyears <- length(years)
-sim_ar0 <- matrix(numeric(length(years)*s),nrow = length(years)); sim_ar1 <- sim_ar0; sim_ar2 <- sim_ar0
+sim_ar0 <- matrix(numeric(length(years)*sim),nrow = length(years)); sim_ar1 <- sim_ar0; sim_ar2 <- sim_ar0
 
-for (s in 1: sim){
-  sim_ar0[,s] <- get_attack_rates(sim_out[[1]]$inf_history[,,s], years = years)$Attack_Rate
-  sim_ar1[,s] <- get_attack_rates(sim_out[[2]]$inf_history[,,s], years = years)$Attack_Rate
-  sim_ar2[,s] <- get_attack_rates(sim_out[[3]]$inf_history[,,s], years = years)$Attack_Rate
+for (s in 1:sim){
+  # subset birth cohort
+  bc0 <- which(sim_out[[1]]$ages[,year_index[1],s]==0)
+  bc_inf_hist0 <- sim_out[[1]]$inf_history[bc0,year_index,s]
+  sim_ar0[,s] <- get_attack_rates(bc_inf_hist0, years = years)$Attack_Rate
+
+  bc1 <- which(sim_out[[2]]$ages[,year_index[1],s]==0)
+  bc_inf_hist1 <- sim_out[[2]]$inf_history[bc1,year_index,s]
+  sim_ar1[,s] <- get_attack_rates(bc_inf_hist1, years = years)$Attack_Rate
+
+  bc2 <- which(sim_out[[3]]$ages[,year_index[1],s]==0)
+  bc_inf_hist2 <- sim_out[[2]]$inf_history[bc2,year_index,s]
+  sim_ar2[,s] <- get_attack_rates(bc_inf_hist2, years = years)$Attack_Rate
 }
 sim_ar <- rbind(sim_ar0,sim_ar1,sim_ar2)
 # find mean and 95% CI of AR in each year (ARs within a given year are assumed Normally distributed)
@@ -125,7 +148,7 @@ p1 <- ggplot(data = sim_ar_dat, aes(x = Year, y = Attack_Rate, colour= Vac_Strat
       geom_ribbon(aes(x=Year,ymin=Lower,ymax=Upper,linetype=NA,fill=Vac_Strategy),alpha=0.2)+
       xlab('Year') +
       ylab('Attack Rate') +
-      scale_y_continuous(limits = c(0,0.41), expand = c(0,0)) +
+      scale_y_continuous(limits = c(0,0.3), expand = c(0,0)) +
       theme(panel.grid.major = element_blank(),
             panel.grid.minor = element_blank(),
             panel.background = element_blank(),
