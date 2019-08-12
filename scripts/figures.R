@@ -20,6 +20,10 @@ fig1d <- plot_sim_ar(sim = 100, years = 2000:2019, year_index = 181:200,
 theme_set(theme_cowplot(font_size=10)) # reduce default font size
 fig1 <- plot_grid(fig1a, fig1b, fig1c, fig1d, labels = "AUTO", ncol = 2,
                   align = 'v', axis = 'l')
+# save figure
+png(filename = "figure1.png", res = 300)
+plot(fig1)
+dev.off()
 
 ### Figure 2 - wane = 0.5, vac stop @ 16
 # a) take = 1
@@ -42,3 +46,8 @@ fig2d <- plot_sim_ar(sim = 100, years = 2000:2019, year_index = 181:200,
 theme_set(theme_cowplot(font_size=10)) # reduce default font size
 fig2 <- plot_grid(fig2a, fig2b, fig2c, fig2d, labels = "AUTO", ncol = 2,
                   align = 'v', axis = 'l')
+
+# save figure
+png(filename = "figure2.png", res = 300)
+plot(fig2)
+dev.off()
