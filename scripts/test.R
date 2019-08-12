@@ -116,8 +116,8 @@ p <- plot_grid(p_vac, p_no_vac_suscept,p_suscept, labels = "AUTO", ncol = 1, ali
 p
 
 ### test multiannual() ###
-test <- multiannual(n = 1000, years = 2000:2019, max_age = 20, vac_coverage = c(rep(1,20)),
-                    betas = c(0.4,rep(0.2,19)), start_vac_year = 2010, vac_protect = 1)
+test <- multiannual(n = 1000, years = 2000:2019, max_age = 20, vac_coverage = c(rep(0.5,20)),
+                    betas = c(0.4,rep(0.2,19)), start_vac_year = 2000, vac_protect = 0.7, vac_strategy = 2)
 # get attack rates
 ar_test <- get_attack_rates(inf_history = test$inf_history$inf_hist_mat,
                            ages_mat = test$ages, years = 2000:2019)

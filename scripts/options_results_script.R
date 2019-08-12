@@ -42,7 +42,7 @@ bc_inf_hist <- out$inf_history$inf_hist_mat[birth_cohort,181:200]
 bc_vac_hist <- out$vac_history$vac_hist_mat[birth_cohort,181:200]
 bc_ages <- out$ages[birth_cohort,181:200]
 # get attack rates for birth cohort
-ar_bc <- get_attack_rates(inf_history = bc_inf_hist, ages_mat = bc_ages, years = 2000:2019)
+ar_bc <- get_attack_rates(inf_history = bc_inf_hist, ages_mat = bc_ages, vac_history = bc_vac_hist, years = 2000:2019)
 # plot attack rates for birth cohort
 p_bc <- plot_attack_rates(dat = ar_bc$attack_rates)
 p_bc
