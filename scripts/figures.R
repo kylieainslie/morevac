@@ -21,7 +21,7 @@ theme_set(theme_cowplot(font_size=10)) # reduce default font size
 fig1 <- plot_grid(fig1a, fig1b, fig1c, fig1d, labels = "AUTO", ncol = 2,
                   align = 'v', axis = 'l')
 # save figure
-png(filename = "figure1.png", res = 300)
+png(filename = "figure1.png", width = 6, height = 6, units = "in", res = 300)
 plot(fig1)
 dev.off()
 
@@ -48,6 +48,6 @@ fig2 <- plot_grid(fig2a, fig2b, fig2c, fig2d, labels = "AUTO", ncol = 2,
                   align = 'v', axis = 'l')
 
 # save figure
-png(filename = "figure2.png", res = 300)
+png(filename = "figure2.png", width = 6, height = 6, units = "in", res = 300)
 plot(fig2)
 dev.off()

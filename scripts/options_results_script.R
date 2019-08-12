@@ -24,6 +24,8 @@ vac_cov_dat <- data.frame(Age = 0:79,
                                         rep(0.233,6),rep(0,7),rep(0.105,47),rep(0.729,15)),
                           Off_At_16 = c(rep(0.005,2),rep(0.44,2),0.379,
                                         rep(0.233,11),rep(0,2),rep(0.105,47),rep(0.729,15)),
+                          Fifty_Off_At_10 = c(rep(0,2),rep(0.5,9),rep(0,8),rep(0.5,61)),
+                          Fifty_Off_At_10 = c(rep(0,2),rep(0.5,15),rep(0,2),rep(0.5,61)),
                           Total_Vac = c(rep(1,80))) # vaccination coverage is 100% for everyone
 # run multi-annual model
 out <- multiannual(n=100000, vac_coverage = vac_cov_dat$Off_At_10, vac_strategy = 2)
