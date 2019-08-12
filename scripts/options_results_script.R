@@ -10,9 +10,9 @@ library(foreach)
 library(doParallel)
 library(dplyr)
 # load morevac package
-  setwd("~/Documents/morevac")
-  devtools::load_all()
-  library(morevac)
+setwd("~/Documents/morevac")
+devtools::load_all()
+library(morevac)
 # determine vaccination coverages by age
 # vaccine coverage data from PHE Seasonal influenza vaccine uptake in GP patients: winter season 2018 to 2019
 # https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/804889/Seasonal_influenza_vaccine_uptake_in_GP_patients_1819.pdf
@@ -26,13 +26,13 @@ vac_cov_dat <- data.frame(Age = 0:79,
                                         rep(0.233,11),rep(0,2),rep(0.105,47),rep(0.729,15)),
                           Total_Vac = c(rep(1,80))) # vaccination coverage is 100% for everyone
 # run multi-annual model
-out <- multiannual(n=100000, vac_coverage = vac_cov_dat$By_Group)
+out <- multiannual(n=100000, vac_coverage = vac_cov_dat$Off_At_10, vac_strategy = 2)
 # get attack rates
 ar_out <- get_attack_rates(inf_history = out$inf_history$inf_hist_mat,
                            ages_mat = out$ages, years = 1820:2019)
 # plot total attack rates
-p1 <- plot_attack_rates(dat = ar_out$attack_rates)
-p1
+p_out <- plot_attack_rates(dat = ar_out$attack_rates)
+p_out
 
 # isolate birth cohort in 2000
 birth_cohort <- which(out$ages[,181]==0)
@@ -42,8 +42,8 @@ bc_ages <- out$ages[birth_cohort,181:200]
 # get attack rates for birth cohort
 ar_bc <- get_attack_rates(inf_history = bc_inf_hist, ages_mat = bc_ages, years = 2000:2019)
 # plot attack rates for birth cohort
-p2 <- plot_attack_rates(dat = ar_bc$attack_rates)
-p2
+p_bc <- plot_attack_rates(dat = ar_bc$attack_rates)
+p_bc
 
 # bin ages into groups
 age_group_dat <- ar_out$ar_by_age
@@ -66,42 +66,74 @@ p2 <- plot_attack_rates(dat = age_group_dat, by_age_group = TRUE)
 ### simulation
 ## single run
 # returns 3 arrays with inf_hist_mat, vac_hist_mat, and ages_mat from each sim
-sim_test <- run_sim_2()
+sim_test0 <- run_sim_2(wane = 0.5, take = 0.25, vac_cov = vac_cov_dat$Off_At_10, vac_strategy = 0)
+sim_test1 <- run_sim_2(wane = 0.5, take = 0.25, vac_cov = vac_cov_dat$Off_At_10, vac_strategy = 1)
+sim_test2 <- run_sim_2(wane = 0.5, take = 0.25, vac_cov = vac_cov_dat$Off_At_10, vac_strategy = 2)
 
 # post process sim results
 # overall attack rates
 sim = 100
-years <- 1820:2019
-sim_ar <- matrix(numeric(length(years)*sim),nrow = length(years))
+years <- 2000:2019
+nyears <- length(years)
+sim_test_ar0 <- matrix(numeric(length(years)*sim),nrow = length(years))
+sim_test_ar1 <- sim_test_ar0; sim_test_ar2 <- sim_test_ar0
 
 for (s in 1: sim){
-  sim_ar[,s] <- get_attack_rates(sim_test$inf_history[,,s], years = years)$Attack_Rate
+  bc0 <- which(sim_test0$ages[,181,s]==0)
+  bc_inf_hist0 <- sim_test0$inf_history[bc0,181:200,s]
+  sim_test_ar0[,s] <- get_attack_rates(bc_inf_hist0, years = years)$Attack_Rate
+
+  bc1 <- which(sim_test1$ages[,181,s]==0)
+  bc_inf_hist1 <- sim_test1$inf_history[bc1,181:200,s]
+  sim_test_ar1[,s] <- get_attack_rates(bc_inf_hist1, years = years)$Attack_Rate
+
+  bc2 <- which(sim_test2$ages[,181,s]==0)
+  bc_inf_hist2 <- sim_test2$inf_history[bc2,181:200,s]
+  sim_test_ar2[,s] <- get_attack_rates(bc_inf_hist2, years = years)$Attack_Rate
 }
-sim_ar <- cbind(years,sim_ar)
-colnames(sim_ar) <- c("Year",paste0("Sim",1:sim))
+sim_test_ar <- rbind(sim_test_ar0,sim_test_ar1,sim_test_ar2)
 # find mean and 95% CI of AR in each year (ARs within a given year are assumed Normally distributed)
 # shapiro.test(sim_ar[1,-1]): returns p-value>0.05
-sim_ar_dat <- data.frame(Year = sim_ar[,1],
-                         Attack_Rate = apply(sim_ar[,-1],1,mean),
-                         SD_AR = apply(sim_ar[,-1],1,sd))
-sim_ar_dat$Lower <- sim_ar_dat$Attack_Rate - (qnorm(0.975)*sim_ar_dat$SD_AR/sqrt(sim))
-sim_ar_dat$Upper <- sim_ar_dat$Attack_Rate + (qnorm(0.975)*sim_ar_dat$SD_AR/sqrt(sim))
+vac_strategy <- c(rep("No Vaccination",nyears),rep("Annual",nyears),rep("Every Other Year",nyears))
+years_x3 <- c(rep(years,3))
+
+sim_test_ar_dat <- data.frame(Year = years_x3,
+                              Vac_Strategy = vac_strategy,
+                              Attack_Rate = apply(sim_test_ar,1,mean),
+                              SD_AR = apply(sim_test_ar,1,sd))
+sim_test_ar_dat$Lower <- sim_test_ar_dat$Attack_Rate - (qnorm(0.975)*sim_test_ar_dat$SD_AR/sqrt(sim))
+sim_test_ar_dat$Upper <- sim_test_ar_dat$Attack_Rate + (qnorm(0.975)*sim_test_ar_dat$SD_AR/sqrt(sim))
 
 # plot results
-p_ar <- plot_attack_rates(dat = sim_ar_dat, c_bands = TRUE)
-p_ar
+p_test_ar <- ggplot(data = sim_test_ar_dat, aes(x = Year, y = Attack_Rate, colour= Vac_Strategy)) +
+             geom_line() +
+             geom_ribbon(aes(x=Year,ymin=Lower,ymax=Upper,linetype=NA,fill=Vac_Strategy),alpha=0.2)+
+             xlab('Year') +
+             ylab('Attack Rate') +
+             scale_y_continuous(limits = c(0,0.3), expand = c(0,0)) +
+             theme(panel.grid.major = element_blank(),
+                   panel.grid.minor = element_blank(),
+                   panel.background = element_blank(),
+                   axis.line = element_line(colour = "black"),
+                   legend.position = c(0.95, 0.95),
+                   legend.justification = c("right", "top"),
+                   legend.box.just = "right",
+                   legend.margin = margin(6, 6, 6, 6),
+                   legend.key = element_rect(fill = "white")
+                   )
+p_test_ar
 
 ## multiple run - foreach causes error
 # make cluster
-# ncl <- detectCores()
+#ncl <- detectCores()
 cl <- makeCluster(3)
 registerDoParallel(cl)
 # input parameters
-sim <- 100; n <- 50000; vc <- vac_cov_dat$By_Group
+sim <- 100; n <- 10000; vc <- vac_cov_dat$Off_At_10
 v <- 2; r <- 0.9; w <- 0.5; take <- 0.75; vs <- c(0,1,2)
 # parallel all three vac strategies
 sim_out <- foreach (i=1:3, .packages = c('morevac','Rcpp')) %dopar%
-  run_sim_2(sim = s,n = n,vac_cov = vc, suscept_version = v,
+  run_sim_2(sim = sim,n = n,vac_cov = vc, suscept_version = v,
             rho = r, wane = w, take = take, vac_strategy = vs[i])
 # stop cluster
 stopCluster(cl)
@@ -111,7 +143,8 @@ stopCluster(cl)
 years <- 2000:2019
 year_index <- 181:200
 nyears <- length(years)
-sim_ar0 <- matrix(numeric(length(years)*sim),nrow = length(years)); sim_ar1 <- sim_ar0; sim_ar2 <- sim_ar0
+sim_ar0 <- matrix(numeric(length(years)*sim),nrow = length(years));
+sim_ar1 <- sim_ar0; sim_ar2 <- sim_ar0
 
 for (s in 1:sim){
   # subset birth cohort
