@@ -72,6 +72,7 @@ multiannual <- function(n = 10000,
       delta_v <- find_delta_v(v = vac_pop$v, drift = drift)
     # run infection model
       infect_pop <- infect_cpp_2(inf_history = init_pop$inf_hist_mat,
+                                 vac_history = vac_pop$vac_hist_mat,
                                  years_since_last_vac = vac_pop$v,
                                  suscept_mat = init_pop$suscept_mat,
                                  x = init_pop$time_since_last_inf,
