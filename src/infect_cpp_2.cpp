@@ -56,12 +56,13 @@ List infect_cpp_2(NumericMatrix inf_history,
             vac_ind = 1;
           } else {vac_ind = 0;}
           // determine amount of waning
-            w = (1-vac_ind)*((1 - gammas[j]) * years_since_last_vac(i,j) * wane_rate);
+            w = (1.0-vac_ind)*((1.0 - gammas[j-years_since_last_vac(i,j)]) * years_since_last_vac(i,j) * wane_rate);
+            Rcpp::Rcout<<w<<std::endl;
           // determine version of susceptibility
             if (version == 1){
-              suscept_mat(i,j) = std::min(1.0, std::min(std::min(1.0,delta_x(i,j)),(vac_ind*gammas[j]) + (1-vac_ind)*(gammas[j] + delta_v(i,j) + w))); // either-or
+              suscept_mat(i,j) = std::min(1.0, std::min(std::min(1.0,delta_x(i,j)),(vac_ind*gammas[j]) + (1.0-vac_ind)*(gammas[j-years_since_last_vac(i,j)] + delta_v(i,j) + w))); // either-or
             } else if (version == 2) {
-              suscept_mat(i,j) = std::min(1.0,std::min(1.0,delta_x(i,j)) * std::min(1.0, (vac_ind*gammas[j]) + (1-vac_ind)*(gammas[j] + delta_v(i,j) + w))); // multiplicative
+              suscept_mat(i,j) = std::min(1.0,std::min(1.0,delta_x(i,j)) * std::min(1.0, (vac_ind*gammas[j]) + (1.0-vac_ind)*(gammas[j-years_since_last_vac(i,j)] + delta_v(i,j) + w))); // multiplicative
             }
           }
       // determine infection status
