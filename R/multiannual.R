@@ -36,6 +36,7 @@ multiannual <- function(n = 10000,
                         rho = 0.9,
                         wane = 0,
                         take = 1,
+                        drift_rate = 0.5,
                         seed = NULL
                         ){
 
@@ -46,7 +47,7 @@ multiannual <- function(n = 10000,
     init_pop <- initialize_pop_cpp(n = n, nyears = length(years), init_ages = init_age_vec, max_age = max_age)
 
   # determine drift
-    drift <- drift_func(nyears = length(years), rate = 0.5)
+    drift <- drift_func(nyears = length(years), rate = drift_rate)
   # determine vaccine update schedule
     run_update <- vaccine_update_cpp(drift = drift, threshold = 0.5, vac_protect = vac_protect)
     vac_update <- run_update$update
