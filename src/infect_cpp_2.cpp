@@ -62,7 +62,7 @@ List infect_cpp_2(NumericMatrix inf_history,
           if(years_since_last_vac(i,j) == 0){
             vac_ind = 1;
             exposure_count[i] += 1;
-            vac_comp = std::min(1.0,gammas[j] + (exposure_count[i] * 0.03)) // determine vaccination susceptibility component in vac year
+            vac_comp = std::min(1.0,gammas[j] + (exposure_count[i] * 0.03)); // determine vaccination susceptibility component in vac year
           } else {vac_ind = 0; // non-vac year
             // determine amount of waning
               w = (1.0 - gammas[j-years_since_last_vac(i,j)]) * years_since_last_vac(i,j) * wane_rate;
@@ -84,7 +84,7 @@ List infect_cpp_2(NumericMatrix inf_history,
           x(i,j) = 0;
           suscept_mat(i,j) = 0 + (exposure_count[i]*0.03); // increase in minimum susceptibility after every exposure
           delta_x(i,j) = 0 + (exposure_count[i]*0.03);
-          exposure_count[i] += 1
+          exposure_count[i] += 1;
         } else {inf_history(i,j) = 0;}
       // update x(i,j+1)
         if (j < nyears - 1){
@@ -123,6 +123,7 @@ List infect_cpp_2(NumericMatrix inf_history,
  delta_v <- find_delta_v(v = vac$v, drift = drift)
  infect_pop <- infect_cpp_2(inf_history = init_pop$inf_hist_mat,
                             years_since_last_vac = vac$v,
+                            vac_history = vac$vac_hist_mat,
                             suscept_mat = init_pop$suscept_mat,
                             x = init_pop$time_since_last_inf,
                             ages_mat = init_pop$ages_mat,
