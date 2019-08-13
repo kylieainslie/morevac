@@ -37,6 +37,7 @@ multiannual <- function(n = 10000,
                         wane = 0,
                         take = 1,
                         drift_rate = 0.5,
+                        drift_off = FALSE,
                         seed = NULL
                         ){
 
@@ -48,6 +49,7 @@ multiannual <- function(n = 10000,
 
   # determine drift
     drift <- drift_func(nyears = length(years), rate = drift_rate)
+    if (drift_off){drift <- c(rep(0,length(years)))}
   # determine vaccine update schedule
     run_update <- vaccine_update_cpp(drift = drift, threshold = 0.5, vac_protect = vac_protect)
     vac_update <- run_update$update

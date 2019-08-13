@@ -1,11 +1,12 @@
 plot_sim_ar <- function(sim = 100, years = 2000:2019, year_index = 181:200,
-                        wane = 0.5, take = 0.75, vac_cov, show_legend = TRUE){
+                        wane = 0.5, take = 0.75, vac_cov, show_legend = TRUE,
+                        drift_off = FALSE){
 ### simulation
 ## single run
 # returns 3 arrays with inf_hist_mat, vac_hist_mat, and ages_mat from each sim
-sim_test0 <- run_sim_2(wane = wane, take = take, vac_cov = vac_cov, vac_strategy = 0)
-sim_test1 <- run_sim_2(wane = wane, take = take, vac_cov = vac_cov, vac_strategy = 1)
-sim_test2 <- run_sim_2(wane = wane, take = take, vac_cov = vac_cov, vac_strategy = 2)
+sim_test0 <- run_sim_2(sim = sim, wane = wane, take = take, vac_cov = vac_cov, vac_strategy = 0, drift_off = drift_off)
+sim_test1 <- run_sim_2(sim = sim, wane = wane, take = take, vac_cov = vac_cov, vac_strategy = 1, drift_off = drift_off)
+sim_test2 <- run_sim_2(sim = sim, wane = wane, take = take, vac_cov = vac_cov, vac_strategy = 2, drift_off = drift_off)
 
 # post process sim results
 # overall attack rates
