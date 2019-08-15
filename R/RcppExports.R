@@ -9,8 +9,8 @@ infect_cpp <- function(susceptibility, foi, randnum_inf) {
     .Call(`_morevac_infect_cpp`, susceptibility, foi, randnum_inf)
 }
 
-infect_cpp_2 <- function(inf_history, years_since_last_vac, suscept_mat, x, ages_mat, delta_v, gammas, drift, foi, wane_rate, version) {
-    .Call(`_morevac_infect_cpp_2`, inf_history, years_since_last_vac, suscept_mat, x, ages_mat, delta_v, gammas, drift, foi, wane_rate, version)
+infect_cpp_2 <- function(inf_history, years_since_last_vac, vac_history, suscept_mat, x, ages_mat, delta_v, gammas, drift, foi, wane_rate, version) {
+    .Call(`_morevac_infect_cpp_2`, inf_history, years_since_last_vac, vac_history, suscept_mat, x, ages_mat, delta_v, gammas, drift, foi, wane_rate, version)
 }
 
 initialize_pop_cpp <- function(n, nyears, init_ages, max_age) {
