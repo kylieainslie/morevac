@@ -62,15 +62,17 @@ for (i in 1:dim(age_group_dat)[1]){
 }
 age_group_dat$Age_Group <- as.factor(age_group_dat$Age_Group)
 age_group_dat$Age_Group <- factor(age_group_dat$Age_Group,levels(age_group_dat$Age_Group)[c(1,4,5,2,3,6)])
+# only during vax years
+age_group_dat2 <- age_group_dat[age_group_dat$Age_Group %in% c('<2','2-4','5-10') & age_group_dat$Year %in% (2000:2019),]
 # plot attack rates by age group
-p2 <- plot_attack_rates(dat = age_group_dat, by_age_group = TRUE)
-
+p2 <- plot_attack_rates(dat = age_group_dat2, by_age_group = TRUE)
+p2
 ### simulation
 ## single run
 # returns 3 arrays with inf_hist_mat, vac_hist_mat, and ages_mat from each sim
-sim_test0 <- run_sim_2(wane = 0.5, take = 0.25, vac_cov = vac_cov_dat$Off_At_10, vac_strategy = 0)
-sim_test1 <- run_sim_2(wane = 0.5, take = 0.25, vac_cov = vac_cov_dat$Off_At_10, vac_strategy = 1)
-sim_test2 <- run_sim_2(wane = 0.5, take = 0.25, vac_cov = vac_cov_dat$Off_At_10, vac_strategy = 2)
+sim_test0 <- run_sim_2(wane = 0.5, take = 0.7, vac_cov = vac_cov_dat$Off_At_10, vac_strategy = 0)
+sim_test1 <- run_sim_2(wane = 0.5, take = 0.7, vac_cov = vac_cov_dat$Off_At_10, vac_strategy = 1)
+sim_test2 <- run_sim_2(wane = 0.5, take = 0.7, vac_cov = vac_cov_dat$Off_At_10, vac_strategy = 2)
 
 # post process sim results
 # overall attack rates
@@ -79,7 +81,7 @@ years <- 2000:2019
 nyears <- length(years)
 sim_test_ar0 <- matrix(numeric(length(years)*sim),nrow = length(years))
 sim_test_ar1 <- sim_test_ar0; sim_test_ar2 <- sim_test_ar0
-
+# subset birth cohort
 for (s in 1: sim){
   bc0 <- which(sim_test0$ages[,181,s]==0)
   bc_inf_hist0 <- sim_test0$inf_history[bc0,181:200,s]
@@ -107,22 +109,41 @@ sim_test_ar_dat$Lower <- sim_test_ar_dat$Attack_Rate - (qnorm(0.975)*sim_test_ar
 sim_test_ar_dat$Upper <- sim_test_ar_dat$Attack_Rate + (qnorm(0.975)*sim_test_ar_dat$SD_AR/sqrt(sim))
 
 # plot results
-p_test_ar <- ggplot(data = sim_test_ar_dat, aes(x = Year, y = Attack_Rate, colour= Vac_Strategy)) +
-             geom_line() +
-             geom_ribbon(aes(x=Year,ymin=Lower,ymax=Upper,linetype=NA,fill=Vac_Strategy),alpha=0.2)+
-             xlab('Year') +
-             ylab('Attack Rate') +
-             scale_y_continuous(limits = c(0,0.3), expand = c(0,0)) +
-             theme(panel.grid.major = element_blank(),
-                   panel.grid.minor = element_blank(),
-                   panel.background = element_blank(),
-                   axis.line = element_line(colour = "black"),
-                   legend.position = c(0.95, 0.95),
-                   legend.justification = c("right", "top"),
-                   legend.box.just = "right",
-                   legend.margin = margin(6, 6, 6, 6),
-                   legend.key = element_rect(fill = "white")
-                   )
+p_test_ar <- plot_attack_rates(dat = sim_test_ar_dat, by_vac_strategy = TRUE, c_bands = TRUE)
+p_test_ar
+
+### subset only vaccinated individuals in birth cohort
+# subset birth cohort
+for (s in 1: sim){
+  bc0 <- which(sim_test0$ages[,181,s]==0)
+  bc_inf_hist0 <- sim_test0$inf_history[bc0,181:200,s]
+  sim_test_ar0[,s] <- get_attack_rates(bc_inf_hist0, years = years)$Attack_Rate
+
+  vac_sums1 <- apply(sim_test1$vac_history[,181:200,s],1,sum)
+  bc1 <- which(sim_test1$ages[,181,s]==0 & vac_sums1 > 8)
+  bc_inf_hist1 <- sim_test1$inf_history[bc1,181:200,s]
+  sim_test_ar1[,s] <- get_attack_rates(bc_inf_hist1, years = years)$Attack_Rate
+
+  vac_sums2 <- apply(sim_test2$vac_history[,181:200,s],1,sum)
+  bc2 <- which(sim_test2$ages[,181,s]==0 & vac_sums2 > 4)
+  bc_inf_hist2 <- sim_test2$inf_history[bc2,181:200,s]
+  sim_test_ar2[,s] <- get_attack_rates(bc_inf_hist2, years = years)$Attack_Rate
+}
+sim_test_ar <- rbind(sim_test_ar0,sim_test_ar1,sim_test_ar2)
+# find mean and 95% CI of AR in each year (ARs within a given year are assumed Normally distributed)
+# shapiro.test(sim_ar[1,-1]): returns p-value>0.05
+vac_strategy <- c(rep("No Vaccination",nyears),rep("Annual",nyears),rep("Every Other Year",nyears))
+years_x3 <- c(rep(years,3))
+
+sim_test_ar_dat <- data.frame(Year = years_x3,
+                              Vac_Strategy = vac_strategy,
+                              Attack_Rate = apply(sim_test_ar,1,mean),
+                              SD_AR = apply(sim_test_ar,1,sd))
+sim_test_ar_dat$Lower <- sim_test_ar_dat$Attack_Rate - (qnorm(0.975)*sim_test_ar_dat$SD_AR/sqrt(sim))
+sim_test_ar_dat$Upper <- sim_test_ar_dat$Attack_Rate + (qnorm(0.975)*sim_test_ar_dat$SD_AR/sqrt(sim))
+
+# plot results
+p_test_ar <- plot_attack_rates(dat = sim_test_ar_dat, by_vac_strategy = TRUE, c_bands = TRUE)
 p_test_ar
 
 ## multiple run - foreach causes error
