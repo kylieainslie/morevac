@@ -24,30 +24,29 @@ plot_attack_rates <- function(dat, by_vac_strategy = FALSE, by_age_group = FALSE
   if (by_vac_strategy) {
     p1 <- ggplot(data = dat, aes(x = Year, y = Attack_Rate, colour= Vac_Strategy)) +
           geom_line()
+    if(c_bands){p1 <- p1 + geom_ribbon(aes(x=Year,ymin=Lower,ymax=Upper,linetype=NA, fill = Vac_Strategy),alpha=0.2)}
   } else if (by_age_group) {
     p1 <- ggplot(data = dat, aes(x = Year, y = Attack_Rate, colour= Age_Group)) +
       geom_line()
+    if(c_bands){p1 <- p1 + geom_ribbon(aes(x=Year,ymin=Lower,ymax=Upper,linetype=NA, fill = Age_Group),alpha=0.2)}
   } else {
     p1 <- ggplot(data = dat, aes(x = Year, y = Attack_Rate)) +
           geom_line()
+    if(c_bands){p1 <- p1 + geom_ribbon(aes(x=Year,ymin=Lower,ymax=Upper,linetype=NA),alpha=0.2)}
   }
 
   p1 <- p1 + xlab('Year') +
         ylab('Attack Rate') +
         scale_y_continuous(limits = c(0,y_max), expand = c(0,0))
 
-  if (c_bands){
     if (no_legend){
-      p1 <- p1 + geom_ribbon(aes(x=Year,ymin=Lower,ymax=Upper,linetype=NA),alpha=0.2)+
-               theme(panel.grid.major = element_blank(),
+      p1 <- p1 + theme(panel.grid.major = element_blank(),
                      panel.grid.minor = element_blank(),
                      panel.background = element_blank(),
                      axis.line = element_line(colour = "black"),
-                     legend.position = "none"
-                     )
+                     legend.position = "none")
     } else {
-      p1 <- p1 + geom_ribbon(aes(x=Year,ymin=Lower,ymax=Upper,linetype=NA),alpha=0.2)+
-               theme(panel.grid.major = element_blank(),
+      p1 <- p1 + theme(panel.grid.major = element_blank(),
                      panel.grid.minor = element_blank(),
                      panel.background = element_blank(),
                      axis.line = element_line(colour = "black"),
@@ -57,26 +56,7 @@ plot_attack_rates <- function(dat, by_vac_strategy = FALSE, by_age_group = FALSE
                      legend.margin = margin(6, 6, 6, 6),
                      legend.key = element_rect(fill = "white"))
     }
-  } else{
-    if (no_legend){
-      p1 <- p1 + theme(panel.grid.major = element_blank(),
-                             panel.grid.minor = element_blank(),
-                             panel.background = element_blank(),
-                             axis.line = element_line(colour = "black"),
-                             legend.position = "none"
-                             )
-    } else {
-      p1 <- p1 + theme(panel.grid.major = element_blank(),
-                             panel.grid.minor = element_blank(),
-                             panel.background = element_blank(),
-                             axis.line = element_line(colour = "black"),
-                             legend.position = c(legend_x, legend_y),
-                             legend.justification = c("right", "top"),
-                             legend.box.just = "right",
-                             legend.margin = margin(6, 6, 6, 6),
-                             legend.key = element_rect(fill = "white"))
-   }
-  }
+
   return(p1)
 }
 
