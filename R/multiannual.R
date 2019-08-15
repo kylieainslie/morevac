@@ -87,6 +87,8 @@ multiannual <- function(n = 10000,
                   vac_history = vac_pop,
                   ages = init_pop$ages_mat,
                   drift = drift,
+                  vac_update = vac_update,
+                  gammas = gammas,
                   vac_this_year = vac_this_year
       )
       return(rtn)
