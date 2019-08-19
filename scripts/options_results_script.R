@@ -72,13 +72,13 @@ p2
 ### simulation
 ## single run
 # returns 3 arrays with inf_hist_mat, vac_hist_mat, and ages_mat from each sim
-sim_test0 <- run_sim_2(wane = 0.5, take = 0.7, vac_cov = vac_cov_dat$Fifty_Off_At_10, vac_strategy = 0)
-sim_test1 <- run_sim_2(wane = 0.5, take = 0.7, vac_cov = vac_cov_dat$Fifty_Off_At_10, vac_strategy = 1)
-sim_test2 <- run_sim_2(wane = 0.5, take = 0.7, vac_cov = vac_cov_dat$Fifty_Off_At_10, vac_strategy = 2)
+sim_test0 <- run_sim_2(sim = 500, wane = 0.5, take = 0.7, vac_cov = vac_cov_dat$Off_At_10, vac_strategy = 0)
+sim_test1 <- run_sim_2(sim = 500, wane = 0.5, take = 0.7, vac_cov = vac_cov_dat$Off_At_10, vac_strategy = 1)
+sim_test2 <- run_sim_2(sim = 500, wane = 0.5, take = 0.7, vac_cov = vac_cov_dat$Off_At_10, vac_strategy = 2)
 
 # post process sim results
 # overall attack rates
-sim = 100
+sim = 500
 years <- 2000:2019
 nyears <- length(years)
 sim_test_ar0 <- matrix(numeric(length(years)*sim),nrow = length(years))
@@ -140,6 +140,7 @@ sim_test_ar <- rbind(sim_test_ar0,sim_test_ar1,sim_test_ar2)
 # shapiro.test(sim_ar[1,-1]): returns p-value>0.05
 vac_strategy <- c(rep("No Vaccination",nyears),rep("Annual",nyears),rep("Every Other Year",nyears))
 years_x3 <- c(rep(years,3))
+ages_x3 <- c(rep(0:19,3))
 sim_test_ar_dat <- data.frame(Year = years_x3,
                               Age = ages_x3,
                               Vac_Strategy = vac_strategy,
@@ -154,6 +155,16 @@ p_ar_vac_only
 
 mydat <- data.frame(Lifetime_Infections = c(mean_infs0,mean_infs1,mean_infs2),
                     Vac_Strategy = c(rep("No Vaccination",sim),rep("Annual",sim),rep("Every Other Year",sim)))
+### test for differences in mean num life infs
+library(multcomp)
+# parametric (ANOVA)
+my_anova <- lm(Lifetime_Infections~Vac_Strategy, data = mydat)
+# non-parametric
+kt_test <- kruskal.test(Lifetime_Infections~Vac_Strategy, data = mydat) # differences in all three means
+# pairwise comparisons
+myTukey <- glht(my_anova, linfct = mcp(Vac_Strategy = "Tukey"))
+summary(myTukey)
+
 new_dat <- data.frame(Mean = c(mean(mean_infs0),mean(mean_infs1),mean(mean_infs2)),
                       SD = c(sd(mean_infs0),sd(mean_infs1),sd(mean_infs2)),
                       Vac_Strategy = c("No Vaccination","Annual","Every Other Year"))
@@ -164,7 +175,15 @@ p_bar <- ggplot(new_dat, aes(x = Vac_Strategy,y=Mean, fill=Vac_Strategy)) +
          geom_bar(position=position_dodge(), stat="identity") +
          geom_errorbar(aes(ymin=Lower, ymax=Upper),
                 width=.2,                    # Width of the error bars
-                position=position_dodge(.9))
+                position=position_dodge(.9)) +
+         ylab('Mean Number of Lifetime Infections') +
+         xlab('Vaccination Strategy') +
+         scale_y_continuous(limits = c(0,4), expand = c(0,0)) +
+         theme(panel.grid.major = element_blank(),
+               panel.grid.minor = element_blank(),
+               panel.background = element_blank(),
+               axis.line = element_line(colour = "black"),
+               legend.position = "none")
 
 p_inf <- ggplot(mydat, aes(x = Vac_Strategy, y = Lifetime_Infections, fill = Vac_Strategy)) +
          theme(panel.grid.major = element_blank(),

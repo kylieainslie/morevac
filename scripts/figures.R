@@ -33,36 +33,63 @@ plot(alt_fig1)
 dev.off()
 
 ### Figure 2 - diferent values of waning and vac coverage
-
+setwd("~/Box/Presentations/Options X/figures")
 # a) wane = 0.5, take = 0.7, vac_cov = 0.75
-fig2a <- plot_sim_ar(sim = 50, years = 2000:2019, year_index = 181:200,
+fig2a <- plot_sim_ar(sim = 250, years = 2000:2019, year_index = 181:200,
                      wane = 0.5, take = 0.7, vac_cov = vac_cov_dat$SeventyFive_Off_At_10,
                      title = "Vaccinate 2-10 years, Vac Coverage = 75%, Wane = 0.5")
+png(filename = "figure2a.png", width = 6, height = 6, units = "in", res = 300)
+plot(fig2a)
+dev.off()
+
 # b) wane = 0.25, take = 0.7, vac_cov = 0.75
-fig2b <- plot_sim_ar(sim = 50, years = 2000:2019, year_index = 181:200,
+fig2b <- plot_sim_ar(sim = 250, years = 2000:2019, year_index = 181:200,
                      wane = 0.25, take = 0.7, vac_cov = vac_cov_dat$SeventyFive_Off_At_10,
-                     show_legend = FALSE,
+                     show_legend = FALSE, parallel = TRUE,
                      title = "Vaccinate 2-10 years, Vac Coverage = 75%, Wane = 0.25")
+png(filename = "figure2b.png", width = 6, height = 6, units = "in", res = 300)
+plot(fig2b)
+dev.off()
+
 # include this one!
 # c) wane = 0.5, take = 0.7, off @ 16
-fig2c <- plot_sim_ar(sim = 50, years = 2000:2019, year_index = 181:200,
-                     wane = 0.5, take = 0.7, vac_cov = vac_cov_dat$Off_At_16,
+fig2c <- plot_sim_ar(sim = 250, years = 2000:2019, year_index = 181:200,
+                     wane = 0.5, take = 0.7, vac_cov = vac_cov_dat$SeventyFive_Off_At_16,
                      show_legend = FALSE,
                      title = "Vaccinate 2-16 years, Vac Coverage = 75%, Wane = 0.5")
+png(filename = "figure2c.png", width = 6, height = 6, units = "in", res = 300)
+plot(fig2c)
+dev.off()
+
 ### include this one!
 # d) wane = 0.25, take = 0.7, vac_cov = 0.75, off @ 16
-fig2d <- plot_sim_ar(sim = 50, years = 2000:2019, year_index = 181:200,
+fig2d <- plot_sim_ar(sim = 250, years = 2000:2019, year_index = 181:200,
                      wane = 0.5, take = 0.7, vac_cov = vac_cov_dat$SeventyFive_Off_At_16,
                      show_legend = FALSE,
                      "Vaccinate 2-16 years, Vac Coverage = 75%, Wane = 0.25")
+png(filename = "figure2d.png", width = 6, height = 6, units = "in", res = 300)
+plot(fig2d)
+dev.off()
+
 
 theme_set(theme_cowplot(font_size=10)) # reduce default font size
 fig2 <- plot_grid(fig2a, fig2b, fig2c, fig2d, labels = "AUTO", ncol = 2,
                   align = 'v', axis = 'l')
-
-# save figure
 png(filename = "figure2.png", width = 6, height = 6, units = "in", res = 300)
 plot(fig2)
+dev.off()
+
+# from image files
+from_file_fig2a <- ggdraw() + draw_image("figure2a.png")
+from_file_fig2b <- ggdraw() + draw_image("figure2b.png")
+from_file_fig2c <- ggdraw() + draw_image("figure2c.png")
+from_file_fig2d <- ggdraw() + draw_image("figure2d.png")
+
+from_file_fig2 <- plot_grid(from_file_fig2a, from_file_fig2b, from_file_fig2c, from_file_fig2d, labels = "AUTO", ncol = 2,
+                            align = 'v', axis = 'l')
+# save figure
+png(filename = "figure2.png", width = 6, height = 6, units = "in", res = 300)
+plot(from_file_fig2)
 dev.off()
 
 ### Figure 3
