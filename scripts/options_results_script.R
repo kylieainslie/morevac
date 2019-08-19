@@ -25,7 +25,9 @@ vac_cov_dat <- data.frame(Age = 0:79,
                           Off_At_16 = c(rep(0.005,2),rep(0.44,2),0.379,
                                         rep(0.233,11),rep(0,2),rep(0.105,47),rep(0.729,15)),
                           Fifty_Off_At_10 = c(rep(0,2),rep(0.5,9),rep(0,8),rep(0.5,61)),
-                          Fifty_Off_At_10 = c(rep(0,2),rep(0.5,15),rep(0,2),rep(0.5,61)),
+                          Fifty_Off_At_16 = c(rep(0,2),rep(0.5,15),rep(0,2),rep(0.5,61)),
+                          SeventyFive_Off_At_10 = c(rep(0,2),rep(0.75,9),rep(0,8),rep(0.5,61)),
+                          SeventyFive_Off_At_16 = c(rep(0,2),rep(0.75,15),rep(0,2),rep(0.5,61)),
                           Total_Vac = c(rep(1,80))) # vaccination coverage is 100% for everyone
 # run multi-annual model
 out <- multiannual(n=100000, vac_coverage = vac_cov_dat$Off_At_10, vac_strategy = 2)
@@ -70,9 +72,9 @@ p2
 ### simulation
 ## single run
 # returns 3 arrays with inf_hist_mat, vac_hist_mat, and ages_mat from each sim
-sim_test0 <- run_sim_2(wane = 0.5, take = 0.7, vac_cov = vac_cov_dat$Off_At_10, vac_strategy = 0)
-sim_test1 <- run_sim_2(wane = 0.5, take = 0.7, vac_cov = vac_cov_dat$Off_At_10, vac_strategy = 1)
-sim_test2 <- run_sim_2(wane = 0.5, take = 0.7, vac_cov = vac_cov_dat$Off_At_10, vac_strategy = 2)
+sim_test0 <- run_sim_2(wane = 0.5, take = 0.7, vac_cov = vac_cov_dat$Fifty_Off_At_10, vac_strategy = 0)
+sim_test1 <- run_sim_2(wane = 0.5, take = 0.7, vac_cov = vac_cov_dat$Fifty_Off_At_10, vac_strategy = 1)
+sim_test2 <- run_sim_2(wane = 0.5, take = 0.7, vac_cov = vac_cov_dat$Fifty_Off_At_10, vac_strategy = 2)
 
 # post process sim results
 # overall attack rates
@@ -114,19 +116,23 @@ p_test_ar
 
 ### subset only vaccinated individuals in birth cohort
 # subset birth cohort
+mean_infs0 <- numeric(sim); mean_infs1 <- mean_infs0; mean_infs2 <- mean_infs0
 for (s in 1: sim){
   bc0 <- which(sim_test0$ages[,181,s]==0)
   bc_inf_hist0 <- sim_test0$inf_history[bc0,181:200,s]
+  mean_infs0[s] <- mean(apply(bc_inf_hist0,1,sum))
   sim_test_ar0[,s] <- get_attack_rates(bc_inf_hist0, years = years)$Attack_Rate
 
   vac_sums1 <- apply(sim_test1$vac_history[,181:200,s],1,sum)
   bc1 <- which(sim_test1$ages[,181,s]==0 & vac_sums1 > 8)
   bc_inf_hist1 <- sim_test1$inf_history[bc1,181:200,s]
+  mean_infs1[s] <- mean(apply(bc_inf_hist1,1,sum))
   sim_test_ar1[,s] <- get_attack_rates(bc_inf_hist1, years = years)$Attack_Rate
 
   vac_sums2 <- apply(sim_test2$vac_history[,181:200,s],1,sum)
   bc2 <- which(sim_test2$ages[,181,s]==0 & vac_sums2 > 4)
   bc_inf_hist2 <- sim_test2$inf_history[bc2,181:200,s]
+  mean_infs2[s] <- mean(apply(bc_inf_hist2,1,sum))
   sim_test_ar2[,s] <- get_attack_rates(bc_inf_hist2, years = years)$Attack_Rate
 }
 sim_test_ar <- rbind(sim_test_ar0,sim_test_ar1,sim_test_ar2)
@@ -134,18 +140,43 @@ sim_test_ar <- rbind(sim_test_ar0,sim_test_ar1,sim_test_ar2)
 # shapiro.test(sim_ar[1,-1]): returns p-value>0.05
 vac_strategy <- c(rep("No Vaccination",nyears),rep("Annual",nyears),rep("Every Other Year",nyears))
 years_x3 <- c(rep(years,3))
-
 sim_test_ar_dat <- data.frame(Year = years_x3,
+                              Age = ages_x3,
                               Vac_Strategy = vac_strategy,
-                              Attack_Rate = apply(sim_test_ar,1,mean),
                               SD_AR = apply(sim_test_ar,1,sd))
 sim_test_ar_dat$Lower <- sim_test_ar_dat$Attack_Rate - (qnorm(0.975)*sim_test_ar_dat$SD_AR/sqrt(sim))
 sim_test_ar_dat$Upper <- sim_test_ar_dat$Attack_Rate + (qnorm(0.975)*sim_test_ar_dat$SD_AR/sqrt(sim))
 
 # plot results
-p_test_ar <- plot_attack_rates(dat = sim_test_ar_dat, by_vac_strategy = TRUE, c_bands = TRUE)
-p_test_ar
+p_ar_vac_only <- plot_attack_rates(dat = sim_test_ar_dat, by_vac_strategy = TRUE, c_bands = TRUE)
+p_ar_vac_only
 
+
+mydat <- data.frame(Lifetime_Infections = c(mean_infs0,mean_infs1,mean_infs2),
+                    Vac_Strategy = c(rep("No Vaccination",sim),rep("Annual",sim),rep("Every Other Year",sim)))
+new_dat <- data.frame(Mean = c(mean(mean_infs0),mean(mean_infs1),mean(mean_infs2)),
+                      SD = c(sd(mean_infs0),sd(mean_infs1),sd(mean_infs2)),
+                      Vac_Strategy = c("No Vaccination","Annual","Every Other Year"))
+new_dat$Lower <- new_dat$Mean - (qnorm(0.975)*new_dat$SD/sqrt(sim))
+new_dat$Upper <- new_dat$Mean + (qnorm(0.975)*new_dat$SD/sqrt(sim))
+
+p_bar <- ggplot(new_dat, aes(x = Vac_Strategy,y=Mean, fill=Vac_Strategy)) +
+         geom_bar(position=position_dodge(), stat="identity") +
+         geom_errorbar(aes(ymin=Lower, ymax=Upper),
+                width=.2,                    # Width of the error bars
+                position=position_dodge(.9))
+
+p_inf <- ggplot(mydat, aes(x = Vac_Strategy, y = Lifetime_Infections, fill = Vac_Strategy)) +
+         theme(panel.grid.major = element_blank(),
+               panel.grid.minor = element_blank(),
+               panel.background = element_blank(),
+               axis.line = element_line(colour = "black"),
+               legend.position = "none") +
+         geom_boxplot() +
+         ylab('Number of Lifetime Infections') +
+         xlab('Vaccination Strategy')
+
+p_inf
 ## multiple run - foreach causes error
 # make cluster
 #ncl <- detectCores()
