@@ -5,7 +5,7 @@
 fig1a <- plot_sim_ar(sim = 100, years = 2000:2019, year_index = 181:200,
                    wane = 0.5, take = 1, vac_cov = vac_cov_dat$Off_At_10)
 # b) take = 0.75
-fig1b <- plot_sim_ar(sim = 100, years = 2000:2019, year_index = 181:200,
+fig1b <- plot_sim_ar(sim = 500, years = 2000:2019, year_index = 181:200,
                      wane = 0.5, take = 0.7, vac_cov = vac_cov_dat$Off_At_10,
                      show_legend = TRUE)
 # c) take = 0.5
@@ -36,21 +36,25 @@ dev.off()
 
 # a) wane = 0.5, take = 0.7, vac_cov = 0.75
 fig2a <- plot_sim_ar(sim = 50, years = 2000:2019, year_index = 181:200,
-                     wane = 0.5, take = 0.7, vac_cov = vac_cov_dat$SeventyFive_Off_At_10)
+                     wane = 0.5, take = 0.7, vac_cov = vac_cov_dat$SeventyFive_Off_At_10,
+                     title = "Vaccinate 2-10 years, Vac Coverage = 75%, Wane = 0.5")
 # b) wane = 0.25, take = 0.7, vac_cov = 0.75
 fig2b <- plot_sim_ar(sim = 50, years = 2000:2019, year_index = 181:200,
                      wane = 0.25, take = 0.7, vac_cov = vac_cov_dat$SeventyFive_Off_At_10,
-                     show_legend = FALSE)
+                     show_legend = FALSE,
+                     title = "Vaccinate 2-10 years, Vac Coverage = 75%, Wane = 0.25")
 # include this one!
 # c) wane = 0.5, take = 0.7, off @ 16
 fig2c <- plot_sim_ar(sim = 50, years = 2000:2019, year_index = 181:200,
                      wane = 0.5, take = 0.7, vac_cov = vac_cov_dat$Off_At_16,
-                     show_legend = FALSE)
+                     show_legend = FALSE,
+                     title = "Vaccinate 2-16 years, Vac Coverage = 75%, Wane = 0.5")
 ### include this one!
 # d) wane = 0.25, take = 0.7, vac_cov = 0.75, off @ 16
 fig2d <- plot_sim_ar(sim = 50, years = 2000:2019, year_index = 181:200,
                      wane = 0.5, take = 0.7, vac_cov = vac_cov_dat$SeventyFive_Off_At_16,
-                     show_legend = FALSE)
+                     show_legend = FALSE,
+                     "Vaccinate 2-16 years, Vac Coverage = 75%, Wane = 0.25")
 
 theme_set(theme_cowplot(font_size=10)) # reduce default font size
 fig2 <- plot_grid(fig2a, fig2b, fig2c, fig2d, labels = "AUTO", ncol = 2,
