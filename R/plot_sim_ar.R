@@ -1,13 +1,26 @@
 plot_sim_ar <- function(sim = 100, years = 2000:2019, year_index = 181:200,
                         wane = 0.5, take = 0.75, vac_cov, show_legend = TRUE,
-                        drift_off = FALSE, title = ""){
+                        drift_off = FALSE, title = "", parallel = FALSE){
 ### simulation
 ## single run
 # returns 3 arrays with inf_hist_mat, vac_hist_mat, and ages_mat from each sim
-sim_test0 <- run_sim_2(sim = sim, wane = wane, take = take, vac_cov = vac_cov, vac_strategy = 0, drift_off = drift_off)
-sim_test1 <- run_sim_2(sim = sim, wane = wane, take = take, vac_cov = vac_cov, vac_strategy = 1, drift_off = drift_off)
-sim_test2 <- run_sim_2(sim = sim, wane = wane, take = take, vac_cov = vac_cov, vac_strategy = 2, drift_off = drift_off)
-
+if (parallel){
+  cl <- makeCluster(3)
+  registerDoParallel(cl)
+  vs <- c(0,1,2)
+  # parallel all three vac strategies
+  sim_out <- foreach (i=1:3, .packages = c('morevac','Rcpp')) %dopar%
+    run_sim_2(sim = sim, wane = wane, take = take, vac_cov = vac_cov, vac_strategy = vs[i], drift_off = drift_off)
+  # stop cluster
+  stopCluster(cl)
+  sim_test0 <- sim_test[[1]]
+  sim_test1 <- sim_test[[2]]
+  sim_test2 <- sim_test[[3]]
+} else{
+  sim_test0 <- run_sim_2(sim = sim, wane = wane, take = take, vac_cov = vac_cov, vac_strategy = 0, drift_off = drift_off)
+  sim_test1 <- run_sim_2(sim = sim, wane = wane, take = take, vac_cov = vac_cov, vac_strategy = 1, drift_off = drift_off)
+  sim_test2 <- run_sim_2(sim = sim, wane = wane, take = take, vac_cov = vac_cov, vac_strategy = 2, drift_off = drift_off)
+}
 # post process sim results
 # overall attack rates
 #sim = 100
