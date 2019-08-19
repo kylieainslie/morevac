@@ -1,6 +1,6 @@
 plot_sim_ar <- function(sim = 100, years = 2000:2019, year_index = 181:200,
                         wane = 0.5, take = 0.75, vac_cov, show_legend = TRUE,
-                        drift_off = FALSE){
+                        drift_off = FALSE, title = ""){
 ### simulation
 ## single run
 # returns 3 arrays with inf_hist_mat, vac_hist_mat, and ages_mat from each sim
@@ -49,6 +49,7 @@ p1 <- ggplot(data = sim_test_ar_dat, aes(x = Year, y = Attack_Rate, colour= Vac_
   geom_ribbon(aes(x=Year,ymin=Lower,ymax=Upper,linetype=NA,fill=Vac_Strategy),alpha=0.2)+
   xlab('Year') +
   ylab('Attack Rate') +
+  ggtitle(title) +
   scale_y_continuous(limits = c(0,0.3), expand = c(0,0)) +
   theme(panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
@@ -66,6 +67,7 @@ p1 <- ggplot(data = sim_test_ar_dat, aes(x = Year, y = Attack_Rate, colour= Vac_
         geom_ribbon(aes(x=Year,ymin=Lower,ymax=Upper,linetype=NA,fill=Vac_Strategy),alpha=0.2)+
         xlab('Year') +
         ylab('Attack Rate') +
+        ggtitle(title) +
         scale_y_continuous(limits = c(0,0.3), expand = c(0,0)) +
         theme(panel.grid.major = element_blank(),
               panel.grid.minor = element_blank(),
