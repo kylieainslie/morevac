@@ -45,7 +45,7 @@ dev.off()
 # b) wane = 0.25, take = 0.7, vac_cov = 0.75
 fig2b <- plot_sim_ar(sim = 250, years = 2000:2019, year_index = 181:200,
                      wane = 0.25, take = 0.7, vac_cov = vac_cov_dat$SeventyFive_Off_At_10,
-                     show_legend = FALSE, parallel = TRUE,
+                     show_legend = FALSE,
                      title = "Vaccinate 2-10 years, Vac Coverage = 75%, Wane = 0.25")
 png(filename = "figure2b.png", width = 6, height = 6, units = "in", res = 300)
 plot(fig2b)
@@ -64,9 +64,9 @@ dev.off()
 ### include this one!
 # d) wane = 0.25, take = 0.7, vac_cov = 0.75, off @ 16
 fig2d <- plot_sim_ar(sim = 250, years = 2000:2019, year_index = 181:200,
-                     wane = 0.5, take = 0.7, vac_cov = vac_cov_dat$SeventyFive_Off_At_16,
+                     wane = 0.25, take = 0.7, vac_cov = vac_cov_dat$SeventyFive_Off_At_16,
                      show_legend = FALSE,
-                     "Vaccinate 2-16 years, Vac Coverage = 75%, Wane = 0.25")
+                     title = "Vaccinate 2-16 years, Vac Coverage = 75%, Wane = 0.25")
 png(filename = "figure2d.png", width = 6, height = 6, units = "in", res = 300)
 plot(fig2d)
 dev.off()
