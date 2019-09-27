@@ -18,7 +18,11 @@ vac_cov_dat <- data.frame(Age = 0:79,
                           Annual_Constant_Vac = c(rep(0,2),rep(0.5,78)),           # vaccination coverage is 50% for everyone <= 2
                           Biannual_Constant_Vac = c(rep(0,2),rep(c(0.5,0),39)),
                           Annual_Total_Vac = c(rep(0,2),rep(1,78)),               # vaccination coverage is 100% for everyone <= 2
-                          Biannual_Total_Vac = c(rep(0,2),rep(c(1,0),39))
+                          Biannual_Total_Vac = c(rep(0,2),rep(c(1,0),39)),
+                          Annual_Off_At_10 = c(rep(0,2),rep(0.75,8),rep(0,8),rep(0.5,62)),
+                          Biannual_Off_At_10 = c(rep(0,2),rep(c(0.75,0),4),rep(0,8),rep(c(0.5,0),31)),
+                          Annual_Off_At_16 = c(rep(0,2),rep(0.75,14),rep(0,2),rep(0.5,62)),
+                          Biannual_Off_At_16 = c(rep(0,2),rep(c(0.75,0),7),rep(0,2),rep(c(0.5,0),31))
                           )
 
 # run multi-annual model
@@ -40,20 +44,21 @@ desired_years <- 181:200
 #cohort_vac_hist <- out$vac_history$vac_hist_mat[cohort,desired_years]
 #cohort_ages <- out$ages[cohort,desired_years]
 
-# initialize objects
- cohort = list(); cohort_inf_hist = list(); cohort_vac_hist = list(); cohort_ages = list(); ar_cohort = list()
- ar <- data.frame(Year = years[desired_years], Attack_Rate = c(rep(0,length(desired_years))))
- for (j in 1:length(desired_years)){
-  cohort[[j]] <- which(out$ages[,desired_years[j]] <= current_age)
-  cohort_inf_hist[[j]] <- out$inf_history$inf_hist_mat[cohort[[j]],desired_years[j]]
-  cohort_vac_hist[[j]] <- out$vac_history$vac_hist_mat[cohort[[j]],desired_years[j]]
-  cohort_ages[[j]] <- out$ages[cohort[[j]],desired_years[j]]
-  # get attack rate
-  ar[j,2] <- sum(cohort_inf_hist[[j]])/length(cohort[[j]])
-  # update current age
-  current_age <- current_age + 1
- }
-
+cohort_ar <- get_cohort_ar(inf_history = out$inf_history$inf_hist_mat, vac_history = out$vac_history$vac_hist_mat, ages = out$ages,
+                           years = 1820:2019, year_index = 181:200)
 # plot attack rates
-p_cohort <- plot_attack_rates(dat = ar)
+p_cohort <- plot_attack_rates(dat = cohort_ar)
 p_cohort
+
+### simulation
+## single run
+# returns 3 arrays with inf_hist_mat, vac_hist_mat, and ages_mat from each sim
+sim_test0 <- run_sim_2(sim = 100, wane = 0.5, take = 0.7, vac_cov = vac_cov_dat$Annual_Constant_Vac, vac_strategy = 0)
+sim_test1 <- run_sim_2(sim = 100, wane = 0.5, take = 0.7, vac_cov = vac_cov_dat$Annual_Constant_Vac, vac_strategy = 1)
+sim_test2 <- run_sim_2(sim = 100, wane = 0.5, take = 0.7, vac_cov = vac_cov_dat$Biannual_Constant_Vac, vac_strategy = 2)
+
+# post process sim results
+sim_results <- postprocess_sim_results_for_rolling_cohort(sim0 = sim_test0, sim1 = sim_test1, sim2 = sim_test2)
+# plot results
+p_test_ar <- plot_attack_rates(dat = sim_results, by_vac_strategy = TRUE, c_bands = TRUE)
+p_test_ar
