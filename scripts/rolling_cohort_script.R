@@ -15,6 +15,7 @@ devtools::load_all()
 library(morevac)
 # determine vaccination coverages by age
 vac_cov_dat <- data.frame(Age = 0:79,
+                          No_Vaccination = c(rep(0,80)),
                           Annual_Constant_Vac = c(rep(0,2),rep(0.5,78)),           # vaccination coverage is 50% for everyone <= 2
                           Biannual_Constant_Vac = c(rep(0,2),rep(c(0.5,0),39)),
                           Annual_Total_Vac = c(rep(0,2),rep(1,78)),               # vaccination coverage is 100% for everyone <= 2
@@ -53,9 +54,9 @@ p_cohort
 ### simulation
 ## single run
 # returns 3 arrays with inf_hist_mat, vac_hist_mat, and ages_mat from each sim
-sim_test0 <- run_sim_2(sim = 100, wane = 0.5, take = 0.7, vac_cov = vac_cov_dat$Annual_Constant_Vac, vac_strategy = 0)
-sim_test1 <- run_sim_2(sim = 100, wane = 0.5, take = 0.7, vac_cov = vac_cov_dat$Annual_Constant_Vac, vac_strategy = 1)
-sim_test2 <- run_sim_2(sim = 100, wane = 0.5, take = 0.7, vac_cov = vac_cov_dat$Biannual_Constant_Vac, vac_strategy = 2)
+sim_test0 <- run_sim_2(sim = 100, wane = 0.5, take = 0.7, vac_cov = vac_cov_dat$Annual_Off_At_10, vac_strategy = 0)
+sim_test1 <- run_sim_2(sim = 100, wane = 0.5, take = 0.7, vac_cov = vac_cov_dat$Annual_Off_At_10, vac_strategy = 1)
+sim_test2 <- run_sim_2(sim = 100, wane = 0.5, take = 0.7, vac_cov = vac_cov_dat$Biannual_Off_At_10, vac_strategy = 2)
 
 # post process sim results
 sim_results <- postprocess_sim_results_for_rolling_cohort(sim0 = sim_test0, sim1 = sim_test1, sim2 = sim_test2)
