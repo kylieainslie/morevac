@@ -16,14 +16,17 @@ get_attack_rates_by_vac_cpp(NumericMatrix inf_history, NumericMatrix vac_history
 
   int nyears = inf_history.ncol();
   int nindiv = inf_history.nrow();
+  int nvac = 0;
+  NumericVector vac_indivs;
   NumericVector ar_vac(nyears);
   NumericVector ar_unvac(nyears);
 
 // number of individuals vaccinated in each year
     for(int j = 0; j < nyears; ++j){
-      vac_indivs <- which(vac_history[,j]==1) //use LogicalVector
-      ar_vac[j] <- ifelse(length(vac_indivs) == 0, 0, sum(inf_history[vac_indivs,j])/length(vac_indivs))
-      ar_unvac[j] <- ifelse(length(vac_indivs) == 0, sum(inf_history[,j])/n, sum(inf_history[-vac_indivs,j])/(n - length(vac_indivs)))
+      vac_indivs = Rcpp::which(vac_history[,j]==1);
+      nvac = vac_indivs.size();
+      ar_vac[j] == ifelse(nvac == 0, 0, sum(inf_history(vac_indivs,j))/nvac);
+      ar_unvac[j] <- ifelse(nvac == 0, sum(inf_history(,j))/nindiv, sum(inf_history(-vac_indivs,j))/(nindiv - nvac));
     }
     ar_vac <- ifelse(is.nan(ar_vac),0,ar_vac)
       ar_by_vac_dat <- data.frame(Year = rep(years,2), Vac_Status = c(rep("Vaccinated",nyears),rep("Unvaccinated",nyears)),
