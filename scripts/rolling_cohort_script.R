@@ -42,7 +42,7 @@ cohort_sizes <- sapply(my_cohorts$cohort_ids, length)
 ninfs <- sapply(my_cohorts$inf_hist,function(x) apply(x,2,sum))
 colnames(ninfs) <- paste0("Cohort",1:10)
 cohort_ar <- sweep(ninfs, 2, cohort_sizes, FUN="/")
-avg_ar <- apply(cohort_ar,1,mean)
+avg_ar <- data.frame(Age = 0:18, Attack_Rate = apply(cohort_ar,1,mean))
 
 # plot attack rates
 p_cohort <- plot_attack_rates(dat = cohort_ar)
