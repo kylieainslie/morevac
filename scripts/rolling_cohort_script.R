@@ -52,9 +52,9 @@ p_cohort
 myyears <- 1820:2028
 mybetas <- c(0.4,rep(0.2,length(myyears)-1))
 # returns 3 arrays with inf_hist_mat, vac_hist_mat, and ages_mat from each sim
-sim_test0 <- run_sim_2(sim = 100, wane = 0.5, take = 0.7, vac_cov = vac_cov_dat$Annual_Off_At_10, vac_strategy = 0, years = myyears, betas = mybetas)
-sim_test1 <- run_sim_2(sim = 100, wane = 0.5, take = 0.7, vac_cov = vac_cov_dat$Annual_Off_At_10, vac_strategy = 1, years = myyears, betas = mybetas)
-sim_test2 <- run_sim_2(sim = 100, wane = 0.5, take = 0.7, vac_cov = vac_cov_dat$Biannual_Off_At_10, vac_strategy = 2, years = myyears, betas = mybetas)
+sim_test0 <- run_sim_2(sim = 100, wane = 0.5, take = 0.7, vac_cov = vac_cov_dat$No_Vaccination, vac_strategy = 0, years = myyears, betas = mybetas)
+sim_test1 <- run_sim_2(sim = 100, wane = 0.5, take = 0.7, vac_cov = vac_cov_dat$Annual_Off_At_16, vac_strategy = 1, years = myyears, betas = mybetas)
+sim_test2 <- run_sim_2(sim = 100, wane = 0.5, take = 0.7, vac_cov = vac_cov_dat$Biannual_Off_At_16, vac_strategy = 2, years = myyears, betas = mybetas)
 
 # post process sim results
 sim0_results <- postprocess_sim_results_for_rolling_cohort(simdat = sim_test0, total_year_range = myyears)
@@ -67,12 +67,30 @@ sim_results <- rbind(sim0_results,sim1_results,sim2_results)
 vac_strategy <- c(rep("No Vaccination",length_study),rep("Annual", length_study), rep("Every Other Year", length_study))
 age_x3 <- c(rep(0:(length_study-1),3))
 
-rtn <- data.frame(Age = age_x3, Vac_Strategy = vac_strategy,
+dat <- data.frame(Age = age_x3, Vac_Strategy = vac_strategy,
                   Attack_Rate = apply(sim_results, 1, mean),
                   Lower = apply(sim_results, 1, quantile, probs=c(0.025)),
                   Upper = apply(sim_results, 1, quantile, probs=c(0.975))
                   )
 
 # plot results
-p_test_ar <- plot_attack_rates(dat = rtn, by_vac_strategy = TRUE, c_bands = TRUE)
-p_test_ar
+y_max <- 0.4
+legend_x <- 0.95
+legend_y <- 0.95
+
+p1 <- ggplot(data = dat, aes(x = Age, y = Attack_Rate, colour= Vac_Strategy)) +
+      geom_line() +
+      geom_ribbon(aes(x=Age,ymin=Lower,ymax=Upper,linetype=NA, fill = Vac_Strategy),alpha=0.2)+
+      xlab('Age') +
+      ylab('Attack Rate') +
+      scale_y_continuous(limits = c(0,y_max), expand = c(0,0))
+p1 <- p1 + theme(panel.grid.major = element_blank(),
+                 panel.grid.minor = element_blank(),
+                 panel.background = element_blank(),
+                 axis.line = element_line(colour = "black"),
+                 legend.position = c(legend_x, legend_y),
+                 legend.justification = c("right", "top"),
+                 legend.box.just = "right",
+                 legend.margin = margin(6, 6, 6, 6),
+                 legend.key = element_rect(fill = "white"))
+p1
