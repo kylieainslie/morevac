@@ -36,17 +36,14 @@ p_out <- plot_attack_rates(dat = ar_out$attack_rates)
 p_out
 
 # isolate birth cohorts starting in 2000 (years 181:200)
-years = 1820:2019
-desired_years <- 181:200
-# current_age <- 0
+my_cohorts <- get_cohorts(inf_history = out$inf_history$inf_hist_mat, vac_history = out$vac_history$vac_hist_mat, ages = out$ages,
+                          total_year_range = 1820:2028)
+cohort_sizes <- sapply(my_cohorts$cohort_ids, length)
+ninfs <- sapply(my_cohorts$inf_hist,function(x) apply(x,2,sum))
+colnames(ninfs) <- paste0("Cohort",1:10)
+cohort_ar <- sweep(ninfs, 2, cohort_sizes, FUN="/")
+avg_ar <- apply(cohort_ar,1,mean)
 
-#cohort <- which(out$ages[,200] <= 19)
-#cohort_inf_hist <- out$inf_history$inf_hist_mat[cohort,desired_years]
-#cohort_vac_hist <- out$vac_history$vac_hist_mat[cohort,desired_years]
-#cohort_ages <- out$ages[cohort,desired_years]
-
-cohort_ar <- get_cohort_ar(inf_history = out$inf_history$inf_hist_mat, vac_history = out$vac_history$vac_hist_mat, ages = out$ages,
-                           years = 1820:2019, year_index = 181:200)
 # plot attack rates
 p_cohort <- plot_attack_rates(dat = cohort_ar)
 p_cohort
