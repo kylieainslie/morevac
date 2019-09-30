@@ -27,10 +27,10 @@ vac_cov_dat <- data.frame(Age = 0:79,
                           )
 
 # run multi-annual model
-out <- multiannual(n=10000, vac_coverage = vac_cov_dat$Biannual_Constant_Vac, vac_strategy = 2)
+out <- multiannual(n=10000, years = 1820:2028, betas = c(0.4, rep(0.2,208)), vac_coverage = vac_cov_dat$Biannual_Constant_Vac, vac_strategy = 2)
 
 # get attack rates
-ar_out <- get_attack_rates(inf_history = out$inf_history$inf_hist_mat, ages_mat = out$ages, years = 1820:2019)
+ar_out <- get_attack_rates(inf_history = out$inf_history$inf_hist_mat, ages_mat = out$ages, years = 1820:2028)
 # plot total attack rates
 p_out <- plot_attack_rates(dat = ar_out$attack_rates)
 p_out
@@ -54,9 +54,9 @@ p_cohort
 ### simulation
 ## single run
 # returns 3 arrays with inf_hist_mat, vac_hist_mat, and ages_mat from each sim
-sim_test0 <- run_sim_2(sim = 100, wane = 0.5, take = 0.7, vac_cov = vac_cov_dat$Annual_Off_At_10, vac_strategy = 0)
-sim_test1 <- run_sim_2(sim = 100, wane = 0.5, take = 0.7, vac_cov = vac_cov_dat$Annual_Off_At_10, vac_strategy = 1)
-sim_test2 <- run_sim_2(sim = 100, wane = 0.5, take = 0.7, vac_cov = vac_cov_dat$Biannual_Off_At_10, vac_strategy = 2)
+sim_test0 <- run_sim_2(sim = 100, wane = 0.5, take = 0.7, vac_cov = vac_cov_dat$Annual_Off_At_16, vac_strategy = 0)
+sim_test1 <- run_sim_2(sim = 100, wane = 0.5, take = 0.7, vac_cov = vac_cov_dat$Annual_Off_At_16, vac_strategy = 1)
+sim_test2 <- run_sim_2(sim = 100, wane = 0.5, take = 0.7, vac_cov = vac_cov_dat$Biannual_Off_At_16, vac_strategy = 2)
 
 # post process sim results
 sim_results <- postprocess_sim_results_for_rolling_cohort(sim0 = sim_test0, sim1 = sim_test1, sim2 = sim_test2)
