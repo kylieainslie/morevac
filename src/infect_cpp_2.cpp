@@ -20,18 +20,18 @@ using namespace Rcpp;
 // @export
 // [[Rcpp::export]]
 List infect_cpp_2(NumericMatrix inf_history,
-                        NumericMatrix years_since_last_vac,
-                        NumericMatrix vac_history,
-                        NumericMatrix suscept_mat,
-                        NumericMatrix x,
-                        NumericMatrix ages_mat,
-                        NumericMatrix delta_v,
-                        NumericVector gammas,
-                        NumericVector drift,
-                        NumericVector foi,
-                        double wane_rate,
-                        int version
-                        ) {
+                  NumericMatrix years_since_last_vac,
+                  NumericMatrix vac_history,
+                  NumericMatrix suscept_mat,
+                  NumericMatrix x,
+                  NumericMatrix ages_mat,
+                  NumericMatrix delta_v,
+                  NumericVector gammas,
+                  NumericVector drift,
+                  NumericVector foi,
+                  double wane_rate,
+                  int version
+                  ) {
 // initialize
   int nyears = inf_history.ncol();
   int nindiv = inf_history.nrow();
@@ -105,7 +105,7 @@ List infect_cpp_2(NumericMatrix inf_history,
 
 /*** R
 # input parameter values
- nyears <- 200
+ nyears <- 209
  maxage <- 80
  nindiv <- 10000
  betas <- c(0.4, rep(0.2,nyears-1))
