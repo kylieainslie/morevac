@@ -12,7 +12,6 @@ library(dplyr)
 # load morevac package
 setwd("~/Documents/morevac")
 devtools::load_all()
-library(morevac)
 # determine vaccination coverages by age
 vac_cov_dat <- data.frame(Age = 0:79,
                           No_Vaccination = c(rep(0,80)),
@@ -50,13 +49,30 @@ p_cohort
 
 ### simulation
 ## single run
+myyears <- 1820:2028
+mybetas <- c(0.4,rep(0.2,length(myyears)-1))
 # returns 3 arrays with inf_hist_mat, vac_hist_mat, and ages_mat from each sim
-sim_test0 <- run_sim_2(sim = 100, wane = 0.5, take = 0.7, vac_cov = vac_cov_dat$Annual_Off_At_16, vac_strategy = 0)
-sim_test1 <- run_sim_2(sim = 100, wane = 0.5, take = 0.7, vac_cov = vac_cov_dat$Annual_Off_At_16, vac_strategy = 1)
-sim_test2 <- run_sim_2(sim = 100, wane = 0.5, take = 0.7, vac_cov = vac_cov_dat$Biannual_Off_At_16, vac_strategy = 2)
+sim_test0 <- run_sim_2(sim = 100, wane = 0.5, take = 0.7, vac_cov = vac_cov_dat$Annual_Off_At_10, vac_strategy = 0, years = myyears, betas = mybetas)
+sim_test1 <- run_sim_2(sim = 100, wane = 0.5, take = 0.7, vac_cov = vac_cov_dat$Annual_Off_At_10, vac_strategy = 1, years = myyears, betas = mybetas)
+sim_test2 <- run_sim_2(sim = 100, wane = 0.5, take = 0.7, vac_cov = vac_cov_dat$Biannual_Off_At_10, vac_strategy = 2, years = myyears, betas = mybetas)
 
 # post process sim results
-sim_results <- postprocess_sim_results_for_rolling_cohort(sim0 = sim_test0, sim1 = sim_test1, sim2 = sim_test2)
+sim0_results <- postprocess_sim_results_for_rolling_cohort(simdat = sim_test0, total_year_range = myyears)
+sim1_results <- postprocess_sim_results_for_rolling_cohort(simdat = sim_test1, total_year_range = myyears)
+sim2_results <- postprocess_sim_results_for_rolling_cohort(simdat = sim_test2, total_year_range = myyears)
+
+# combine sim results into single data set to plot
+length_study <- 19
+sim_results <- rbind(sim0_results,sim1_results,sim2_results)
+vac_strategy <- c(rep("No Vaccination",length_study),rep("Annual", length_study), rep("Every Other Year", length_study))
+age_x3 <- c(rep(0:(length_study-1),3))
+
+rtn <- data.frame(Age = age_x3, Vac_Strategy = vac_strategy,
+                  Attack_Rate = apply(sim_results, 1, mean),
+                  Lower = apply(sim_results, 1, quantile, probs=c(0.025)),
+                  Upper = apply(sim_results, 1, quantile, probs=c(0.975))
+                  )
+
 # plot results
-p_test_ar <- plot_attack_rates(dat = sim_results, by_vac_strategy = TRUE, c_bands = TRUE)
+p_test_ar <- plot_attack_rates(dat = rtn, by_vac_strategy = TRUE, c_bands = TRUE)
 p_test_ar
