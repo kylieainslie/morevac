@@ -13,7 +13,6 @@ get_cohorts <- function(inf_history, vac_history, ages, enrollment_start_year = 
   enrollment_stop_year = enrollment_start_year + ncohorts
   cohort = list(); cohort_inf_hist = list(); cohort_vac_hist = list(); cohort_ages = list()
   year_index <- which(total_year_range %in% enrollment_start_year:enrollment_stop_year)
-  #ar <- data.frame(Year = years[year_index], Attack_Rate = c(rep(0,nyears)))
   for (j in 1:ncohorts){
     cohort[[j]] <- which(ages[,year_index[j]] == 0)
     cohort_inf_hist[[j]] <- inf_history[cohort[[j]],year_index[j]:(year_index[j] + length_study)]
