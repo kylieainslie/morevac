@@ -11,6 +11,7 @@
 #' @export
 get_cohorts <- function(inf_history, vac_history, ages, enrollment_start_year = 2000, ncohorts = 10, total_year_range, length_study = 18){
   enrollment_stop_year = enrollment_start_year + ncohorts
+  year_index <- which(total_year_range %in% enrollment_start_year:enrollment_stop_year)
   cohort = list(); cohort_inf_hist = list(); cohort_vac_hist = list(); cohort_ages = list()
   year_index <- which(total_year_range %in% enrollment_start_year:enrollment_stop_year)
   for (j in 1:ncohorts){
