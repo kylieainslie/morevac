@@ -52,9 +52,9 @@ p_cohort
 myyears <- 1820:2028
 mybetas <- c(0.4,rep(0.2,length(myyears)-1))
 # returns 3 arrays with inf_hist_mat, vac_hist_mat, and ages_mat from each sim
-sim_test0 <- run_sim_2(sim = 100, wane = 0.5, take = 0.7, vac_cov = vac_cov_dat$No_Vaccination, vac_strategy = 0, years = myyears, betas = mybetas)
-sim_test1 <- run_sim_2(sim = 100, wane = 0.5, take = 0.7, vac_cov = vac_cov_dat$Annual_Off_At_16, vac_strategy = 1, years = myyears, betas = mybetas)
-sim_test2 <- run_sim_2(sim = 100, wane = 0.5, take = 0.7, vac_cov = vac_cov_dat$Biannual_Off_At_16, vac_strategy = 2, years = myyears, betas = mybetas)
+sim_test0 <- run_sim_2(sim = 500, wane = 0.5, take = 0.7, vac_cov = vac_cov_dat$No_Vaccination, vac_strategy = 0, years = myyears, betas = mybetas)
+sim_test1 <- run_sim_2(sim = 500, wane = 0.5, take = 0.7, vac_cov = vac_cov_dat$Annual_Off_At_16, vac_strategy = 1, years = myyears, betas = mybetas)
+sim_test2 <- run_sim_2(sim = 500, wane = 0.5, take = 0.7, vac_cov = vac_cov_dat$Biannual_Off_At_16, vac_strategy = 2, years = myyears, betas = mybetas)
 
 # post process sim results
 sim0_results <- postprocess_sim_results_for_rolling_cohort(simdat = sim_test0, total_year_range = myyears)
@@ -93,4 +93,10 @@ p1 <- p1 + theme(panel.grid.major = element_blank(),
                  legend.box.just = "right",
                  legend.margin = margin(6, 6, 6, 6),
                  legend.key = element_rect(fill = "white"))
-p1
+
+theme_set(theme_cowplot(font_size=10)) # reduce default font size
+p_combined <- plot_grid(p1, p2, labels = "AUTO", ncol = 1, align = 'v', axis = 'l')
+
+png(file = "rolling_cohort_comparison.png")
+p_combined
+dev.off()
