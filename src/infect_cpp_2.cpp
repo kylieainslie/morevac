@@ -62,7 +62,11 @@ List infect_cpp_2(NumericMatrix inf_history,
           if(years_since_last_vac(i,j) == 0){
             vac_ind = 1;
         // exposure_count[i] += 1;
+<<<<<<< HEAD
             vac_comp = std::min(1.0,gammas[j]); // + (exposure_count[i] * 0.03)); // determine vaccination susceptibility component in vac year
+=======
+            vac_comp = std::min(1.0,gammas[j] + (exposure_count[i] * 0.03)); // determine vaccination susceptibility component in vac year
+>>>>>>> d09fe89ce0701345a5c91eeb3c5375a4278c6382
           } else {vac_ind = 0; // non-vac year
             // determine amount of waning
               w = (1.0 - gammas[j-years_since_last_vac(i,j)]) * years_since_last_vac(i,j) * wane_rate;
