@@ -48,30 +48,51 @@ p_cohort <- plot_attack_rates(dat = cohort_ar)
 p_cohort
 
 ### simulation
+## create latin hypercube of parameter values to simulate over
+library(lhs)
+set.seed(1234)
+mylhc <- randomLHS(100, 6)
+colnames(mylhc) <- c("Vac_Cov", "Waning", "Take", "Epsilon", "Rho", "VE")
+mylhc[, "Epsilon"] <- qunif(mylhc[,"Epsilon"], min = 0.0001, max = 0.05)
+
 ## single run
+n_sim = 100
+row_lhc <- 1
+max_age = 80
 myyears <- 1820:2028
 mybetas <- c(0.4,rep(0.2,length(myyears)-1))
+vac_cut_off <- 10
+vac_cov_annual <- c(rep(0,2),rep(mylhc[row_lhc, "Vac_Cov"], vac_cut_off - 2), rep(0, max_age - vac_cut_off))
+vac_cov_biennial <- c(rep(0,2),rep(c(mylhc[row_lhc, "Vac_Cov"], 0), vac_cut_off/2 - 1), rep(0, max_age - vac_cut_off))
 # returns 3 arrays with inf_hist_mat, vac_hist_mat, and ages_mat from each sim
-sim_test0 <- run_sim_2(sim = 500, wane = 0.5, take = 0.7, vac_cov = vac_cov_dat$No_Vaccination, vac_strategy = 0, years = myyears, betas = mybetas)
-sim_test1 <- run_sim_2(sim = 500, wane = 0.5, take = 0.7, vac_cov = vac_cov_dat$Annual_Off_At_16, vac_strategy = 1, years = myyears, betas = mybetas)
-sim_test2 <- run_sim_2(sim = 500, wane = 0.5, take = 0.7, vac_cov = vac_cov_dat$Biannual_Off_At_16, vac_strategy = 2, years = myyears, betas = mybetas)
+sim_test0 <- run_sim_2(sim = n_sim, n = 50000, years = myyears, betas = mybetas, vac_cov = vac_cov_dat$No_Vaccination, vac_strategy = 0,
+                       wane = mylhc[row_lhc, "Waning"], take = mylhc[row_lhc, "Take"], epsilon = mylhc[row_lhc, "Epsilon"], vac_protect = mylhc[row_lhc, "VE"], rho = mylhc[row_lhc, "Rho"])
+sim_test1 <- run_sim_2(sim = n_sim, n = 50000, years = myyears, betas = mybetas, vac_cov = vac_cov_annual, vac_strategy = 1,
+                       wane = mylhc[row_lhc, "Waning"], take = mylhc[row_lhc, "Take"], epsilon = mylhc[row_lhc, "Epsilon"], vac_protect = mylhc[row_lhc, "VE"], rho = mylhc[row_lhc, "Rho"])
+sim_test2 <- run_sim_2(sim = n_sim, n = 50000, years = myyears, betas = mybetas, vac_cov = vac_cov_biennial, vac_strategy = 2,
+                       wane = mylhc[row_lhc, "Waning"], take = mylhc[row_lhc, "Take"], epsilon = mylhc[row_lhc, "Epsilon"], vac_protect = mylhc[row_lhc, "VE"], rho = mylhc[row_lhc, "Rho"])
 
 # post process sim results
-sim0_results <- postprocess_sim_results_for_rolling_cohort(simdat = sim_test0, total_year_range = myyears)
-sim1_results <- postprocess_sim_results_for_rolling_cohort(simdat = sim_test1, total_year_range = myyears)
-sim2_results <- postprocess_sim_results_for_rolling_cohort(simdat = sim_test2, total_year_range = myyears)
+sim0_results <- postprocess_sim_results_for_rolling_cohort(simdat = sim_test0, total_year_range = myyears, nsim = n_sim)
+sim1_results <- postprocess_sim_results_for_rolling_cohort(simdat = sim_test1, total_year_range = myyears, nsim = n_sim)
+sim2_results <- postprocess_sim_results_for_rolling_cohort(simdat = sim_test2, total_year_range = myyears, nsim = n_sim)
 
-# combine sim results into single data set to plot
+# combine AR sim results into single data set to plot
 length_study <- 19
-sim_results <- rbind(sim0_results,sim1_results,sim2_results)
+sim_results <- rbind(sim0_results$Attack_Rate,sim1_results$Attack_Rate,sim2_results$Attack_Rate)
 vac_strategy <- c(rep("No Vaccination",length_study),rep("Annual", length_study), rep("Every Other Year", length_study))
 age_x3 <- c(rep(0:(length_study-1),3))
 
 dat <- data.frame(Age = age_x3, Vac_Strategy = vac_strategy,
-                  Attack_Rate = apply(sim_results, 1, mean),
-                  Lower = apply(sim_results, 1, quantile, probs=c(0.025)),
-                  Upper = apply(sim_results, 1, quantile, probs=c(0.975))
+                  Attack_Rate = apply(sim_results$Attack_Rate, 1, mean),
+                  Lower = apply(sim_results$Attack_Rate, 1, quantile, probs=c(0.025)),
+                  Upper = apply(sim_results$Attack_Rate, 1, quantile, probs=c(0.975))
                   )
+
+# post-post-processing of lifetime infections
+lifetime_infs0 <- data.frame(sim0_results$Lifetime_Infections, Vac_Strategy = c(rep("No Vaccination",dim(sim0_results$Lifetime_Infections)[1])))
+lifetime_infs1 <- data.frame(sim1_results$Lifetime_Infections, Vac_Strategy = c(rep("Annual",dim(sim1_results$Lifetime_Infections)[1])))
+lifetime_infs2 <- data.frame(sim2_results$Lifetime_Infections, Vac_Strategy = c(rep("Every Other Year",dim(sim2_results$Lifetime_Infections)[1])))
 
 # plot results
 y_max <- 0.4
@@ -94,9 +115,9 @@ p1 <- p1 + theme(panel.grid.major = element_blank(),
                  legend.margin = margin(6, 6, 6, 6),
                  legend.key = element_rect(fill = "white"))
 
-theme_set(theme_cowplot(font_size=10)) # reduce default font size
-p_combined <- plot_grid(p1, p2, labels = "AUTO", ncol = 1, align = 'v', axis = 'l')
+# theme_set(theme_cowplot(font_size=10)) # reduce default font size
+# p_combined <- plot_grid(p1, p2, labels = "AUTO", ncol = 1, align = 'v', axis = 'l')
 
-png(file = "rolling_cohort_comparison.png")
-p_combined
+png(file = "rolling_cohort_off_at_10_sim500.png")
+p1
 dev.off()
