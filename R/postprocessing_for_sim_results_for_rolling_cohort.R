@@ -14,18 +14,31 @@ postprocess_sim_results_for_rolling_cohort <- function(simdat, nsim = 100, total
   avg_ar <- matrix(numeric(nsim*length_study), nrow = length_study)
   rownames(avg_ar) <- paste0("Age",0:(length_study-1))
   colnames(avg_ar) <- paste0("Sim",1:nsim)
+
   # subset birth cohort
   for (s in 1:nsim){
     my_cohorts <- get_cohorts(inf_history = simdat$inf_history[,,s],
                               vac_history = simdat$vac_history[,,s],
                               ages = simdat$ages[,,s],
                               total_year_range = total_year_range)
+    # calculate avg attack rate over cohorts
     cohort_sizes <- sapply(my_cohorts$cohort_ids, length)
     ninfs <- sapply(my_cohorts$inf_hist,function(x) apply(x,2,sum))
     colnames(ninfs) <- paste0("Cohort",1:10)
     cohort_ar <- sweep(ninfs, 2, cohort_sizes, FUN="/")
     avg_ar[,s] <- apply(cohort_ar,1,mean)
 
+    # calculate avg num lifetime infections by number of vaccinations
+    lifetime_infs <- sapply(my_cohorts$inf_hist,function(x) apply(x,1,sum))
+    num_vacs <- sapply(my_cohorts$vac_hist,function(x) apply(x,1,sum))
+    tmp <- data.frame(Lifetime_Infs = unlist(lifetime_infs), Num_Vacs = unlist(num_vacs))
+    avg_tmp <- ddply(tmp,~Num_Vacs,summarise,mean=mean(Lifetime_Infs))
+    avg_tmp$sim <- c(rep(s,dim(avg_tmp)[1]))
+    if (s == 1){avg_lifetime_infs <- avg_tmp
+    } else {avg_lifetime_infs <- rbind(avg_lifetime_infs, avg_tmp)}
+
   }
-  return(avg_ar)
+  rtn <- list(Attack_Rate = avg_ar,
+              Lifetime_Infections = avg_lifetime_infs)
+  return(rtn)
 }
