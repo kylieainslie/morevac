@@ -38,6 +38,7 @@ multiannual <- function(n = 10000,
                         take = 1,
                         drift_rate = 0.5,
                         drift_off = FALSE,
+                        epsilon = 0.03,
                         seed = NULL
                         ){
 
@@ -81,6 +82,7 @@ multiannual <- function(n = 10000,
                                  drift = drift, delta_v = delta_v,
                                  gammas = gammas, foi = betas,
                                  wane_rate = wane,
+                                 epsilon = epsilon,
                                  version = suscept_func_version)
 
       # return
