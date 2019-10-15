@@ -27,6 +27,7 @@ run_sim_2 <- function(sim = 100,
                       rho = 0.9,
                       wane = 0,
                       take = 1,
+                      epsilon = 0.03,
                       drift_off = FALSE,
                       file.out = FALSE,
                       tag = "",
@@ -53,7 +54,8 @@ run_sim_2 <- function(sim = 100,
                                vac_protect = vac_protect,
                                suscept_func_version = suscept_version,
                                vac_strategy = vac_strategy,  rho = rho,
-                               wane = wane, take = take, drift_off = drift_off)
+                               wane = wane, take = take, epsilon = epsilon,
+                               drift_off = drift_off)
 
       sim_inf_hist[,,s] <- run_model$inf_history$inf_hist_mat
       sim_vac_hist[,,s] <- run_model$vac_history$vac_hist_mat
