@@ -49,6 +49,7 @@ avg_ar <- data.frame(Age = 0:18, Attack_Rate = apply(cohort_ar,1,mean))
 p_cohort <- plot_attack_rates(dat = cohort_ar)
 p_cohort
 
+#######################################
 ### simulation
 ## create latin hypercube of parameter values to simulate over
 set.seed(1234)
@@ -59,20 +60,25 @@ mylhc[, "Epsilon"] <- qunif(mylhc[,"Epsilon"], min = 0.001, max = 0.05)
 # log_test <- log(qunif(mylhc[,"Epsilon"], min = 0.001, max = 0.05), base = 10)
 # log_test2 <- 10^quantile(log_test,probs = mylhc[,"Epsilon"])
 ## single run
+setwd("~/Dropbox/Kylie/Projects/morevac_manuscript/data")
+for (i in 1:dim(mylhc)[1]){
+# parameters
 n_sim = 10
-row_lhc <- 1
+nindiv <- 30000
+row_lhc <- i
 max_age = 80
 myyears <- 1820:2028
 mybetas <- c(0.4,rep(0.2,length(myyears)-1))
-vac_cut_off <- 10
+vac_cut_off <- 16
+vac_cov_none <- c(rep(0,max_age))
 vac_cov_annual <- c(rep(0,2),rep(mylhc[row_lhc, "Vac_Cov"], vac_cut_off - 2), rep(0, max_age - vac_cut_off))
 vac_cov_biennial <- c(rep(0,2),rep(c(mylhc[row_lhc, "Vac_Cov"], 0), vac_cut_off/2 - 1), rep(0, max_age - vac_cut_off))
 # returns 3 arrays with inf_hist_mat, vac_hist_mat, and ages_mat from each sim
-sim_test0 <- run_sim_2(sim = n_sim, n = 50000, years = myyears, betas = mybetas, vac_cov = vac_cov_dat$No_Vaccination, vac_strategy = 0,
+sim_test0 <- run_sim_2(sim = n_sim, n = nindiv, years = myyears, betas = mybetas, vac_cov = vac_cov_dat$No_Vaccination, vac_strategy = 0,
                        wane = mylhc[row_lhc, "Waning"], take = mylhc[row_lhc, "Take"], epsilon = mylhc[row_lhc, "Epsilon"], vac_protect = mylhc[row_lhc, "VE"], rho = mylhc[row_lhc, "Rho"])
-sim_test1 <- run_sim_2(sim = n_sim, n = 50000, years = myyears, betas = mybetas, vac_cov = vac_cov_annual, vac_strategy = 1,
+sim_test1 <- run_sim_2(sim = n_sim, n = nindiv, years = myyears, betas = mybetas, vac_cov = vac_cov_annual, vac_strategy = 1,
                        wane = mylhc[row_lhc, "Waning"], take = mylhc[row_lhc, "Take"], epsilon = mylhc[row_lhc, "Epsilon"], vac_protect = mylhc[row_lhc, "VE"], rho = mylhc[row_lhc, "Rho"])
-sim_test2 <- run_sim_2(sim = n_sim, n = 50000, years = myyears, betas = mybetas, vac_cov = vac_cov_biennial, vac_strategy = 2,
+sim_test2 <- run_sim_2(sim = n_sim, n = nindiv, years = myyears, betas = mybetas, vac_cov = vac_cov_biennial, vac_strategy = 2,
                        wane = mylhc[row_lhc, "Waning"], take = mylhc[row_lhc, "Take"], epsilon = mylhc[row_lhc, "Epsilon"], vac_protect = mylhc[row_lhc, "VE"], rho = mylhc[row_lhc, "Rho"])
 
 # post process sim results
@@ -89,16 +95,51 @@ age_x3 <- c(rep(0:(length_study-1),3))
 dat <- data.frame(Age = age_x3, Vac_Strategy = vac_strategy,
                   Attack_Rate = apply(sim_results, 1, mean),
                   Lower = apply(sim_results, 1, quantile, probs=c(0.025)),
-                  Upper = apply(sim_results, 1, quantile, probs=c(0.975))
-                  )
+                  Upper = apply(sim_results, 1, quantile, probs=c(0.975)),
+                  Vac_Cov = mylhc[row_lhc, "Vac_Cov"],
+                  Waning = mylhc[row_lhc, "Waning"],
+                  Take = mylhc[row_lhc, "Take"],
+                  Epsilon = mylhc[row_lhc, "Epsilon"],
+                  Rho = mylhc[row_lhc, "Rho"],
+                  VE = mylhc[row_lhc, "VE"])
+if (i == 1){ ar_out <- dat
+} else {ar_out <- rbind(ar_out, dat)}
 
 # post-post-processing of lifetime infections
 lifetime_infs0 <- data.frame(sim0_results$Lifetime_Infections, Vac_Strategy = c(rep("No Vaccination",dim(sim0_results$Lifetime_Infections)[1])))
 lifetime_infs1 <- data.frame(sim1_results$Lifetime_Infections, Vac_Strategy = c(rep("Annual",dim(sim1_results$Lifetime_Infections)[1])))
 lifetime_infs2 <- data.frame(sim2_results$Lifetime_Infections, Vac_Strategy = c(rep("Every Other Year",dim(sim2_results$Lifetime_Infections)[1])))
 
-tmp <- rbind(lifetime_infs0,lifetime_infs1,lifetime_infs2)
-avg_over_sims <- ddply(tmp,.(Num_Vacs, Vac_Strategy),summarise,mean=mean(mean))
+all_lifetime_infs <- rbind(lifetime_infs0,lifetime_infs1,lifetime_infs2)
+all_lifetime_infs$Vac_Cov <- mylhc[row_lhc, "Vac_Cov"]
+all_lifetime_infs$Waning <- mylhc[row_lhc, "Waning"]
+all_lifetime_infs$Take <- mylhc[row_lhc, "Take"]
+all_lifetime_infs$Epsilon <- mylhc[row_lhc, "Epsilon"]
+all_lifetime_infs$Rho <- mylhc[row_lhc, "Rho"]
+all_lifetime_infs$VE <- mylhc[row_lhc, "VE"]
+
+avg_lifetime_infs <- ddply(all_lifetime_infs,.(Num_Vacs, Vac_Strategy),summarise,mean=mean(mean))
+avg_lifetime_infs$Vac_Cov <- mylhc[row_lhc, "Vac_Cov"]
+avg_lifetime_infs$Waning <- mylhc[row_lhc, "Waning"]
+avg_lifetime_infs$Take <- mylhc[row_lhc, "Take"]
+avg_lifetime_infs$Epsilon <- mylhc[row_lhc, "Epsilon"]
+avg_lifetime_infs$Rho <- mylhc[row_lhc, "Rho"]
+avg_lifetime_infs$VE <- mylhc[row_lhc, "VE"]
+
+if(i == 1){li_out <- all_lifetime_infs
+           li_avg_out <- avg_lifetime_infs
+} else {li_out <- rbind(li_out, all_lifetime_infs)
+        li_avg_out <- rbind(li_avg_out, avg_lifetime_infs)
+}
+# gc() # clear R memory between runs
+}
+
+# write results to file
+write.csv(ar_out, file = "ar_sim_data.csv")
+write.csv(li_out, file = "li_sim_data.csv")
+write.csv(li_avg_out, file = "li_avg_sim_data.csv")
+
+################################
 # plot results
 y_max <- 0.4
 legend_x <- 0.95
@@ -120,6 +161,23 @@ p1 <- p1 + theme(panel.grid.major = element_blank(),
                  legend.margin = margin(6, 6, 6, 6),
                  legend.key = element_rect(fill = "white"))
 
+legend_x <- 0.25
+legend_y <- 0.95
+tmp$Num_Vacs <- factor(tmp$Num_Vacs)
+p2 <- ggplot(tmp, aes(x = Num_Vacs, y = mean, fill = Vac_Strategy)) +
+      geom_boxplot() +
+      ylab('Number of Lifetime Infections') +
+      theme(panel.grid.major = element_blank(),
+            panel.grid.minor = element_blank(),
+            panel.background = element_blank(),
+            axis.line = element_line(colour = "black"),
+            legend.position = c(legend_x, legend_y),
+            legend.justification = c("right", "top"),
+            legend.box.just = "right",
+            legend.margin = margin(6, 6, 6, 6),
+            legend.key = element_rect(fill = "white")
+      )
+p2
 # theme_set(theme_cowplot(font_size=10)) # reduce default font size
 # p_combined <- plot_grid(p1, p2, labels = "AUTO", ncol = 1, align = 'v', axis = 'l')
 
