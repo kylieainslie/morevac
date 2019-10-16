@@ -9,6 +9,8 @@ library(stringr)
 library(foreach)
 library(doParallel)
 library(dplyr)
+library(plyr)
+library(lhs)
 # load morevac package
 setwd("~/Documents/morevac")
 devtools::load_all()
@@ -49,14 +51,15 @@ p_cohort
 
 ### simulation
 ## create latin hypercube of parameter values to simulate over
-library(lhs)
 set.seed(1234)
 mylhc <- randomLHS(100, 6)
 colnames(mylhc) <- c("Vac_Cov", "Waning", "Take", "Epsilon", "Rho", "VE")
-mylhc[, "Epsilon"] <- qunif(mylhc[,"Epsilon"], min = 0.0001, max = 0.05)
+mylhc[, "Epsilon"] <- qunif(mylhc[,"Epsilon"], min = 0.001, max = 0.05)
 
+# log_test <- log(qunif(mylhc[,"Epsilon"], min = 0.001, max = 0.05), base = 10)
+# log_test2 <- 10^quantile(log_test,probs = mylhc[,"Epsilon"])
 ## single run
-n_sim = 100
+n_sim = 10
 row_lhc <- 1
 max_age = 80
 myyears <- 1820:2028
@@ -84,9 +87,9 @@ vac_strategy <- c(rep("No Vaccination",length_study),rep("Annual", length_study)
 age_x3 <- c(rep(0:(length_study-1),3))
 
 dat <- data.frame(Age = age_x3, Vac_Strategy = vac_strategy,
-                  Attack_Rate = apply(sim_results$Attack_Rate, 1, mean),
-                  Lower = apply(sim_results$Attack_Rate, 1, quantile, probs=c(0.025)),
-                  Upper = apply(sim_results$Attack_Rate, 1, quantile, probs=c(0.975))
+                  Attack_Rate = apply(sim_results, 1, mean),
+                  Lower = apply(sim_results, 1, quantile, probs=c(0.025)),
+                  Upper = apply(sim_results, 1, quantile, probs=c(0.975))
                   )
 
 # post-post-processing of lifetime infections
@@ -94,6 +97,8 @@ lifetime_infs0 <- data.frame(sim0_results$Lifetime_Infections, Vac_Strategy = c(
 lifetime_infs1 <- data.frame(sim1_results$Lifetime_Infections, Vac_Strategy = c(rep("Annual",dim(sim1_results$Lifetime_Infections)[1])))
 lifetime_infs2 <- data.frame(sim2_results$Lifetime_Infections, Vac_Strategy = c(rep("Every Other Year",dim(sim2_results$Lifetime_Infections)[1])))
 
+tmp <- rbind(lifetime_infs0,lifetime_infs1,lifetime_infs2)
+avg_over_sims <- ddply(tmp,.(Num_Vacs, Vac_Strategy),summarise,mean=mean(mean))
 # plot results
 y_max <- 0.4
 legend_x <- 0.95
