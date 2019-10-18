@@ -105,9 +105,9 @@ foo <- function(data, indices){
 }
 
 set.seed(12345)
-myBootstrap0 <- boot(t(sim0_results$Attack_Rate), foo, R=1000)
-myBootstrap1 <- boot(t(sim1_results$Attack_Rate), foo, R=1000)
-myBootstrap2 <- boot(t(sim2_results$Attack_Rate), foo, R=1000)
+myBootstrap0 <- boot(sim0_results$Attack_Rate, foo, R=1000)
+myBootstrap1 <- boot(sim1_results$Attack_Rate, foo, R=1000)
+myBootstrap2 <- boot(sim2_results$Attack_Rate, foo, R=1000)
 
 # create data set of original medians and percentiles from bootstrapping
 myAR0 <- data.frame(Age= 0:18, Vac_Strategy = c(rep('No Vaccination',19)), Attack_Rate = myBootstrap0$t0, Lower = numeric(19), Upper = numeric(19))
