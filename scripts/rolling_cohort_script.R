@@ -54,7 +54,7 @@ p_cohort
 ### simulation
 ## create latin hypercube of parameter values to simulate over
 set.seed(1234)
-mylhc <- randomLHS(5, 6)
+mylhc <- randomLHS(500, 6)
 colnames(mylhc) <- c("Vac_Cov", "Waning", "Take", "Epsilon", "Rho", "VE")
 mylhc[, "Epsilon"] <- qunif(mylhc[,"Epsilon"], min = 0.001, max = 0.05)
 
@@ -64,7 +64,7 @@ mylhc[, "Epsilon"] <- qunif(mylhc[,"Epsilon"], min = 0.001, max = 0.05)
 setwd("~/Dropbox/Kylie/Projects/morevac_manuscript/data")
 for (i in 1:dim(mylhc)[1]){
 # parameters
-n_sim = 10
+n_sim = 100
 nindiv <- 30000
 row_lhc <- i
 max_age = 80
