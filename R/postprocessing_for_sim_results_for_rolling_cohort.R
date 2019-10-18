@@ -26,13 +26,13 @@ postprocess_sim_results_for_rolling_cohort <- function(simdat, nsim = 100, total
     ninfs <- sapply(my_cohorts$inf_hist,function(x) apply(x,2,sum))
     colnames(ninfs) <- paste0("Cohort",1:10)
     cohort_ar <- sweep(ninfs, 2, cohort_sizes, FUN="/")
-    avg_ar[,s] <- apply(cohort_ar,1,mean)
+    avg_ar[,s] <- apply(cohort_ar,1,median)
 
     # calculate avg num lifetime infections by number of vaccinations
     lifetime_infs <- sapply(my_cohorts$inf_hist,function(x) apply(x,1,sum))
     num_vacs <- sapply(my_cohorts$vac_hist,function(x) apply(x,1,sum))
     tmp <- data.frame(Lifetime_Infs = unlist(lifetime_infs), Num_Vacs = unlist(num_vacs))
-    avg_tmp <- ddply(tmp,~Num_Vacs,summarise,mean=mean(Lifetime_Infs))
+    avg_tmp <- ddply(tmp,~Num_Vacs,summarise,median=median(Lifetime_Infs))
     avg_tmp$sim <- c(rep(s,dim(avg_tmp)[1]))
     if (s == 1){avg_lifetime_infs <- avg_tmp
     } else {avg_lifetime_infs <- rbind(avg_lifetime_infs, avg_tmp)}
