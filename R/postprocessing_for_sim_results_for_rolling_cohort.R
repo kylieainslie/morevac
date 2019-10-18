@@ -38,7 +38,7 @@ postprocess_sim_results_for_rolling_cohort <- function(simdat, nsim = 100, total
     } else {avg_lifetime_infs <- rbind(avg_lifetime_infs, avg_tmp)}
 
   }
-  rtn <- list(Attack_Rate = avg_ar,
+  rtn <- list(Attack_Rate = t(avg_ar),
               Lifetime_Infections = avg_lifetime_infs)
   return(rtn)
 }
