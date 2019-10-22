@@ -96,12 +96,6 @@ cat("\n Bootstrapping... \n")
 foo <- function(data, indices){
    dt<-data[indices,]
    c(apply(dt, 2, median, na.rm = TRUE))
-   # c(median(dt[,1]),median(dt[,2]), median(dt[,3]),median(dt[,4]),
-   #   median(dt[,5]),median(dt[,6]), median(dt[,7]),median(dt[,8]),
-   #   median(dt[,9]),median(dt[,10]), median(dt[,11]),median(dt[,12]),
-   #   median(dt[,13]),median(dt[,14]), median(dt[,15]),median(dt[,16]),
-   #   median(dt[,17]),median(dt[,18]), median(dt[,19])
-   # )
 }
 
 set.seed(12345)
@@ -153,11 +147,6 @@ all_li_wide <- rbind.fill(li0_wide, li1_wide, li2_wide)
 foo2 <- function(data, indices){
    dt<-data[indices,]
    c(apply(dt[,-c(1,2)], 2, median, na.rm = TRUE))
-   #c(median(dt[,3], na.rm = TRUE),median(dt[,4], na.rm = TRUE),
-   #  median(dt[,5],na.rm = TRUE),median(dt[,6], na.rm = TRUE),
-   #  median(dt[,7], na.rm = TRUE),median(dt[,8], na.rm = TRUE),
-   #  median(dt[,9], na.rm = TRUE)
-   #)
 }
 
 #set.seed(12345)
@@ -171,10 +160,19 @@ myLTI1 <- data.frame(Num_Vacs= 0:(num_cols-1), Vac_Strategy = c(rep('Annual',num
 myLTI2 <- data.frame(Num_Vacs= 0:(num_cols-1), Vac_Strategy = c(rep('Every Other Year',num_cols)), Lifetime_Infs = myBootstrap2$t0, Lower = rep(NA,num_cols), Upper = rep(NA,num_cols))
 
 # no vaccination
-myLTI0[1,'Lower'] <- boot.ci(myBootstrap0, index=1, type='perc')$percent[4]
-myLTI0[1,'Upper'] <- boot.ci(myBootstrap0, index=1, type='perc')$percent[5]
-tryCatch({
+lower.ci <- boot.ci(myBootstrap0, index=1, type='perc')$percent[4]
+upper.ci<- boot.ci(myBootstrap0, index=1, type='perc')$percent[5]
+if (is.null(lower.ci) & is.null(upper.ci)){
+   myLTI0[1,'Lower'] <- NA
+   myLTI0[1,'Upper'] <- NA
+} else {
+   myLTI0[1,'Lower'] <- lower.ci
+   myLTI0[1,'Upper'] <- upper.ci
+}
+tryCatch({ # don't stop for loop if there is an error in calculating bootstrap CIs
 for (k in 1:dim(myLTI1)[1]){
+
+   print(k)
    # annual
    myLTI1[k,'Lower'] <- boot.ci(myBootstrap1, index=k, type='perc')$percent[4]
    myLTI1[k,'Upper'] <- boot.ci(myBootstrap1, index=k, type='perc')$percent[5]
