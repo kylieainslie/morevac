@@ -58,7 +58,7 @@ mylhc <- randomLHS(500, 6)
 colnames(mylhc) <- c("Vac_Cov", "Waning", "Take", "Epsilon", "Rho", "VE")
 mylhc[, "Epsilon"] <- qunif(mylhc[,"Epsilon"], min = 0.001, max = 0.05)
 mylhc[, "Vac_Cov"] <- qunif(mylhc[,"Vac_Cov"], min = 0.301, max = 0.806) # range from 2018-2019 PHE estimates of VC in school-aged children: https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/806289/Childhood_flu_annual_report_2018_19_FINAL_.pdf
-mylhc[, "Vac_Cov"] <- qunif(mylhc[,"Take"], min = 0.5, max = 1)
+mylhc[, "Take"] <- qunif(mylhc[,"Take"], min = 0.5, max = 1)
 # log_test <- log(qunif(mylhc[,"Epsilon"], min = 0.001, max = 0.05), base = 10)
 # log_test2 <- 10^quantile(log_test,probs = mylhc[,"Epsilon"])
 ## single run
