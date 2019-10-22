@@ -4,13 +4,6 @@
 # read in output files
 ar_dat <- read.csv(file = "ar_sim_data.csv", header = TRUE)[,-1]
 li_dat <- read.csv(file = "li_sim_data.csv", header = TRUE)[,-1]
-avg_li_dat <- read.csv(file = "li_avg_sim_data.csv", header = TRUE)[,-1]
-# subset data
-
-li_sub <- subset(avg_li_dat, avg_li_dat$Vac_Strategy == "Annual" & avg_li_dat$Num_Vacs %in% (1:5))
-li_sub$mean <- round(li_sub$mean, digits = 2)
-li_sub$Take <- round(li_sub$Take, digits = 1)
-li_sub$Epsilon <- round(li_sub$Epsilon, digits = 2)
 
 # gradient plot of lifetime infections exposure penalty (epsilon) and take
 # heatmap (looks better)
@@ -24,6 +17,19 @@ p_raster <- ggplot(li_sub, aes(x = Take, y = Epsilon, z = mean))+
   scale_fill_gradient() + #low = "white", high = "blue"
   labs(fill = "Lifetime Infections", y = "Exposure Penalty")
 p_raster
+
+# bar plot with CI for number of lifetime infections by vac_strategy (binned by number of vacs)
+# need to subset by different parameter values
+# aggregate over all param values
+aggdata <-aggregate(li_dat, by=list(li_dat$Num_Vacs,li_dat$Vac_Strategy),FUN=median, na.rm=TRUE)
+p_point <- ggplot(li_dat, aes(x=Num_Vacs, y=Lifetime_Infs)) +
+  geom_dotplot(
+    aes(fill = Vac_Strategy, color = Vac_Strategy), trim = FALSE,
+    binaxis='y', stackdir='center', dotsize = 0.8,
+    position = position_dodge(0.8)
+  )
+# geom_pointrange(aes(ymin=Lower, ymax=Upper), position = position_dodge(width = 1),)
+p_point
 
 # plot results
 y_max <- 0.4
