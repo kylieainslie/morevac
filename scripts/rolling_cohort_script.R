@@ -64,7 +64,7 @@ mylhc[, "Epsilon"] <- qunif(mylhc[,"Epsilon"], min = 0.001, max = 0.05)
 setwd("~/Dropbox/Kylie/Projects/morevac_manuscript/data")
 for (i in 1:dim(mylhc)[1]){
 # parameters
-n_sim = 100
+n_sim = 10
 nindiv <- 30000
 row_lhc <- i
 max_age = 80
@@ -98,7 +98,6 @@ foo <- function(data, indices){
    c(apply(dt, 2, median, na.rm = TRUE))
 }
 
-set.seed(12345)
 myBootstrap0 <- boot(sim0_results$Attack_Rate, foo, R=1000)
 myBootstrap1 <- boot(sim1_results$Attack_Rate, foo, R=1000)
 myBootstrap2 <- boot(sim2_results$Attack_Rate, foo, R=1000)
@@ -162,24 +161,26 @@ myLTI2 <- data.frame(Num_Vacs= 0:(num_cols-1), Vac_Strategy = c(rep('Every Other
 # no vaccination
 lower.ci <- boot.ci(myBootstrap0, index=1, type='perc')$percent[4]
 upper.ci<- boot.ci(myBootstrap0, index=1, type='perc')$percent[5]
-if (is.null(lower.ci) & is.null(upper.ci)){
-   myLTI0[1,'Lower'] <- NA
-   myLTI0[1,'Upper'] <- NA
-} else {
-   myLTI0[1,'Lower'] <- lower.ci
-   myLTI0[1,'Upper'] <- upper.ci
-}
-tryCatch({ # don't stop for loop if there is an error in calculating bootstrap CIs
-for (k in 1:dim(myLTI1)[1]){
+myLTI0[1,'Lower'] <- ifelse (is.null(lower.ci), NA, lower.ci)
+myLTI0[1,'Upper'] <- ifelse (is.null(upper.ci), NA, upper.ci)
 
-   print(k)
-   # annual
-   myLTI1[k,'Lower'] <- boot.ci(myBootstrap1, index=k, type='perc')$percent[4]
-   myLTI1[k,'Upper'] <- boot.ci(myBootstrap1, index=k, type='perc')$percent[5]
-   # biennial
-   myLTI2[k,'Lower'] <- boot.ci(myBootstrap2, index=k, type='perc')$percent[4]
-   myLTI2[k,'Upper'] <- boot.ci(myBootstrap2, index=k, type='perc')$percent[5]
-}}, error=function(e){cat("ERROR :",conditionMessage(e), "\n")})
+tryCatch({ # don't stop for loop if there is an error in calculating bootstrap CIs
+   for (k in 1:dim(myLTI1)[1]){
+      print(k)
+      # annual
+      a.lower.ci <- boot.ci(myBootstrap1, index=k, type='perc')$percent[4]
+      a.upper.ci <-  boot.ci(myBootstrap1, index=k, type='perc')$percent[5]
+      myLTI1[k,'Lower'] <- ifelse (is.null(a.lower.ci), NA, a.lower.ci)
+      myLTI1[k,'Upper'] <- ifelse (is.null(a.upper.ci), NA, a.upper.ci)
+      # biennial
+      if(sum(myBootstrap2$t[,k], na.rm = TRUE) > 0){
+         b.lower.ci <- boot.ci(myBootstrap2, index=k, type='perc')$percent[4]
+         b.upper.ci <-  boot.ci(myBootstrap2, index=k, type='perc')$percent[5]
+         myLTI2[k,'Lower'] <- ifelse (is.null(b.lower.ci), NA, b.lower.ci)
+         myLTI2[k,'Upper'] <- ifelse (is.null(b.upper.ci), NA, b.upper.ci)
+      } else {next}
+   }
+}, error=function(e){cat("ERROR :",conditionMessage(e), "\n")})
 # combine AR sim results into single data set to plot
 dat2 <- rbind(myLTI0, myLTI1, myLTI2)
 dat2$Vac_Cov <- mylhc[row_lhc, "Vac_Cov"]
