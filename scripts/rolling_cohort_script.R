@@ -64,6 +64,7 @@ mylhc[, "Take"] <- qunif(mylhc[,"Take"], min = 0.5, max = 1)
 ## single run
 setwd("~/Dropbox/Kylie/Projects/morevac_manuscript/data")
 for (i in 1:dim(mylhc)[1]){
+cat("\n Simulation ",i," of",dim(mylhc)[1],"\n")
 # parameters
 n_sim = 100
 nindiv <- 30000
