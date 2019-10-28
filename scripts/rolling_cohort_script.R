@@ -31,19 +31,19 @@ setwd("~/Dropbox/Kylie/Projects/morevac_manuscript/data")
 # parallelize
 bins <- list(seq(1,100),seq(101,200),seq(201,300),seq(301,400),seq(401,500))
 # make cluster
-ncl <- detectCores()
-cl <- makeCluster(ncl)
-registerDoParallel(cl)
-j <- 1
+# ncl <- detectCores()
+# cl <- makeCluster(ncl)
+# registerDoParallel(cl)
+for (b in 2:5){
 #foreach(j=1:5, .packages = c('morevac','Rcpp')) %dopar% {
 
-loop_length <- length(bins[[j]])
+loop_length <- length(bins[[b]])
 for (i in 1:loop_length){
 cat("\n Simulation ",i," of",loop_length,"\n")
 # parameters
-n_sim = 50
+n_sim = 5
 nindiv <- 30000
-row_lhc <- bins[[j]][i]
+row_lhc <- bins[[b]][i]
 max_age = 80
 myyears <- 1820:2028
 mybetas <- c(0.4,rep(0.2,length(myyears)-1))
@@ -172,10 +172,10 @@ if(i == 1){li_out <- dat2
 }
 cat("\n Complete!")
 # write results to file
-write.csv(ar_out, file = paste0("ar_sim_data_",j,".csv"))
-write.csv(li_out, file = paste0("li_sim_data.csv_",j,".csv"))
-
-} # end foreach
+write.csv(ar_out, file = paste0("ar_sim_data_",b,".csv"))
+write.csv(li_out, file = paste0("li_sim_data.csv_",b,".csv"))
+} # end b loop
+# } # end foreach
 
 # stop cluster
-stopCluster(cl)
+# stopCluster(cl)
