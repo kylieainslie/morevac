@@ -172,8 +172,8 @@ if(i == 1){li_out <- dat2
 }
 cat("\n Complete!")
 # write results to file
-write.csv(ar_out, file = paste0("ar_sim_data_",b,".csv"))
-write.csv(li_out, file = paste0("li_sim_data.csv_",b,".csv"))
+write.csv(ar_out, file = paste0("attack_rates/ar_sim_data_",b,".csv"))
+write.csv(li_out, file = paste0("lifetime_infs/li_sim_data.csv_",b,".csv"))
 } # end b loop
 # } # end foreach
 
