@@ -117,6 +117,7 @@ p1 <- ggplot(data = dt_ar2, aes(x = VE, y = Attack_Rate, colour= Vac_Strategy)) 
   ylab('Attack Rate') +
   scale_y_continuous(limits = c(0,y_max), expand = c(0,0)) +
   facet_wrap(~Age)
+  #facet_grid(Age ~ Vac_Strategy)
 p1
 
 p1 <- p1 + theme(panel.grid.major = element_blank(),
