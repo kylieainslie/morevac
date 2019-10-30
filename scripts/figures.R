@@ -1,102 +1,68 @@
-
 ### Results figures ###
-### Figure 1 - wane = 0.5, vac stop @ 10
-# a) take = 1
-fig1a <- plot_sim_ar(sim = 100, years = 2000:2019, year_index = 181:200,
-                   wane = 0.5, take = 1, vac_cov = vac_cov_dat$Off_At_10)
-# b) take = 0.75
-fig1b <- plot_sim_ar(sim = 500, years = 2000:2019, year_index = 181:200,
-                     wane = 0.5, take = 0.7, vac_cov = vac_cov_dat$Off_At_10,
-                     show_legend = TRUE)
-# c) take = 0.5
-fig1c <- plot_sim_ar(sim = 100, years = 2000:2019, year_index = 181:200,
-                     wane = 0.5, take = 0.5, vac_cov = vac_cov_dat$Off_At_10,
-                     show_legend = FALSE)
 
-# d) take = 0.25
-fig1d <- plot_sim_ar(sim = 100, years = 2000:2019, year_index = 181:200,
-                     wane = 0.5, take = 0.25, vac_cov = vac_cov_dat$Off_At_10,
-                     show_legend = FALSE)
+###############################
+### Figure 1 - baseline     ###
+###############################
+# baseline figures: wane = 100%, take = 100%, epsilon = 0%, VE = 70%, rho = 90%
+p_ar_baseline <- ggplot(data = dat, aes(x = Age, y = Attack_Rate, colour= Vac_Strategy)) +
+  geom_line() +
+  geom_ribbon(aes(x=Age,ymin=Lower,ymax=Upper,linetype=NA, fill = Vac_Strategy),alpha=0.2) +
+  xlab("Age (years)") +
+  ylab("Attack Rate") +
+  #labs(fill = "Vaccination Strategy") +
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(colour = "black"),
+        legend.position = c(0.95, 0.95),
+        legend.justification = c("right", "top"),
+        legend.box.just = "right",
+        legend.margin = margin(6, 6, 6, 6),
+        legend.key = element_rect(fill = "white"))
+p_ar_baseline
+
+p_li_baseline <- ggplot(data=dat2a, aes(x=Vac_Status, y=Lifetime_Infs, fill=Vac_Strategy)) +
+                 geom_bar(stat="identity", color = "black", position=position_dodge(), width = 0.65) +
+                 geom_errorbar(aes(ymin=Lower, ymax=Upper), width=.2, position=position_dodge(.9)) +
+                 ylab('Number of Lifetime Infections') +
+                 xlab("Vaccination Status") +
+                 theme(panel.grid.major = element_blank(),
+                       panel.grid.minor = element_blank(),
+                       panel.background = element_blank(),
+                       axis.line = element_line(colour = "black"),
+                       legend.position = c(0.95, 0.95),
+                       legend.justification = c("right", "top"),
+                       legend.box.just = "right",
+                       legend.margin = margin(6, 6, 6, 6),
+                       legend.key = element_rect(fill = "white"))
+p_li_baseline
 
 theme_set(theme_cowplot(font_size=10)) # reduce default font size
-fig1 <- plot_grid(fig1a, fig1b, fig1c, fig1d, labels = "AUTO", ncol = 2,
-                  align = 'v', axis = 'l')
+fig1 <- plot_grid(p_ar_baseline, p_li_baseline, labels = "AUTO", ncol = 1,align = 'v', axis = 'l')
 # save figure
-png(filename = "figure1_penalty.png", width = 6, height = 6, units = "in", res = 300)
+png(filename = "figure1_baseline.png") #, width = 6, height = 6, units = "in", res = 300)
 plot(fig1)
 dev.off()
 
-theme_set(theme_cowplot(font_size=9)) # reduce default font size
-alt_fig1 <- plot_grid(fig1b, p_inf, labels = "AUTO", ncol = 2, align = 'v', axis = 'l')
-png(filename = "alt_figure1.png", width = 7, height = 4, units = "in", res = 300)
-plot(alt_fig1)
+pdf(filename = "figure1_baseline.pdf") #, width = 6, height = 6, units = "in", res = 300)
+plot(fig1)
 dev.off()
 
-### Figure 2 - diferent values of waning and vac coverage
-setwd("~/Box/Presentations/Options X/figures")
-# a) wane = 0.5, take = 0.7, vac_cov = 0.75
-fig2a <- plot_sim_ar(sim = 250, years = 2000:2019, year_index = 181:200,
-                     wane = 0.5, take = 0.7, vac_cov = vac_cov_dat$SeventyFive_Off_At_10,
-                     title = "Vaccinate 2-10 years, Vac Coverage = 75%, Wane = 0.5")
-png(filename = "figure2a.png", width = 6, height = 6, units = "in", res = 300)
-plot(fig2a)
-dev.off()
-
-# b) wane = 0.25, take = 0.7, vac_cov = 0.75
-fig2b <- plot_sim_ar(sim = 250, years = 2000:2019, year_index = 181:200,
-                     wane = 0.25, take = 0.7, vac_cov = vac_cov_dat$SeventyFive_Off_At_10,
-                     show_legend = FALSE,
-                     title = "Vaccinate 2-10 years, Vac Coverage = 75%, Wane = 0.25")
-png(filename = "figure2b.png", width = 6, height = 6, units = "in", res = 300)
-plot(fig2b)
-dev.off()
-
-# include this one!
-# c) wane = 0.5, take = 0.7, off @ 16
-fig2c <- plot_sim_ar(sim = 250, years = 2000:2019, year_index = 181:200,
-                     wane = 0.5, take = 0.7, vac_cov = vac_cov_dat$SeventyFive_Off_At_16,
-                     show_legend = FALSE,
-                     title = "Vaccinate 2-16 years, Vac Coverage = 75%, Wane = 0.5")
-png(filename = "figure2c.png", width = 6, height = 6, units = "in", res = 300)
-plot(fig2c)
-dev.off()
-
-### include this one!
-# d) wane = 0.25, take = 0.7, vac_cov = 0.75, off @ 16
-fig2d <- plot_sim_ar(sim = 250, years = 2000:2019, year_index = 181:200,
-                     wane = 0.25, take = 0.7, vac_cov = vac_cov_dat$SeventyFive_Off_At_16,
-                     show_legend = FALSE,
-                     title = "Vaccinate 2-16 years, Vac Coverage = 75%, Wane = 0.25")
-png(filename = "figure2d.png", width = 6, height = 6, units = "in", res = 300)
-plot(fig2d)
-dev.off()
-
-
-theme_set(theme_cowplot(font_size=10)) # reduce default font size
-fig2 <- plot_grid(fig2a, fig2b, fig2c, fig2d, labels = "AUTO", ncol = 2,
-                  align = 'v', axis = 'l')
-png(filename = "figure2.png", width = 6, height = 6, units = "in", res = 300)
-plot(fig2)
-dev.off()
+### Figure 2
 
 # from image files
-from_file_fig2a <- ggdraw() + draw_image("figure2a.png")
-from_file_fig2b <- ggdraw() + draw_image("figure2b.png")
-from_file_fig2c <- ggdraw() + draw_image("figure2c.png")
-from_file_fig2d <- ggdraw() + draw_image("figure2d.png")
-
-from_file_fig2 <- plot_grid(from_file_fig2a, from_file_fig2b, from_file_fig2c, from_file_fig2d, labels = "AUTO", ncol = 2,
-                            align = 'v', axis = 'l')
+# from_file_fig2a <- ggdraw() + draw_image("figure2a.png")
+#
+# from_file_fig2 <- plot_grid(from_file_fig2a, from_file_fig2b, from_file_fig2c, from_file_fig2d, labels = "AUTO", ncol = 2,
+#                             align = 'v', axis = 'l')
 # save figure
-png(filename = "figure2.png", width = 6, height = 6, units = "in", res = 300)
-plot(from_file_fig2)
-dev.off()
+# png(filename = "figure2.png", width = 6, height = 6, units = "in", res = 300)
+# plot(from_file_fig2)
+# dev.off()
 
-### Figure 3
-fig3b <- plot_sim_ar(sim = 25, years = 2000:2019, year_index = 181:200,
-                     wane = 0, take = 0.5, vac_cov = vac_cov_dat$Fifty_Off_At_10, drift_off = FALSE)
-
-### Model schematic figures
+###############################
+### Model schematic figures ###
+###############################
 # run multi-annual model
 out <- multiannual(n=10000, vac_coverage = vac_cov_dat$Off_At_10, vac_strategy = 1)
 # isolate birth cohort in 2000

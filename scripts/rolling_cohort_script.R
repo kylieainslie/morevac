@@ -15,41 +15,6 @@ library(boot)
 # load morevac package
 setwd("~/Documents/morevac")
 devtools::load_all()
-# determine vaccination coverages by age
-vac_cov_dat <- data.frame(Age = 0:79,
-                          No_Vaccination = c(rep(0,80)),
-                          Annual_Constant_Vac = c(rep(0,2),rep(0.5,78)),           # vaccination coverage is 50% for everyone <= 2
-                          Biannual_Constant_Vac = c(rep(0,2),rep(c(0.5,0),39)),
-                          Annual_Total_Vac = c(rep(0,2),rep(1,78)),               # vaccination coverage is 100% for everyone <= 2
-                          Biannual_Total_Vac = c(rep(0,2),rep(c(1,0),39)),
-                          Annual_Off_At_10 = c(rep(0,2),rep(0.75,8),rep(0,8),rep(0.5,62)),
-                          Biannual_Off_At_10 = c(rep(0,2),rep(c(0.75,0),4),rep(0,8),rep(c(0.5,0),31)),
-                          Annual_Off_At_16 = c(rep(0,2),rep(0.75,14),rep(0,2),rep(0.5,62)),
-                          Biannual_Off_At_16 = c(rep(0,2),rep(c(0.75,0),7),rep(0,2),rep(c(0.5,0),31))
-                          )
-
-# run multi-annual model
-out <- multiannual(n=10000, years = 1820:2028, betas = c(0.4, rep(0.2,208)), vac_coverage = vac_cov_dat$Biannual_Constant_Vac, vac_strategy = 2)
-
-# get attack rates
-ar_out <- get_attack_rates(inf_history = out$inf_history$inf_hist_mat, ages_mat = out$ages, years = 1820:2028)
-# plot total attack rates
-p_out <- plot_attack_rates(dat = ar_out$attack_rates)
-p_out
-
-# isolate birth cohorts starting in 2000 (years 181:200)
-my_cohorts <- get_cohorts(inf_history = out$inf_history$inf_hist_mat, vac_history = out$vac_history$vac_hist_mat, ages = out$ages,
-                          total_year_range = 1820:2028)
-cohort_sizes <- sapply(my_cohorts$cohort_ids, length)
-ninfs <- sapply(my_cohorts$inf_hist,function(x) apply(x,2,sum))
-colnames(ninfs) <- paste0("Cohort",1:10)
-cohort_ar <- sweep(ninfs, 2, cohort_sizes, FUN="/")
-avg_ar <- data.frame(Age = 0:18, Attack_Rate = apply(cohort_ar,1,mean))
-
-# plot attack rates
-p_cohort <- plot_attack_rates(dat = cohort_ar)
-p_cohort
-
 #######################################
 ### simulation
 ## create latin hypercube of parameter values to simulate over
@@ -63,28 +28,39 @@ mylhc[, "Take"] <- qunif(mylhc[,"Take"], min = 0.5, max = 1)
 # log_test2 <- 10^quantile(log_test,probs = mylhc[,"Epsilon"])
 ## single run
 setwd("~/Dropbox/Kylie/Projects/morevac_manuscript/data")
-for (i in 1:dim(mylhc)[1]){
+# parallelize
+bins <- list(seq(1,100),seq(101,200),seq(201,300),seq(301,400),seq(401,500))
+# make cluster
+# ncl <- detectCores()
+# cl <- makeCluster(ncl)
+# registerDoParallel(cl)
+for (b in 2:5){
+#foreach(j=1:5, .packages = c('morevac','Rcpp')) %dopar% {
+
+loop_length <- length(bins[[b]])
+for (i in 1:loop_length){
+cat("\n Simulation ",i," of",loop_length,"\n")
 # parameters
-n_sim = 100
+n_sim = 5
 nindiv <- 30000
-row_lhc <- i
+row_lhc <- bins[[b]][i]
 max_age = 80
 myyears <- 1820:2028
 mybetas <- c(0.4,rep(0.2,length(myyears)-1))
 vac_cut_off <- 10
-vac_cov_none <- c(rep(0,max_age))
-vac_cov_annual <- c(rep(0,2),rep(mylhc[row_lhc, "Vac_Cov"], vac_cut_off - 2), rep(0, max_age - vac_cut_off))
-vac_cov_biennial <- c(rep(0,2),rep(c(mylhc[row_lhc, "Vac_Cov"], 0), vac_cut_off/2 - 1), rep(0, max_age - vac_cut_off))
+vac_cov_dat <- data.frame(Age = 0:(max_age-1), No_Vac = numeric(max_age), Annual = numeric(max_age), Biennial = numeric(max_age))
+vac_cov_dat$Annual[3:(vac_cut_off + 1)] <- mylhc[row_lhc,"Vac_Cov"]
+vac_cov_dat$Biennial[seq(3,vac_cut_off+1,2)] <- mylhc[row_lhc,"Vac_Cov"]
 # output note to user
 cat("\n No vaccination simulation running... \n")
 # returns 3 arrays with inf_hist_mat, vac_hist_mat, and ages_mat from each sim
-sim_test0 <- run_sim_2(sim = n_sim, n = nindiv, years = myyears, betas = mybetas, vac_cov = vac_cov_none, vac_strategy = 0,
+sim_test0 <- run_sim_2(sim = n_sim, n = nindiv, years = myyears, betas = mybetas, vac_cov = vac_cov_dat$No_Vac, vac_strategy = 0,
                        wane = mylhc[row_lhc, "Waning"], take = mylhc[row_lhc, "Take"], epsilon = mylhc[row_lhc, "Epsilon"], vac_protect = mylhc[row_lhc, "VE"], rho = mylhc[row_lhc, "Rho"])
 cat("\n Annual vaccination simulation running... \n")
-sim_test1 <- run_sim_2(sim = n_sim, n = nindiv, years = myyears, betas = mybetas, vac_cov = vac_cov_annual, vac_strategy = 1,
+sim_test1 <- run_sim_2(sim = n_sim, n = nindiv, years = myyears, betas = mybetas, vac_cov = vac_cov_dat$Annual, vac_strategy = 1,
                        wane = mylhc[row_lhc, "Waning"], take = mylhc[row_lhc, "Take"], epsilon = mylhc[row_lhc, "Epsilon"], vac_protect = mylhc[row_lhc, "VE"], rho = mylhc[row_lhc, "Rho"])
 cat("\n Every other year vaccination simulation running... \n")
-sim_test2 <- run_sim_2(sim = n_sim, n = nindiv, years = myyears, betas = mybetas, vac_cov = vac_cov_biennial, vac_strategy = 2,
+sim_test2 <- run_sim_2(sim = n_sim, n = nindiv, years = myyears, betas = mybetas, vac_cov = vac_cov_dat$Biennial, vac_strategy = 2,
                        wane = mylhc[row_lhc, "Waning"], take = mylhc[row_lhc, "Take"], epsilon = mylhc[row_lhc, "Epsilon"], vac_protect = mylhc[row_lhc, "VE"], rho = mylhc[row_lhc, "Rho"])
 
 # post process sim results
@@ -196,6 +172,10 @@ if(i == 1){li_out <- dat2
 }
 cat("\n Complete!")
 # write results to file
-write.csv(ar_out, file = "ar_sim_data.csv")
-write.csv(li_out, file = "li_sim_data.csv")
+write.csv(ar_out, file = paste0("attack_rates/ar_sim_data_",b,".csv"))
+write.csv(li_out, file = paste0("lifetime_infs/li_sim_data.csv_",b,".csv"))
+} # end b loop
+# } # end foreach
 
+# stop cluster
+# stopCluster(cl)
