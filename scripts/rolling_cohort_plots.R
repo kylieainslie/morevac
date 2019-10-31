@@ -2,8 +2,6 @@
 ### plots for rolling cohort ###
 ################################
 ### read in output files
-#ar_dat <- read.csv(file = "ar_sim_data.csv", header = TRUE)[,-1]
-#li_dat <- read.csv(file = "li_sim_data.csv", header = TRUE)[,-1]
 library(data.table)
 setwd("~/Dropbox/Kylie/Projects/morevac_manuscript/data/attack_rates")
 files1 = list.files(pattern="*.csv")
@@ -12,29 +10,24 @@ dt_ar = do.call(rbind, lapply(files1, fread))[,-1]
 setwd("~/Dropbox/Kylie/Projects/morevac_manuscript/data/lifetime_infs")
 files2 <- list.files(pattern="*.csv")
 dt_li = do.call(rbind, lapply(files2, fread))[,-1]
-dt_li2 <- cbind(dt_li[,1:2],round(dt_li[,c(6:11)],1))
-# The same using `rbindlist`
-#DT = rbindlist(lapply(files, fread))
 
 ### set working directory to save figures in
 setwd("~/Dropbox/Kylie/Projects/morevac_manuscript/figures")
 
-### lifetime infection plots
-# gradient plot of lifetime infections exposure penalty (epsilon) and take
-# heatmap (looks better)
+################################
+### lifetime infection plots ###
+################################
+dt_li2 <- cbind(dt_li[,1:2],round(dt_li[,c(6:11)],2))
+#dt_li[,-c(1,2)] <- round(dt_li[,-c(1,2)],2)
+
+### heatmap
 p_heat <- ggplot(dt_li2, aes(x = Take, y = Waning, fill = Lifetime_Infs)) +
   geom_tile(alpha=0.2) +
   viridis::scale_fill_viridis()
 p_heat
-# gradient (raster)
-p_raster <- ggplot(dt_li2, aes(x = Take, y = Waning, z = Lifetime_Infs))+
-  geom_raster(aes(fill = Lifetime_Infs), alpha = 0.5) +
-  scale_fill_gradient() + #low = "white", high = "blue"
-  labs(fill = "Lifetime Infections")
-p_raster
 
-# bar plot with CI for number of lifetime infections by vac_strategy (binned by number of vacs)
-# need to subset by different parameter values
+### bar chart
+#   with CI for number of lifetime infections by vac_strategy (binned by number of vacs)
 # aggregate over all param values
 aggdata <-aggregate(li_dat, by=list(li_dat$Num_Vacs,li_dat$Vac_Strategy),FUN=median, na.rm=TRUE)
 p_point <- ggplot(li_dat, aes(x=Num_Vacs, y=Lifetime_Infs)) +
@@ -43,60 +36,38 @@ p_point <- ggplot(li_dat, aes(x=Num_Vacs, y=Lifetime_Infs)) +
     binaxis='y', stackdir='center', dotsize = 0.8,
     position = position_dodge(0.8)
   )
+# try facet_wrap()
 
-### attack rate plots
-dt_ar2 <- cbind(dt_ar[,1:2],round(dt_ar[,c(3:11)],2))
-dt_ar3 <- cbind(dt_ar[,1:3],round(dt_ar[,c(3:11)],1))
+#########################
+### attack rate plots ###
+#########################
+# create AR difference and AR ratio variables
+dt_ar_sub <- dt_ar[dt_ar$Vac_Strategy == "Annual",]
+dt_ar_sub$Diff <- dt_ar[dt_ar$Vac_Strategy == "Annual",3] - dt_ar[dt_ar$Vac_Strategy == "Every Other Year",3]
+dt_ar_sub$ Ratio <- dt_ar[dt_ar$Vac_Strategy == "Annual",3] / dt_ar[dt_ar$Vac_Strategy == "Every Other Year",3]
 
-# create new variable that is ratio of annual AR and biennial AR
-dt_ar2_sub1 <- dt_ar2[dt_ar2$Vac_Strategy == "Annual",]
-dt_ar2_sub2 <- dt_ar2[dt_ar2$Vac_Strategy == "Every Other Year",]
+### heatmap
+# for better heatmap resolution, round parameter values
+dt_ar2 <- cbind(dt_ar[,1:2],round(dt_ar[,c(3:11)],2)) # round to 2 decimal places
+dt_ar3 <- cbind(dt_ar[,1:3],round(dt_ar[,c(3:11)],1)) # round to 1 decimal place
 
-dt_ar2_sub1$Ratio <- round(dt_ar2_sub1$Attack_Rate/dt_ar2_sub2$Attack_Rate,2)
-
-## 2 variable plots
-
-p_heat2_vs0 <- ggplot(dt_ar3[dt_ar3$Vac_Strategy == "No Vaccination"], aes(x = Take, y = Waning, fill = Ratio)) +
+p_heat2 <- ggplot(dt_ar2[dt_ar2$Vac_Strategy!="No Vaccination"], aes(x = VE, y = Vac_Cov, fill = Attack_Rate)) +
   geom_tile(alpha=0.2) +
-  #scale_fill_gradient(breaks=seq(0,0.2, by=0.05)) +
-  #scale_fill_continuous(limits=c(0, 0.2), breaks=seq(0,0.2,by=0.05)) +
   viridis::scale_fill_viridis() +
-  facet_wrap(~Age) +
+  #facet_wrap(~Age) +
+  facet_grid(Vac_Strategy ~ Age) +
   theme(panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
         panel.background = element_blank())
+p_heat2
 
-p_heat2_vs1 <- ggplot(dt_ar3[dt_ar3$Vac_Strategy == "Annual"], aes(x = VE, y = Vac_Cov, fill = Attack_Rate)) +
-  geom_tile(alpha=0.2) +
-  viridis::scale_fill_viridis() +
-  facet_wrap(~Age) +
-  theme(panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.background = element_blank())
-p_heat2_vs1
-
-p_heat2_vs2 <- ggplot(dt_ar3[dt_ar3$Vac_Strategy == "Every Other Year"], aes(x = Take, y = Waning, fill = Attack_Rate)) +
-  geom_tile(alpha=0.2) +
-  viridis::scale_fill_viridis() +
-  facet_wrap(~Age) +
-  theme(panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.background = element_blank())
-
-
-theme_set(theme_cowplot(font_size=10)) # reduce default font size
-p_heat2_all <- plot_grid(p_heat2_vs1, p_heat2_vs2,labels = "AUTO", ncol = 1, align = 'v', axis = 'l')
-
-
-png(file = "ar_take_vs_waning_by_age.png")
-p_heat2_all
+png(file = "ar_heatmap_VE_vs_VacCov.png", width = 8, units = 'in')
+p_heat2
 dev.off()
 
-# plot ratio
-# lower resolution
-dt_ar3_sub <- cbind(dt_ar3[dt_ar3$Vac_Strategy == "Annual",], Ratio = dt_ar2_sub1$Ratio)
-
-p_heat_ratio <- ggplot(dt_ar3_sub, aes(x = VE, y = Waning, fill = Ratio)) +
+### heatmap using ratio: annual AR / biennial AR
+# create new ratio variable
+p_heat_ratio <- ggplot(dt_ar2_sub1, aes(x = VE, y = Waning, fill = Ratio)) +
   geom_tile(alpha=0.2) +
   viridis::scale_fill_viridis() +
   facet_wrap(~Age) +
@@ -105,32 +76,53 @@ p_heat_ratio <- ggplot(dt_ar3_sub, aes(x = VE, y = Waning, fill = Ratio)) +
         panel.background = element_blank())
 p_heat_ratio
 
-## single variable plots
-y_max <- 0.3
-legend_x <- 0.95
-legend_y <- 0.95
+### spaghetti plot
+# create group variable for each unique set of parameter values
+library(dplyr)
+dt_ar <- dt_ar %>%
+         mutate(ID = group_indices(., Vac_Cov, Waning,Take,Epsilon,Rho,VE),
+                EpsilonGroup = cut(Epsilon, c(0,0.1,0.2,0.3,0.4,0.5),
+                                   labels = c("<0.1","[0.1,0.2)","[0.2,0.3)","[0.3,0.4)","[0.4,0.5)")))
 
-p1 <- ggplot(data = dt_ar2, aes(x = VE, y = Attack_Rate, colour= Vac_Strategy)) +
-  geom_point() +
-  #geom_ribbon(aes(x=Age,ymin=Lower,ymax=Upper,linetype=NA, fill = Vac_Strategy),alpha=0.2)+
-  xlab('VE') +
-  ylab('Attack Rate') +
-  scale_y_continuous(limits = c(0,y_max), expand = c(0,0)) +
-  facet_wrap(~Age)
-  #facet_grid(Age ~ Vac_Strategy)
+p_spaghetti <- ggplot(dt_ar, aes(x = Age, y = Attack_Rate, group = ID, color = ID)) +
+               geom_line() + viridis::scale_color_viridis() +
+               facet_grid(EpsilonGroup ~ Vac_Strategy) +
+               theme(legend.position = "none")
+p_spaghetti
+
+png(file = "ar_spaghetti.png")
+p_spaghetti
+dev.off()
+
+### univariate scatter plots
+p1 <- ggplot(data = dt_ar_sub, aes(x = VE, y = Diff,color = Diff)) +
+      geom_point() +
+      viridis::scale_color_viridis() +
+      geom_hline(yintercept = 0) +
+      #xlab('VE') +
+      ylab('Difference in Attack Rate') +
+      #scale_x_continuous(labels = c(0,.01,.02,.03,.04,.05))+
+      facet_wrap(~Age)
 p1
 
-p1 <- p1 + theme(panel.grid.major = element_blank(),
-                 panel.grid.minor = element_blank(),
-                 panel.background = element_blank(),
-                 axis.line = element_line(colour = "black"),
-                 legend.position = c(legend_x, legend_y),
-                 legend.justification = c("right", "top"),
-                 legend.box.just = "right",
-                 legend.margin = margin(6, 6, 6, 6),
-                 legend.key = element_rect(fill = "white"))
+png(file = "ar_diff_scatter_ve.png", width = 10, height = 8,
+    units = "in", pointsize = 8, res = 300)
+p1
+dev.off()
+
+### bivariate scatter plots
+p2 <- ggplot(data = dt_ar_sub, aes(x = VE, y = Take,color = Diff)) +
+      geom_point() +
+      viridis::scale_color_viridis() +
+      facet_wrap(~Age)
 p1
 
+png(file = "ar_diff_scatter_ve+take.png", width = 10, height = 8,
+    units = "in", pointsize = 8, res = 300)
+p1
+dev.off()
+
+### Miscallaneous
 legend_x <- 0.25
 legend_y <- 0.95
 tmp$Num_Vacs <- factor(tmp$Num_Vacs)
@@ -154,3 +146,14 @@ p2
 png(file = "rolling_cohort_off_at_10_sim500.png")
 p1
 dev.off()
+
+# p1 <- p1 + theme(panel.grid.major = element_blank(),
+#                  panel.grid.minor = element_blank(),
+#                  panel.background = element_blank(),
+#                  axis.line = element_line(colour = "black"),
+#                  legend.position = c(legend_x, legend_y),
+#                  legend.justification = c("right", "top"),
+#                  legend.box.just = "right",
+#                  legend.margin = margin(6, 6, 6, 6),
+#                  legend.key = element_rect(fill = "white"))
+# p1
