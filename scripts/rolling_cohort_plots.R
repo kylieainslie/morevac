@@ -44,7 +44,7 @@ p_point <- ggplot(li_dat, aes(x=Num_Vacs, y=Lifetime_Infs)) +
 # create AR difference and AR ratio variables
 dt_ar_sub <- dt_ar[dt_ar$Vac_Strategy == "Annual",]
 dt_ar_sub$Diff <- dt_ar[dt_ar$Vac_Strategy == "Annual",3] - dt_ar[dt_ar$Vac_Strategy == "Every Other Year",3]
-dt_ar_sub$ Ratio <- dt_ar[dt_ar$Vac_Strategy == "Annual",3] / dt_ar[dt_ar$Vac_Strategy == "Every Other Year",3]
+dt_ar_sub$Ratio <- dt_ar[dt_ar$Vac_Strategy == "Annual",3] / dt_ar[dt_ar$Vac_Strategy == "Every Other Year",3]
 
 ### heatmap
 # for better heatmap resolution, round parameter values
@@ -81,16 +81,16 @@ p_heat_ratio
 library(dplyr)
 dt_ar <- dt_ar %>%
          mutate(ID = group_indices(., Vac_Cov, Waning,Take,Epsilon,Rho,VE),
-                EpsilonGroup = cut(Epsilon, c(0,0.1,0.2,0.3,0.4,0.5),
+                EpsilonGroup = cut(Epsilon, breaks = 5,
                                    labels = c("<0.1","[0.1,0.2)","[0.2,0.3)","[0.3,0.4)","[0.4,0.5)")))
 
 p_spaghetti <- ggplot(dt_ar, aes(x = Age, y = Attack_Rate, group = ID, color = ID)) +
-               geom_line() + viridis::scale_color_viridis() +
-               facet_grid(EpsilonGroup ~ Vac_Strategy) +
+               geom_line() + viridis::scale_fill_viridis() +
+               facet_grid(Vac_Strategy ~ EpsilonGroup) +
                theme(legend.position = "none")
 p_spaghetti
 
-png(file = "ar_spaghetti.png")
+png(file = "ar_spaghetti_epsilongroup2.png")
 p_spaghetti
 dev.off()
 
@@ -111,15 +111,22 @@ p1
 dev.off()
 
 ### bivariate scatter plots
-p2 <- ggplot(data = dt_ar_sub, aes(x = VE, y = Take,color = Diff)) +
+p2 <- ggplot(data = dt_ar_sub, aes(x = Rho, y = Vac_Cov, color = Diff)) +
       geom_point() +
       viridis::scale_color_viridis() +
-      facet_wrap(~Age)
-p1
+      facet_wrap(~Age) +
+      ylab("Correlation of Vaccination (Rho)") +
+      labs(color = "Difference") +
+      theme(panel.grid.major = element_blank(),
+            panel.grid.minor = element_blank(),
+            panel.background = element_blank(),
+            axis.line = element_line(colour = "black")
+            )
+p2
 
-png(file = "ar_diff_scatter_ve+take.png", width = 10, height = 8,
+png(file = "ar_diff_scatter_rho+vaccov.png", width = 10, height = 8,
     units = "in", pointsize = 8, res = 300)
-p1
+p2
 dev.off()
 
 ### Miscallaneous
