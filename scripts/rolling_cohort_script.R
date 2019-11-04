@@ -18,8 +18,8 @@ devtools::load_all()
 #######################################
 ### simulation
 ## create latin hypercube of parameter values to simulate over
-#set.seed(1234)
-set.seed(5678)
+set.seed(1234)
+#set.seed(5678)
 mylhc <- randomLHS(500, 6)
 colnames(mylhc) <- c("Vac_Cov", "Waning", "Take", "Epsilon", "Rho", "VE")
 mylhc[, "Epsilon"] <- qunif(mylhc[,"Epsilon"], min = 0.001, max = 0.05)
@@ -173,9 +173,8 @@ if(i == 1){li_out <- dat2
 }
 cat("\n Complete!")
 # write results to file
-new_b <- b+5
-write.csv(ar_out, file = paste0("attack_rates/ar_sim_data_",new_b,".csv"))
-write.csv(li_out, file = paste0("lifetime_infs/li_sim_data.csv_",new_b,".csv"))
+write.csv(ar_out, file = paste0("attack_rates/ar_sim_data_",b,".csv"))
+write.csv(li_out, file = paste0("lifetime_infs/li_sim_data_",b,".csv"))
 } # end b loop
 # } # end foreach
 
