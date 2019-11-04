@@ -40,7 +40,7 @@ loop_length <- length(bins[[b]])
 for (i in 1:loop_length){
 cat("\n Simulation ",i," of",loop_length,"\n")
 # parameters
-n_sim = 20
+n_sim = 5
 nindiv <- 30000
 row_lhc <- bins[[b]][i]
 max_age = 80
@@ -103,12 +103,12 @@ myLI2b <- boot_li(dat = sim2_results$Lifetime_Infections, vac_strategy = "Every 
 
 # combine LI sim results into single data set to plot
 dat2_a <- rbind(myLI0a, myLI1a, myLI2a)
-dat2$Vac_Cov <- mylhc[row_lhc, "Vac_Cov"]
-dat2$Waning <- mylhc[row_lhc, "Waning"]
-dat2$Take = mylhc[row_lhc, "Take"]
-dat2$Epsilon = mylhc[row_lhc, "Epsilon"]
-dat2$Rho = mylhc[row_lhc, "Rho"]
-dat2$VE = mylhc[row_lhc, "VE"]
+dat2_a$Vac_Cov <- mylhc[row_lhc, "Vac_Cov"]
+dat2_a$Waning <- mylhc[row_lhc, "Waning"]
+dat2_a$Take = mylhc[row_lhc, "Take"]
+dat2_a$Epsilon = mylhc[row_lhc, "Epsilon"]
+dat2_a$Rho = mylhc[row_lhc, "Rho"]
+dat2_a$VE = mylhc[row_lhc, "VE"]
 
 dat2_b <- rbind(myLI0b, myLI1b, myLI2b)
 dat2_b <- cbind(dat2_b,dat2_a[,6:11]) # add parameter values columns
