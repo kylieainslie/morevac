@@ -35,13 +35,20 @@ postprocess_sim_results_for_rolling_cohort <- function(simdat, nsim = 100, total
     tmp <- data.frame(Lifetime_Infs = unlist(lifetime_infs), Num_Vacs = unlist(num_vacs))
     avg_tmp <- ddply(tmp,~Num_Vacs,summarise,med = median(Lifetime_Infs), mean = mean(Lifetime_Infs))
     avg_tmp$sim <- c(rep(s,dim(avg_tmp)[1]))
+    tmp2 <- data.frame(sim = s, total_mean = mean(tmp$Lifetime_Infs))
 
-    if (s == 1){avg_lifetime_infs <- avg_tmp
-    } else {avg_lifetime_infs <- rbind(avg_lifetime_infs, avg_tmp)}
+    if (s == 1){
+      avg_lifetime_infs <- avg_tmp
+      total_lifetime_infs <- tmp2
+    } else {
+      avg_lifetime_infs <- rbind(avg_lifetime_infs, avg_tmp)
+      total_lifetime_infs <- rbind(total_lifetime_infs, tmp2)
+      }
 
   }
   rtn <- list(Attack_Rate_Mean = t(avg_ar),
               Attack_Rate_Median = t(med_ar),
-              Lifetime_Infections = avg_lifetime_infs)
+              Lifetime_Infections = avg_lifetime_infs,
+              Total_Lifetime_Infections = total_lifetime_infs)
   return(rtn)
 }
