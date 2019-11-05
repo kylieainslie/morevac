@@ -7,7 +7,7 @@ setwd("~/Dropbox/Kylie/Projects/morevac_manuscript/data/attack_rates")
 files1 = list.files(pattern="*.csv")
 dt_ar = do.call(rbind, lapply(files1, fread))[,-1]
 
-setwd("~/Dropbox/Kylie/Projects/morevac_manuscript/data/lifetime_infs")
+setwd("~/Dropbox/Kylie/Projects/morevac_manuscript/data/lifetime_infs/mean")
 files2 <- list.files(pattern="*.csv")
 dt_li = do.call(rbind, lapply(files2, fread))[,-1]
 
@@ -21,24 +21,27 @@ dt_li2 <- cbind(dt_li[,1:2],round(dt_li[,c(6:11)],2))
 #dt_li[,-c(1,2)] <- round(dt_li[,-c(1,2)],2)
 
 ### univariate scatter plots
-dt_li_sub <- dt_li[!is.na(dt_li$Lifetime_Infs),]
-fully_vac <- dt_li_sub[(dt_li_sub$Num_Vacs == 5 & dt_li_sub$Vac_Strategy == "Every Other Year")
-                       | (dt_li_sub$Num_Vacs == 9 & dt_li_sub$Vac_Strategy == "Annual"),]
-fully_vac <- fully_vac[!is.na(fully_vac$Lifetime_Infs),]
+fully_vac <- dt_li[(dt_li$Num_Vacs == 5 & dt_li$Vac_Strategy == "Every Other Year")
+                       | (dt_li$Num_Vacs == 9 & dt_li$Vac_Strategy == "Annual"),]
 
 p1 <- ggplot(data = fully_vac, aes(x = Epsilon, y = Lifetime_Infs,color = Lifetime_Infs)) +
   geom_point() +
   viridis::scale_color_viridis() +
-  facet_grid(. ~ Vac_Strategy)
-  #geom_hline(yintercept = 0) +
-  #xlab('VE') +
-  #ylab('Difference in Attack Rate')
+  facet_grid(. ~ Vac_Strategy) +
+  xlab('Exposure Penalty') +
+  ylab('Lifetime Infections')
 p1
 
-png(file = "li_scatter_ve.png", width = 10, height = 8,
+png(file = "li_scatter_epsilon.png", width = 10, height = 8,
     units = "in", pointsize = 8, res = 300)
 p1
 dev.off()
+
+# plot the difference in lifetime infs
+fully_vac2a <- fully_vac[fully_vac$Vac_Strategy == "Annual",]
+fully_vac2b <- fully_vac[fully_vac$Vac_Strategy == "Every Other Year",]
+fully_vac2$Diff <-
+
 
 ### heatmap
 p_heat <- ggplot(dt_li2, aes(x = Take, y = Waning, fill = Lifetime_Infs)) +
