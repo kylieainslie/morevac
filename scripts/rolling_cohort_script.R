@@ -69,68 +69,57 @@ sim2_results <- postprocess_sim_results_for_rolling_cohort(simdat = sim_test2, t
 
 cat("\n Bootstrapping... \n")
 # bootstrapping
-myAR0a <- boot_ar(dat = sim0_results$Attack_Rate_Median, vac_strategy = "No Vaccination", stat = "median")
-myAR1a <- boot_ar(dat = sim1_results$Attack_Rate_Median, vac_strategy = "Annual", stat = "median")
-myAR2a <- boot_ar(dat = sim2_results$Attack_Rate_Median, vac_strategy = "Every Other Year", stat = "median")
-
-myAR0b <- boot_ar(dat = sim0_results$Attack_Rate_Mean, vac_strategy = "No Vaccination", stat = "mean")
-myAR1b <- boot_ar(dat = sim1_results$Attack_Rate_Mean, vac_strategy = "Annual", stat = "mean")
-myAR2b <- boot_ar(dat = sim2_results$Attack_Rate_Mean, vac_strategy = "Every Other Year", stat = "mean")
+myAR0 <- boot_ar(dat = sim0_results$Attack_Rate_Median, vac_strategy = "No Vaccination", stat = "mean")
+myAR1 <- boot_ar(dat = sim1_results$Attack_Rate_Median, vac_strategy = "Annual", stat = "mean")
+myAR2 <- boot_ar(dat = sim2_results$Attack_Rate_Median, vac_strategy = "Every Other Year", stat = "mean")
 
 # combine AR sim results into single data set to plot
 ### median dataset
-dat_a <- rbind(myAR0a, myAR1a, myAR2a)
-dat_a$Vac_Cov <- mylhc[row_lhc, "Vac_Cov"]
-dat_a$Waning <- mylhc[row_lhc, "Waning"]
-dat_a$Take = mylhc[row_lhc, "Take"]
-dat_a$Epsilon = mylhc[row_lhc, "Epsilon"]
-dat_a$Rho = mylhc[row_lhc, "Rho"]
-dat_a$VE = mylhc[row_lhc, "VE"]
-
-### mean dataset
-dat_b <- rbind(myAR0b, myAR1b, myAR2b)
-dat_b <- cbind(dat_b,dat_a[,6:11]) # add parameter values columns
-
+dat <- rbind(myAR0, myAR1, myAR2)
+dat$Vac_Cov <- mylhc[row_lhc, "Vac_Cov"]
+dat$Waning <- mylhc[row_lhc, "Waning"]
+dat$Take = mylhc[row_lhc, "Take"]
+dat$Epsilon = mylhc[row_lhc, "Epsilon"]
+dat$Rho = mylhc[row_lhc, "Rho"]
+dat$VE = mylhc[row_lhc, "VE"]
 
 # bootstrapping
-myLI0a <- boot_li(dat = sim0_results$Lifetime_Infections, vac_strategy = "No Vaccination", stat = "median")
-myLI1a <- boot_li(dat = sim1_results$Lifetime_Infections, vac_strategy = "Annual", stat = "median")
-myLI2a <- boot_li(dat = sim2_results$Lifetime_Infections, vac_strategy = "Every Other Year", stat = "median")
+myLI0 <- boot_li(dat = sim0_results$Lifetime_Infections, vac_strategy = "No Vaccination", stat = "mean")
+myLI1 <- boot_li(dat = sim1_results$Lifetime_Infections, vac_strategy = "Annual", stat = "mean")
+myLI2 <- boot_li(dat = sim2_results$Lifetime_Infections, vac_strategy = "Every Other Year", stat = "mean")
 
-myLI0b <- boot_li(dat = sim0_results$Lifetime_Infections, vac_strategy = "No Vaccination", stat = "mean")
-myLI1b <- boot_li(dat = sim1_results$Lifetime_Infections, vac_strategy = "Annual", stat = "mean")
-myLI2b <- boot_li(dat = sim2_results$Lifetime_Infections, vac_strategy = "Every Other Year", stat = "mean")
+# bootstrap difference
+li_diff <- sim1_results$Total_Lifetime_Infections$total_mean - sim2_results$Total_Lifetime_Infections$total_mean
+boot_diff <- boot(li_diff, statistic = function(x, d) {return(mean(x[d]))}, R = 1000)
+diff_lower <- boot.ci(boot_diff, index=1, type='perc')$percent[4]
+diff_upper<- boot.ci(boot_diff, index=1, type='perc')$percent[5]
 
 # combine LI sim results into single data set to plot
-dat2_a <- rbind(myLI0a, myLI1a, myLI2a)
-dat2_a$Vac_Cov <- mylhc[row_lhc, "Vac_Cov"]
-dat2_a$Waning <- mylhc[row_lhc, "Waning"]
-dat2_a$Take = mylhc[row_lhc, "Take"]
-dat2_a$Epsilon = mylhc[row_lhc, "Epsilon"]
-dat2_a$Rho = mylhc[row_lhc, "Rho"]
-dat2_a$VE = mylhc[row_lhc, "VE"]
-
-dat2_b <- rbind(myLI0b, myLI1b, myLI2b)
-dat2_b <- cbind(dat2_b,dat2_a[,6:11]) # add parameter values columns
+dat2 <- rbind(myLI0, myLI1, myLI2)
+dat2$Diff <- boot_diff$t0
+dat2$Diff_Lower <- diff_lower
+dat2$Diff_Upper <- diff_upper
+dat2$Vac_Cov <- mylhc[row_lhc, "Vac_Cov"]
+dat2$Waning <- mylhc[row_lhc, "Waning"]
+dat2$Take = mylhc[row_lhc, "Take"]
+dat2$Epsilon = mylhc[row_lhc, "Epsilon"]
+dat2$Rho = mylhc[row_lhc, "Rho"]
+dat2$VE = mylhc[row_lhc, "VE"]
 
 if (i == 1){
-   ar_out_a <- dat_a
-   ar_out_b <- dat_b
-   li_out_a <- dat2_a
-   li_out_b <- dat2_b
+   ar_out <- dat
+   li_out <- dat2
 } else {
-   ar_out_a <- rbind(ar_out_a, dat_a)
-   ar_out_b <- rbind(ar_out_b, dat_b)
-   li_out_a <- rbind.fill(li_out_a, dat2_a)
-   li_out_b <- rbind.fill(li_out_b, dat2_b)
+   ar_out <- rbind(ar_out, dat)
+   li_out <- rbind.fill(li_out, dat2)
 }
 }
 cat("\n Complete!")
 # write results to file
-write.csv(ar_out_a, file = paste0("attack_rates/ar_sim_data_median_",b,".csv"))
-write.csv(ar_out_b, file = paste0("attack_rates/ar_sim_data_mean_",b,".csv"))
-write.csv(li_out_a, file = paste0("lifetime_infs/li_sim_data_median_",b,".csv"))
-write.csv(li_out_b, file = paste0("lifetime_infs/li_sim_data_mean_",b,".csv"))
+#write.csv(ar_out_a, file = paste0("attack_rates/ar_sim_data_median_",b,".csv"))
+write.csv(ar_out, file = paste0("attack_rates/ar_sim_data_mean_",b,".csv"))
+#write.csv(li_out_a, file = paste0("lifetime_infs/li_sim_data_median_",b,".csv"))
+write.csv(li_out, file = paste0("lifetime_infs/li_sim_data_mean_",b,".csv"))
 
 } # end b loop
 # } # end foreach
