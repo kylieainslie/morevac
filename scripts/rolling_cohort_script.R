@@ -20,27 +20,28 @@ devtools::load_all()
 ## create latin hypercube of parameter values to simulate over
 set.seed(1234)
 #set.seed(5678)
-mylhc <- randomLHS(500, 6)
+mylhc <- randomLHS(1000, 6)
 colnames(mylhc) <- c("Vac_Cov", "Waning", "Take", "Epsilon", "Rho", "VE")
-mylhc[, "Epsilon"] <- qunif(mylhc[,"Epsilon"], min = 0.001, max = 0.05)
-mylhc[, "Vac_Cov"] <- qunif(mylhc[,"Vac_Cov"], min = 0.301, max = 0.806) # range from 2018-2019 PHE estimates of VC in school-aged children: https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/806289/Childhood_flu_annual_report_2018_19_FINAL_.pdf
-mylhc[, "Take"] <- qunif(mylhc[,"Take"], min = 0.5, max = 1)
+# mylhc[, "Epsilon"] <- qunif(mylhc[,"Epsilon"], min = 0.001, max = 0.05)
+# mylhc[, "Vac_Cov"] <- qunif(mylhc[,"Vac_Cov"], min = 0.20, max = 0.5) # range from 2018-2019 PHE estimates of VC in school-aged children: https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/806289/Childhood_flu_annual_report_2018_19_FINAL_.pdf
+# mylhc[, "Take"] <- qunif(mylhc[,"Take"], min = 0.5, max = 1)
 # run simulations
 setwd("~/Dropbox/Kylie/Projects/morevac_manuscript/data")
 # parallelize
-bins <- list(seq(1,100),seq(101,200),seq(201,300),seq(301,400),seq(401,500))
+bins <- list(seq(1,100),seq(101,200),seq(201,300),seq(301,400),seq(401,500),
+             seq(501,600),seq(601,700),seq(701,800),seq(801,900),seq(901,1000))
 # make cluster
 # ncl <- detectCores()
 # cl <- makeCluster(ncl)
 # registerDoParallel(cl)
-for (b in 1:5){
+for (b in 1:10){
 #foreach(j=1:5, .packages = c('morevac','Rcpp')) %dopar% {
 
 loop_length <- length(bins[[b]])
 for (i in 1:loop_length){
 cat("\n Simulation ",i," of",loop_length,"\n")
 # parameters
-n_sim = 5
+n_sim = 10
 nindiv <- 30000
 row_lhc <- bins[[b]][i]
 max_age = 80
