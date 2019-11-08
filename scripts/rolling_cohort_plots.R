@@ -17,7 +17,7 @@ setwd("~/Dropbox/Kylie/Projects/morevac_manuscript/figures")
 ################################
 ### lifetime infection plots ###
 ################################
-dt_li2 <- cbind(dt_li[,1:2],round(dt_li[,c(6:11)],2))
+#dt_li2 <- cbind(dt_li[,1:2],round(dt_li[,c(6:11)],2))
 #dt_li[,-c(1,2)] <- round(dt_li[,-c(1,2)],2)
 
 ### characterising difference in lifetime infections between annual and every other year
@@ -36,25 +36,89 @@ p_hist
 #fully_vac <- dt_li[(dt_li$Num_Vacs == 5 & dt_li$Vac_Strategy == "Every Other Year")
 #                       | (dt_li$Num_Vacs == 9 & dt_li$Vac_Strategy == "Annual"),]
 
-p1 <- ggplot(data = diff_sub, aes(x = Waning, y = Diff, color = Diff)) +
+p_ve <- ggplot(data = diff_sub, aes(x = VE, y = Diff, color = Diff)) +
   geom_point() +
   geom_errorbar(aes(ymin=Diff_Lower, ymax=Diff_Upper)) +
   viridis::scale_color_viridis() +
   #facet_grid(. ~ Vac_Strategy) +
   geom_hline(yintercept = 0, color = "black") +
-  #xlab('VE') +
+  xlab('VE') +
   ylab('Difference')
-p1
+p_take <- ggplot(data = diff_sub, aes(x = Take, y = Diff, color = Diff)) +
+  geom_point() +
+  geom_errorbar(aes(ymin=Diff_Lower, ymax=Diff_Upper)) +
+  viridis::scale_color_viridis() +
+  geom_hline(yintercept = 0, color = "black") +
+  ylab('Difference')
+p_waning <- ggplot(data = diff_sub, aes(x = Waning, y = Diff, color = Diff)) +
+  geom_point() +
+  geom_errorbar(aes(ymin=Diff_Lower, ymax=Diff_Upper)) +
+  viridis::scale_color_viridis() +
+  geom_hline(yintercept = 0, color = "black") +
+  ylab('Difference')
+p_rho <- ggplot(data = diff_sub, aes(x = Rho, y = Diff, color = Diff)) +
+  geom_point() +
+  geom_errorbar(aes(ymin=Diff_Lower, ymax=Diff_Upper)) +
+  viridis::scale_color_viridis() +
+  geom_hline(yintercept = 0, color = "black") +
+  xlab('Correlation of Vaccination') +
+  ylab('Difference')
+p_epsilon <- ggplot(data = diff_sub, aes(x = Epsilon, y = Diff, color = Diff)) +
+  geom_point() +
+  geom_errorbar(aes(ymin=Diff_Lower, ymax=Diff_Upper)) +
+  viridis::scale_color_viridis() +
+  geom_hline(yintercept = 0, color = "black") +
+  xlab('Exposure Penalty') +
+  ylab('Difference')
+p_vaccov <- ggplot(data = diff_sub, aes(x = Vac_Cov, y = Diff, color = Diff)) +
+  geom_point() +
+  geom_errorbar(aes(ymin=Diff_Lower, ymax=Diff_Upper)) +
+  viridis::scale_color_viridis() +
+  geom_hline(yintercept = 0, color = "black") +
+  xlab('Vaccination Coverage') +
+  ylab('Difference')
 
-png(file = "li_scatter_ve.png", width = 10, height = 8,
+theme_set(theme_cowplot(font_size=10)) # reduce default font size
+p_all <- plot_grid(p_ve, p_waning,p_epsilon,p_vaccov, p_rho, p_take, labels = "AUTO", ncol = 3, align = 'v', axis = 'l')
+
+png(file = "li_diff_all.png", width = 10, height = 8,
     units = "in", pointsize = 8, res = 300)
-p1
+p_all
 dev.off()
 
-# plot the difference in lifetime infs
-fully_vac2a <- fully_vac[fully_vac$Vac_Strategy == "Annual",]
-fully_vac2b <- fully_vac[fully_vac$Vac_Strategy == "Every Other Year",]
-fully_vac2$Diff <-
+### bivariate plots
+#
+p_epsilon_waning <- ggplot(data = diff_sub, aes(x = Epsilon, y = Waning, color = Diff)) +
+  geom_point() +
+  viridis::scale_color_viridis() +
+  xlab('Exposure Penalty') +
+  ylab('Waning')
+p_epsilon_take <- ggplot(data = diff_sub, aes(x = Epsilon, y = Take, color = Diff)) +
+  geom_point() +
+  viridis::scale_color_viridis() +
+  xlab('Exposure Penalty')
+p_epsilon_ve <- ggplot(data = diff_sub, aes(x = Epsilon, y = VE, color = Diff)) +
+  geom_point() +
+  viridis::scale_color_viridis() +
+  xlab('Exposure Penalty')
+p_epsilon_rho <- ggplot(data = diff_sub, aes(x = Epsilon, y = Rho, color = Diff)) +
+  geom_point() +
+  viridis::scale_color_viridis() +
+  xlab('Exposure Penalty') +
+  ylab('Correlation of Vaccination')
+p_epsilon_vaccov <- ggplot(data = diff_sub, aes(x = Epsilon, y = Vac_Cov, color = Diff)) +
+  geom_point() +
+  viridis::scale_color_viridis() +
+  xlab('Exposure Penalty') +
+  ylab('Vaccination Coverage')
+
+theme_set(theme_cowplot(font_size=10)) # reduce default font size
+p_all2 <- plot_grid(p_epsilon_waning, p_epsilon_ve,p_epsilon_take,p_epsilon_vaccov, p_epsilon_rho, labels = "AUTO", ncol = 3, align = 'v', axis = 'l')
+
+png(file = "li_diff_bivariate_epsilon.png", width = 10, height = 8,
+    units = "in", pointsize = 8, res = 300)
+p_all2
+dev.off()
 
 
 ### heatmap
