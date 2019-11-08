@@ -29,9 +29,11 @@ boot_li <- function(dat, ages = 0:18, vac_strategy, stat = "median"){
   } else {stop("stat must be either mean or median.")}
 
   # bootstrap
-  if(vac_strategy == "No Vaccination"){tmp_wide$dummy <- tmp_wide$`0`}
-  myBootstrap <- boot(tmp_wide, foo, R=1000)
-  if(vac_strategy == "No Vaccination"){myBootstrap$t0 <- myBootstrap$t0[-2]}  # remove dummy
+  if(ncol(tmp_wide) == 3){
+    tmp_wide$dummy <- tmp_wide$`0` # add dummy column
+    myBootstrap <- boot(tmp_wide, foo, R=1000)
+    myBootstrap$t0 <- myBootstrap$t0[-2]  # remove dummy value
+  } else {myBootstrap <- boot(tmp_wide, foo, R=1000)}
   # create data set of original values and percentiles from bootstrapping
   num_cols <- length(myBootstrap$t0)
   myLI <- data.frame(Num_Vacs= 0:(num_cols-1), Vac_Strategy = c(rep(vac_strategy,num_cols)), Lifetime_Infs = myBootstrap$t0, Lower = rep(NA,num_cols), Upper = rep(NA,num_cols))
