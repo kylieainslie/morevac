@@ -22,7 +22,7 @@ set.seed(1234)
 #set.seed(5678)
 mylhc <- randomLHS(1000, 6)
 colnames(mylhc) <- c("Vac_Cov", "Waning", "Take", "Epsilon", "Rho", "VE")
-# mylhc[, "Epsilon"] <- qunif(mylhc[,"Epsilon"], min = 0.001, max = 0.05)
+mylhc[, "Epsilon"] <- qunif(mylhc[,"Epsilon"], min = 0.001, max = 0.1)
 # mylhc[, "Vac_Cov"] <- qunif(mylhc[,"Vac_Cov"], min = 0.20, max = 0.5) # range from 2018-2019 PHE estimates of VC in school-aged children: https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/806289/Childhood_flu_annual_report_2018_19_FINAL_.pdf
 # mylhc[, "Take"] <- qunif(mylhc[,"Take"], min = 0.5, max = 1)
 # run simulations
@@ -47,7 +47,7 @@ row_lhc <- bins[[b]][i]
 max_age = 80
 myyears <- 1820:2028
 mybetas <- c(0.4,rep(0.2,length(myyears)-1))
-vac_cut_off <- 10
+vac_cut_off <- 16
 vac_cov_dat <- data.frame(Age = 0:(max_age-1), No_Vac = numeric(max_age), Annual = numeric(max_age), Biennial = numeric(max_age))
 vac_cov_dat$Annual[3:(vac_cut_off + 1)] <- mylhc[row_lhc,"Vac_Cov"]
 vac_cov_dat$Biennial[seq(3,vac_cut_off+1,2)] <- mylhc[row_lhc,"Vac_Cov"]
