@@ -7,7 +7,7 @@ setwd("~/Dropbox/Kylie/Projects/morevac_manuscript/data/attack_rates")
 files1 = list.files(pattern="*.csv")
 dt_ar = do.call(rbind, lapply(files1, fread))[,-1]
 
-setwd("~/Dropbox/Kylie/Projects/morevac_manuscript/data/lifetime_infs/mean")
+setwd("~/Dropbox/Kylie/Projects/morevac_manuscript/data/lifetime_infs/")
 files2 <- list.files(pattern="*.csv")
 dt_li = do.call(rbind, lapply(files2, fread))[,-1]
 
@@ -21,12 +21,13 @@ setwd("~/Dropbox/Kylie/Projects/morevac_manuscript/figures")
 #dt_li[,-c(1,2)] <- round(dt_li[,-c(1,2)],2)
 
 ### characterising difference in lifetime infections between annual and every other year
-diff_sub <- dt_li[dt_li$Vac_Strategy == "Annual",]
+dt_li2 <- dt_li[dt_li$Epsilon < 0.1,]
+diff_sub <- dt_li2[dt_li2$Vac_Strategy == "Annual",]
 
 p_hist <- ggplot(data = diff_sub, aes(Diff, fill = cut(Diff,100))) +
           geom_histogram(bins = 50, show.legend = FALSE) +
           scale_fill_viridis_d() +
-          labs(x = "Distance", y = "Frequency") +
+          labs(x = "Difference", y = "Frequency") +
           theme(panel.grid.major = element_blank(),
                 panel.grid.minor = element_blank(),
                 panel.background = element_blank(),
@@ -120,13 +121,14 @@ png(file = "li_diff_bivariate_epsilon.png", width = 10, height = 8,
 p_all2
 dev.off()
 
-
-### heatmap
-p_heat <- ggplot(dt_li2, aes(x = Take, y = Waning, fill = Lifetime_Infs)) +
-  geom_tile(alpha=0.2) +
-  viridis::scale_fill_viridis()
-p_heat
-
+###
+p_nv <- ggplot(dt_li2, aes(x = VE, y = Lifetime_Infs, color = Vac_Strategy)) +
+          geom_point() +
+          geom_errorbar(aes(ymin = Lower, ymax = Upper)) +
+          #viridis::scale_color_viridis() +
+          xlab('Vaccine Effectiveness') +
+          facet_wrap(~Num_Vacs)
+p_nv
 ### bar chart
 #   with CI for number of lifetime infections by vac_strategy (binned by number of vacs)
 # aggregate over all param values
