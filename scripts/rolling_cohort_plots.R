@@ -1,35 +1,41 @@
 ################################
-### plots for rolling cohort ###
+### lifetime infection plots ###
 ################################
 ### read in output files
 library(data.table)
-setwd("~/Dropbox/Kylie/Projects/Morevac/data/attack_rates")
-files1 = list.files(pattern="*.csv")
-dt_ar = do.call(rbind, lapply(files1, fread))[,-1]
+library(ggExtra)
 
 setwd("~/Dropbox/Kylie/Projects/Morevac/data/lifetime_infs/mean/vac_off_at_16_sim10")
 files2 <- list.files(pattern="*.csv")
 dt_li = do.call(rbind, lapply(files2, fread))[,-1]
 
+setwd("~/Dropbox/Kylie/Projects/Morevac/data/lifetime_infs/mean/vac_off_at_10_sim10")
+files2 <- list.files(pattern="*.csv")
+dt_li2 = do.call(rbind, lapply(files2, fread))[,-1]
+
 ### set working directory to save figures in
 #setwd("~/Dropbox/Kylie/Projects/Morevac/figures")
 
-################################
-### lifetime infection plots ###
-################################
-setwd("~/Dropbox/Kylie/Projects/Morevac/figures/lifetime_infections/vac_off_at_16/")
+setwd("~/Dropbox/Kylie/Projects/Morevac/figures/lifetime_infections/")
 
 #dt_li2 <- cbind(dt_li[,1:2],round(dt_li[,c(6:11)],2))
 #dt_li[,-c(1,2)] <- round(dt_li[,-c(1,2)],2)
 
 ### characterising difference in lifetime infections between annual and every other year
-# dt_li2 <- dt_li[dt_li$Epsilon < 0.1,]
+
 diff_sub <- dt_li[dt_li$Vac_Strategy == "Annual",]
+diff_sub2 <- dt_li2[dt_li2$Vac_Strategy == "Annual",]
+
 # color by diff conf interval values (<0 blue, 0 black, >0 green)
 diff_sub$Diff_Color <- ifelse(diff_sub$Diff_Upper < 0, '<0',
                               ifelse(diff_sub$Diff_Lower <=0 & diff_sub$Diff_Upper >=0, 'zero',
                                      ifelse(diff_sub$Diff_Lower >0, '>0', 'something else')))
-p_hist <- ggplot(data = diff_sub, aes(Diff, fill = cut(Diff,100))) +
+
+diff_sub2$Diff_Color <- ifelse(diff_sub2$Diff_Upper < 0, '<0',
+                              ifelse(diff_sub2$Diff_Lower <=0 & diff_sub2$Diff_Upper >=0, 'zero',
+                                     ifelse(diff_sub2$Diff_Lower >0, '>0', 'something else')))
+
+p_hist2 <- ggplot(data = diff_sub2, aes(Diff, fill = cut(Diff,100))) +
           geom_histogram(bins = 30, show.legend = FALSE) +
           scale_fill_viridis_d() +
           labs(x = "Difference", y = "Frequency") +
@@ -37,7 +43,16 @@ p_hist <- ggplot(data = diff_sub, aes(Diff, fill = cut(Diff,100))) +
                 panel.grid.minor = element_blank(),
                 panel.background = element_blank(),
                 axis.line = element_line(colour = "black"))
-p_hist
+theme_set(theme_cowplot(font_size=10)) # reduce default font size
+p_hists <- plot_grid(p_hist2,p_hist, labels = "AUTO", ncol = 1, align = 'v', axis = 'l')
+
+png(file = "li_diff_hists.png", width = 10, height = 8,
+    units = "in", pointsize = 8, res = 300)
+p_hists
+dev.off()
+
+ # A) off at 10, B) off at 16
+p_hists
 ### univariate scatter plots
 p_ve <- ggplot(data = diff_sub, aes(x = VE, y = Diff, color = Diff)) +
   geom_point() +
@@ -89,40 +104,6 @@ png(file = "li_diff_all.png", width = 10, height = 8,
 p_all
 dev.off()
 
-### bivariate plots
-#
-p_ve_waning <- ggplot(data = diff_sub, aes(x = VE, y = Waning, color = Diff)) +
-  geom_point() +
-  viridis::scale_color_viridis() +
-  #xlab('Exposure Penalty') +
-  ylab('Waning')
-p_ve_take <- ggplot(data = diff_sub, aes(x = VE, y = Take, color = Diff)) +
-  geom_point() +
-  viridis::scale_color_viridis() +
-  #xlab('Exposure Penalty')
-p_ve_epsilon <- ggplot(data = diff_sub, aes(x = VE, y = Epsilon, color = Diff)) +
-  geom_point() +
-  viridis::scale_color_viridis() +
-  ylab('Exposure Penalty')
-p_ve_rho <- ggplot(data = diff_sub, aes(x = VE, y = Rho, color = Diff)) +
-  geom_point() +
-  viridis::scale_color_viridis() +
-  #xlab('Exposure Penalty') +
-  ylab('Correlation of Vaccination')
-p_ve_vaccov <- ggplot(data = diff_sub, aes(x = VE, y = Vac_Cov, color = Diff)) +
-  geom_point() +
-  viridis::scale_color_viridis() +
-  #xlab('Exposure Penalty') +
-  ylab('Vaccination Coverage')
-
-theme_set(theme_cowplot(font_size=10)) # reduce default font size
-p_all2 <- plot_grid(p_epsilon_waning, p_epsilon_ve,p_epsilon_take,p_epsilon_vaccov, p_epsilon_rho, labels = "AUTO", ncol = 3, align = 'v', axis = 'l')
-
-png(file = "li_diff_bivariate_ve.png", width = 10, height = 8,
-    units = "in", pointsize = 8, res = 300)
-p_all2
-dev.off()
-
 ###
 p_nv <- ggplot(dt_li2, aes(x = VE, y = Lifetime_Infs, color = Vac_Strategy)) +
           geom_point() +
@@ -133,17 +114,148 @@ p_nv <- ggplot(dt_li2, aes(x = VE, y = Lifetime_Infs, color = Vac_Strategy)) +
 p_nv
 
 ### scatter plot with marginal histogram
-p <- ggplot(diff_sub, aes(x = Epsilon, y = Diff,color = Diff_Color)) +
+p2 <- ggplot(diff_sub2, aes(x = Epsilon, y = Diff,color = Diff_Color)) +
       geom_point() +
       geom_errorbar(aes(ymin = Diff_Lower, ymax = Diff_Upper)) +
       geom_hline(yintercept = 0, color = "black") +
       xlab("Exposure Penalty") +
       theme(legend.position = "bottom")
-p_marg <- ggExtra::ggMarginal(p, type = "histogram", margins = "y")
+p_marg2 <- ggExtra::ggMarginal(p2, type = "histogram", margins = "y")
 
-png(file = "li_diff_w_marginal_epsilon.png", width = 10, height = 8,
+theme_set(theme_cowplot(font_size=10)) # reduce default font size
+p_marges <- plot_grid(p_marg2, p_marg, labels = "AUTO", ncol = 1, align = 'v', axis = 'l')
+
+png(file = "li_diff_w_marg_epsilon.png", width = 10, height = 8,
     units = "in", pointsize = 8, res = 300)
-p_marg
+p_marges
+dev.off()
+
+### bivariate plots
+# bivar_plot <- function(my_dat, my_x, my_y, my_col, my_xlab = NULL, my_ylab = NULL){
+#   p <- ggplot(data = my_dat, aes(x = my_x, y = my_y, color = my_col)) +
+#     geom_point() +
+#     scale_color_manual(values = c("#F8766D","#00BA38"))
+#     if(!is.null(my_xlab)){p <- p + xlab(my_xlab)}
+#     if(!is.null(my_ylab)){p <- p + ylab(my_ylab)}
+#   return(p)
+# }
+# subset only points with CIs that don't include 0
+non_zeros <- diff_sub[diff_sub$Diff_Color != "zero",]
+point_range <- c(min(abs(non_zeros$Diff)), max(abs(non_zeros$Diff)))*5
+# deterimine colors
+# library(scales)
+# show_col(hue_pal()(3)
+
+p_epsilon_ve <- ggplot(data = non_zeros, aes(x = Epsilon, y = VE, color = Diff_Color)) +
+  geom_point() + # aes(size = Diff)
+  scale_color_manual(values = c("#F8766D","#00BA38")) +
+  #scale_size_continuous(range = point_range) +
+  xlab('Exposure Penalty')
+p_epsilon_waning <- ggplot(data = non_zeros, aes(x = Epsilon, y = Waning, color = Diff_Color)) +
+  geom_point() +
+  scale_color_manual(values = c("#F8766D","#00BA38")) +
+  #scale_size_continuous(range = point_range) +
+  xlab('Exposure Penalty')
+p_epsilon_take <- ggplot(data = non_zeros, aes(x = Epsilon, y = Take, color = Diff_Color)) +
+  geom_point() +
+  scale_color_manual(values = c("#F8766D","#00BA38")) +
+  #scale_size_continuous(range = point_range) +
+  xlab('Exposure Penalty')
+p_epsilon_rho <- ggplot(data = non_zeros, aes(x = Epsilon, y = Rho, color = Diff_Color)) +
+  geom_point() +
+  scale_color_manual(values = c("#F8766D","#00BA38")) +
+  #scale_size_continuous(range = point_range) +
+  xlab('Exposure Penalty') +
+  ylab("Correlation of Vaccination")
+p_epsilon_vaccov <- ggplot(data = non_zeros, aes(x = Epsilon, y = Vac_Cov, color = Diff_Color)) +
+  geom_point() +
+  scale_color_manual(values = c("#F8766D","#00BA38")) +
+  #scale_size_continuous(range = point_range) +
+  xlab('Exposure Penalty') +
+  ylab("Vaccination Coverage")
+p_ve_waning <- ggplot(data = non_zeros, aes(x = VE, y = Waning, color = Diff_Color)) +
+  geom_point() +
+  scale_color_manual(values = c("#F8766D","#00BA38"))
+  #scale_size_continuous(range = point_range)
+p_ve_take <- ggplot(data = non_zeros, aes(x = VE, y = Take, color = Diff_Color)) +
+  geom_point() +
+  scale_color_manual(values = c("#F8766D","#00BA38"))
+  #scale_size_continuous(range = point_range)
+p_ve_rho <- ggplot(data = non_zeros, aes(x = VE, y = Rho, color = Diff_Color)) +
+  geom_point() +
+  scale_color_manual(values = c("#F8766D","#00BA38")) +
+  #scale_size_continuous(range = point_range) +
+  ylab('Correlation of Vaccination')
+p_ve_vaccov <- ggplot(data = non_zeros, aes(x = VE, y = Vac_Cov, color = Diff_Color)) +
+  geom_point() +
+  scale_color_manual(values = c("#F8766D","#00BA38")) +
+  #scale_size_continuous(range = point_range) +
+  ylab('Vaccination Coverage')
+p_waning_take <- ggplot(data = non_zeros, aes(x = Waning, y = Take, color = Diff_Color)) +
+  geom_point() +
+  scale_color_manual(values = c("#F8766D","#00BA38"))
+  #scale_size_continuous(range = point_range)
+p_waning_rho <- ggplot(data = non_zeros, aes(x = Waning, y = Rho, color = Diff_Color)) +
+  geom_point() +
+  scale_color_manual(values = c("#F8766D","#00BA38")) +
+  #scale_size_continuous(range = point_range) +
+  ylab("Correlation of Vaccination")
+p_waning_vaccov <- ggplot(data = non_zeros, aes(x = Waning, y = Vac_Cov, color = Diff_Color)) +
+  geom_point() +
+  scale_color_manual(values = c("#F8766D","#00BA38")) +
+  #scale_size_continuous(range = point_range) +
+  ylab("Vaccination Coverage")
+p_take_rho <- ggplot(data = non_zeros, aes(x = Take, y = Rho, color = Diff_Color)) +
+  geom_point() +
+  scale_color_manual(values = c("#F8766D","#00BA38")) +
+  #scale_size_continuous(range = point_range) +
+  ylab("Correlation of Vaccination")
+p_take_vaccov <- ggplot(data = non_zeros, aes(x = Take, y = Vac_Cov, color = Diff_Color)) +
+  geom_point() +
+  scale_color_manual(values = c("#F8766D","#00BA38")) +
+  #scale_size_continuous(range = point_range) +
+  ylab("Vaccination Coverage")
+p_rho_vaccov <- ggplot(data = non_zeros, aes(x = Rho, y = Vac_Cov, color = Diff_Color)) +
+  geom_point() +
+  scale_color_manual(values = c("#F8766D","#00BA38")) +
+  #scale_size_continuous(range = point_range) +
+  xlab("Correlation of Vaccination") +
+  ylab("Vaccination Coverage")
+
+theme_set(theme_cowplot(font_size=10)) # reduce default font size
+p_bivar_all <- plot_grid(p_epsilon_ve, p_epsilon_waning, p_epsilon_take,p_epsilon_vaccov, p_epsilon_rho,
+                    p_ve_waning, p_ve_take, p_ve_rho, p_ve_vaccov, p_waning_take, p_waning_rho,
+                    p_waning_vaccov, p_take_rho, p_take_vaccov, p_rho_vaccov,
+                    labels = "AUTO", ncol = 3, align = 'v', axis = 'l')
+#p_bivar_all
+png(file = "li_diff_bivar_all.png", width = 8, height = 10,
+    units = "in", pointsize = 8, res = 300)
+p_bivar_all
+dev.off()
+
+# 2-panel plot
+p_hist <- ggplot(data = diff_sub, aes(Diff, fill = Diff_Color)) +
+  geom_histogram(bins = 50, show.legend = FALSE) +
+  scale_fill_manual(values = c("#F8766D","#00BA38","gray73")) +
+  labs(x = "Difference", y = "Frequency") +
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(colour = "black"))
+
+p_epsilon_ve <- ggplot(data = non_zeros, aes(x = Epsilon, y = VE, color = Diff_Color)) +
+  geom_point(aes(size = Diff)) +
+  scale_color_manual(values = c("#F8766D","#00BA38")) +
+  scale_size_continuous(range = point_range) +
+  xlab('Exposure Penalty')
+
+theme_set(theme_cowplot(font_size=10)) # reduce default font size
+p_panel <- plot_grid(p_hist, p_epsilon_ve,
+                         labels = "AUTO", ncol = 2, align = 'v', axis = 'l')
+
+png(file = "li_diff_2-panel.png", width = 10, height = 8,
+    units = "in", pointsize = 8, res = 300)
+p_panel
 dev.off()
 
 ### plot fully vaccinated individuals
@@ -165,130 +277,3 @@ p_point <- ggplot(li_dat, aes(x=Num_Vacs, y=Lifetime_Infs)) +
   )
 # try facet_wrap()
 
-#########################
-### attack rate plots ###
-#########################
-# create AR difference and AR ratio variables
-dt_ar_sub <- dt_ar[dt_ar$Vac_Strategy == "Annual",]
-dt_ar_sub$Diff <- dt_ar[dt_ar$Vac_Strategy == "Annual",3] - dt_ar[dt_ar$Vac_Strategy == "Every Other Year",3]
-dt_ar_sub$Ratio <- dt_ar[dt_ar$Vac_Strategy == "Annual",3] / dt_ar[dt_ar$Vac_Strategy == "Every Other Year",3]
-
-### heatmap
-# for better heatmap resolution, round parameter values
-dt_ar2 <- cbind(dt_ar[,1:2],round(dt_ar[,c(3:11)],2)) # round to 2 decimal places
-dt_ar3 <- cbind(dt_ar[,1:3],round(dt_ar[,c(3:11)],1)) # round to 1 decimal place
-
-p_heat2 <- ggplot(dt_ar2[dt_ar2$Vac_Strategy!="No Vaccination"], aes(x = VE, y = Vac_Cov, fill = Attack_Rate)) +
-  geom_tile(alpha=0.2) +
-  viridis::scale_fill_viridis() +
-  #facet_wrap(~Age) +
-  facet_grid(Vac_Strategy ~ Age) +
-  theme(panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.background = element_blank())
-p_heat2
-
-png(file = "ar_heatmap_VE_vs_VacCov.png", width = 8, units = 'in')
-p_heat2
-dev.off()
-
-### heatmap using ratio: annual AR / biennial AR
-# create new ratio variable
-p_heat_ratio <- ggplot(dt_ar2_sub1, aes(x = VE, y = Waning, fill = Ratio)) +
-  geom_tile(alpha=0.2) +
-  viridis::scale_fill_viridis() +
-  facet_wrap(~Age) +
-  theme(panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.background = element_blank(),
-        )
-p_heat_ratio
-
-### spaghetti plot
-# create group variable for each unique set of parameter values
-library(dplyr)
-dt_ar <- dt_ar %>%
-         mutate(ID = group_indices(., Vac_Cov, Waning,Take,Epsilon,Rho,VE),
-                EpsilonGroup = cut(Epsilon, breaks = 5,
-                                   labels = c("<0.1","[0.1,0.2)","[0.2,0.3)","[0.3,0.4)","[0.4,0.5)")))
-
-p_spaghetti <- ggplot(dt_ar, aes(x = Age, y = Attack_Rate, group = ID, color = ID)) +
-               geom_line() + viridis::scale_fill_viridis() +
-               facet_grid(Vac_Strategy ~ EpsilonGroup) +
-               theme(legend.position = "none")
-p_spaghetti
-
-png(file = "ar_spaghetti_epsilongroup2.png")
-p_spaghetti
-dev.off()
-
-### univariate scatter plots
-p1 <- ggplot(data = dt_ar_sub, aes(x = VE, y = Diff,color = Diff)) +
-      geom_point() +
-      viridis::scale_color_viridis() +
-      geom_hline(yintercept = 0) +
-      #xlab('VE') +
-      ylab('Difference in Attack Rate') +
-      #scale_x_continuous(labels = c(0,.01,.02,.03,.04,.05))+
-      facet_wrap(~Age)
-p1
-
-png(file = "ar_diff_scatter_ve.png", width = 10, height = 8,
-    units = "in", pointsize = 8, res = 300)
-p1
-dev.off()
-
-### bivariate scatter plots
-p2 <- ggplot(data = dt_ar_sub, aes(x = Rho, y = Vac_Cov, color = Diff)) +
-      geom_point() +
-      viridis::scale_color_viridis() +
-      facet_wrap(~Age) +
-      ylab("Correlation of Vaccination (Rho)") +
-      labs(color = "Difference") +
-      theme(panel.grid.major = element_blank(),
-            panel.grid.minor = element_blank(),
-            panel.background = element_blank(),
-            axis.line = element_line(colour = "black")
-            )
-p2
-
-png(file = "ar_diff_scatter_rho+vaccov.png", width = 10, height = 8,
-    units = "in", pointsize = 8, res = 300)
-p2
-dev.off()
-
-### Miscallaneous
-legend_x <- 0.25
-legend_y <- 0.95
-tmp$Num_Vacs <- factor(tmp$Num_Vacs)
-p2 <- ggplot(tmp, aes(x = Num_Vacs, y = mean, fill = Vac_Strategy)) +
-  geom_boxplot() +
-  ylab('Number of Lifetime Infections') +
-  theme(panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.background = element_blank(),
-        axis.line = element_line(colour = "black"),
-        legend.position = c(legend_x, legend_y),
-        legend.justification = c("right", "top"),
-        legend.box.just = "right",
-        legend.margin = margin(6, 6, 6, 6),
-        legend.key = element_rect(fill = "white")
-  )
-p2
-# theme_set(theme_cowplot(font_size=10)) # reduce default font size
-# p_combined <- plot_grid(p1, p2, labels = "AUTO", ncol = 1, align = 'v', axis = 'l')
-
-png(file = "rolling_cohort_off_at_10_sim500.png")
-p1
-dev.off()
-
-# p1 <- p1 + theme(panel.grid.major = element_blank(),
-#                  panel.grid.minor = element_blank(),
-#                  panel.background = element_blank(),
-#                  axis.line = element_line(colour = "black"),
-#                  legend.position = c(legend_x, legend_y),
-#                  legend.justification = c("right", "top"),
-#                  legend.box.just = "right",
-#                  legend.margin = margin(6, 6, 6, 6),
-#                  legend.key = element_rect(fill = "white"))
-# p1
