@@ -20,7 +20,7 @@ get_cohorts <- function(inf_history, vac_history, ages, enrollment_start_year = 
   year_index <- which(total_year_range %in% enrollment_start_year:enrollment_stop_year)
   for (j in 1:ncohorts){
     cohort[[j]] <- which(ages[,year_index[j]] == 0)
-    cohort_inf_hist[[j]] <- data.frame(ID = 1:legnth(cohort[[j]]),inf_history[cohort[[j]],year_index[j]:(year_index[j] + length_study)])
+    cohort_inf_hist[[j]] <- data.frame(ID = 1:length(cohort[[j]]),inf_history[cohort[[j]],year_index[j]:(year_index[j] + length_study)])
     cohort_vac_hist[[j]] <- data.frame(ID = 1:length(cohort[[j]]), vac_history[cohort[[j]],year_index[j]:(year_index[j] + length_study)])
     cohort_ages[[j]] <- ages[cohort[[j]],year_index[j]:(year_index[j] + length_study)]
   }
