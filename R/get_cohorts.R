@@ -9,20 +9,35 @@
 #' @return data frame of attack rates within the cohort by year
 #' @keywords morevac
 #' @export
-get_cohorts <- function(inf_history, vac_history, ages, enrollment_start_year = 2000, ncohorts = 10, total_year_range, length_study = 18){
+get_cohorts <- function(inf_history, vac_history, ages, enrollment_start_year = 2000, ncohorts = 10, total_year_range,
+                        length_study = 18, write.file = FALSE, file = "test"){
   enrollment_stop_year = enrollment_start_year + ncohorts
   year_index <- which(total_year_range %in% enrollment_start_year:enrollment_stop_year)
   cohort = list(); cohort_inf_hist = list(); cohort_vac_hist = list(); cohort_ages = list()
   year_index <- which(total_year_range %in% enrollment_start_year:enrollment_stop_year)
   for (j in 1:ncohorts){
     cohort[[j]] <- which(ages[,year_index[j]] == 0)
-    cohort_inf_hist[[j]] <- inf_history[cohort[[j]],year_index[j]:(year_index[j] + length_study)]
-    cohort_vac_hist[[j]] <- vac_history[cohort[[j]],year_index[j]:(year_index[j] + length_study)]
+    cohort_inf_hist[[j]] <- data.frame(ID = cohort[[j]],inf_history[cohort[[j]],year_index[j]:(year_index[j] + length_study)])
+    cohort_vac_hist[[j]] <- data.frame(ID = cohort[[j]], vac_history[cohort[[j]],year_index[j]:(year_index[j] + length_study)])
     cohort_ages[[j]] <- ages[cohort[[j]],year_index[j]:(year_index[j] + length_study)]
   }
-  rtn <- list(cohort_ids = cohort,
-              inf_hist = cohort_inf_hist,
-              vac_hist = cohort_vac_hist,
-              ages = cohort_ages)
+  # bind all cohorts into single data.frame
+  save_inf_hist <- rbindlist(cohort_inf_hist, idcol = "Cohort")
+  save_vac_hist <- rbindlist(cohort_vac_hist, idcol = "Cohort")
+  colnames(save_inf_hist) <- colnames(save_vac_hist) <- c("Cohort", "ID", paste0("Age",0:length_study))
+
+  if (write.file){
+    try(data.table::fwrite(save_inf_hist, file = paste0(file,"_inf_hist.csv"), col.names = TRUE,
+                           row.names = FALSE, sep = ","))
+    try(data.table::fwrite(save_vac_hist, file = paste0(file,"_vac_hist.csv"), col.names = TRUE,
+                           row.names = FALSE, sep = ","))
+  }
+      # rtn <- list(cohort_ids = cohort,
+      #             inf_hist = cohort_inf_hist,
+      #             vac_hist = cohort_vac_hist,
+      #             ages = cohort_ages)
+
+    rtn <- list(inf_history = save_inf_hist,
+                vac_history = save_vac_hist)
   return(rtn)
 }
