@@ -18,14 +18,14 @@ postprocess_sim_results_for_rolling_cohort <- function(simdat, nsim = 100, total
                               vac_history = simdat$vac_history[,,s],
                               ages = simdat$ages[,,s],
                               total_year_range = total_year_range)
-    mycohorts$inf_history$Sim <- mycohorts$vac_history$Sim <- s
+    my_cohorts$inf_history$Sim <- my_cohorts$vac_history$Sim <- s
 
     if (s == 1){
-      save_inf_hist <- mycohorts$inf_history
-      save_vac_hist <- mycohorts$vac_history
+      save_inf_hist <- my_cohorts$inf_history
+      save_vac_hist <- my_cohorts$vac_history
     } else {
-      save_inf_hist <- rbind(save_inf_hist, mycohorts$inf_history)
-      save_vac_hist <- rbind(save_vac_hist, mycohorts$vac_history)
+      save_inf_hist <- rbind(save_inf_hist, my_cohorts$inf_history)
+      save_vac_hist <- rbind(save_vac_hist, my_cohorts$vac_history)
       }
   }
   if (write.file){
