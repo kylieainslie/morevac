@@ -10,45 +10,34 @@
 #' @return data frame of attack rates within the cohort by year
 #' @keywords morevac
 #' @export
-postprocess_sim_results_for_rolling_cohort <- function(simdat, nsim = 100, total_year_range = 1820:2028, length_study = 19){
-  avg_ar <- matrix(numeric(nsim*length_study), nrow = length_study)
-  rownames(avg_ar) <- paste0("Age",0:(length_study-1))
-  colnames(avg_ar) <- paste0("Sim",1:nsim)
-  med_ar <- avg_ar
-  # subset birth cohort
+postprocess_sim_results_for_rolling_cohort <- function(simdat, nsim = 100, total_year_range = 1820:2028,
+                                                       length_study = 19, write.file = FALSE, file = "test"){
+  # subset birth cohorts from each sim
   for (s in 1:nsim){
     my_cohorts <- get_cohorts(inf_history = simdat$inf_history[,,s],
                               vac_history = simdat$vac_history[,,s],
                               ages = simdat$ages[,,s],
                               total_year_range = total_year_range)
-    # calculate avg attack rate over cohorts
-    cohort_sizes <- sapply(my_cohorts$cohort_ids, length)
-    ninfs <- sapply(my_cohorts$inf_hist,function(x) apply(x,2,sum))
-    colnames(ninfs) <- paste0("Cohort",1:10)
-    cohort_ar <- sweep(ninfs, 2, cohort_sizes, FUN="/")
-    avg_ar[,s] <- apply(cohort_ar,1,mean)
-    med_ar[,s] <- apply(cohort_ar,1,median)
-
-    # calculate avg num lifetime infections by number of vaccinations
-    lifetime_infs <- sapply(my_cohorts$inf_hist,function(x) apply(x,1,sum))
-    num_vacs <- sapply(my_cohorts$vac_hist,function(x) apply(x,1,sum))
-    tmp <- data.frame(Lifetime_Infs = unlist(lifetime_infs), Num_Vacs = unlist(num_vacs))
-    avg_tmp <- ddply(tmp,~Num_Vacs,summarise,med = median(Lifetime_Infs), mean = mean(Lifetime_Infs))
-    avg_tmp$sim <- c(rep(s,dim(avg_tmp)[1]))
-    tmp2 <- data.frame(sim = s, total_mean = mean(tmp$Lifetime_Infs))
+    mycohorts$inf_history$Sim <- mycohorts$vac_history$Sim <- s
 
     if (s == 1){
-      avg_lifetime_infs <- avg_tmp
-      total_lifetime_infs <- tmp2
+      save_inf_hist <- mycohorts$inf_history
+      save_vac_hist <- mycohorts$vac_history
     } else {
-      avg_lifetime_infs <- rbind(avg_lifetime_infs, avg_tmp)
-      total_lifetime_infs <- rbind(total_lifetime_infs, tmp2)
+      save_inf_hist <- rbind(save_inf_hist, mycohorts$inf_history)
+      save_vac_hist <- rbind(save_vac_hist, mycohorts$vac_history)
       }
-
   }
-  rtn <- list(Attack_Rate_Mean = t(avg_ar),
-              Attack_Rate_Median = t(med_ar),
-              Lifetime_Infections = avg_lifetime_infs,
-              Total_Lifetime_Infections = total_lifetime_infs)
+  if (write.file){
+    try(data.table::fwrite(save_inf_hist, file = paste0(file,"_inf_hist.csv"), col.names = TRUE,
+                           row.names = FALSE, sep = ","))
+    try(data.table::fwrite(save_vac_hist, file = paste0(file,"_vac_hist.csv"), col.names = TRUE,
+                           row.names = FALSE, sep = ","))
+  }
+
+  rtn <- list(inf_history = save_inf_hist,
+              vac_history = save_vac_hist)
+
   return(rtn)
 }
+
