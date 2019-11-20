@@ -18,8 +18,12 @@ postprocess_sim_results_for_rolling_cohort <- function(simdat, nsim = 100, total
                               vac_history = simdat$vac_history[,,s],
                               ages = simdat$ages[,,s],
                               total_year_range = total_year_range)
-    my_cohorts$inf_history$Sim <- my_cohorts$vac_history$Sim <- s
 
+    my_cohorts$inf_history$Sim <- my_cohorts$vac_history$Sim <- s
+    my_cohorts$inf_history <- setcolorder(my_cohorts$inf_history,c("Sim","Cohort","ID",paste0("Age",0:(length_study-1))))
+    my_cohorts$vac_history <- setcolorder(my_cohorts$vac_history,c("Sim","Cohort","ID",paste0("Age",0:(length_study-1))))
+
+    # rbind subsequent simulations
     if (s == 1){
       save_inf_hist <- my_cohorts$inf_history
       save_vac_hist <- my_cohorts$vac_history
@@ -28,13 +32,14 @@ postprocess_sim_results_for_rolling_cohort <- function(simdat, nsim = 100, total
       save_vac_hist <- rbind(save_vac_hist, my_cohorts$vac_history)
       }
   }
+  # write file to disk
   if (write.file){
     try(data.table::fwrite(save_inf_hist, file = paste0(file,"_inf_hist.csv"), col.names = TRUE,
                            row.names = FALSE, sep = ","))
     try(data.table::fwrite(save_vac_hist, file = paste0(file,"_vac_hist.csv"), col.names = TRUE,
                            row.names = FALSE, sep = ","))
   }
-
+  # output
   rtn <- list(inf_history = save_inf_hist,
               vac_history = save_vac_hist)
 
