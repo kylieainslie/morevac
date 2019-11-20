@@ -265,6 +265,11 @@ max_vac_biennial <- max(dt_li[dt_li$Vac_Strategy == "Every Other Year",]$Num_Vac
 fully_vac <- dt_li[(dt_li$Num_Vacs == max_vac_biennial & dt_li$Vac_Strategy == "Every Other Year")
                    | (dt_li$Num_Vacs == max_vac_annual & dt_li$Vac_Strategy == "Annual"),]
 
+ggplot(data = fully_vac, aes(x = Epsilon, y = Diff, color = Vac_Strategy)) +
+  geom_point() +
+  scale_color_manual(values = c("#F8766D","#00BA38")) +
+  xlab('Exposure Penalty')
+
 ### bar chart
 #   with CI for number of lifetime infections by vac_strategy (binned by number of vacs)
 # aggregate over all param values
