@@ -105,12 +105,11 @@ files_vac <- list.files(pattern="*.csv")
 dt_vac = do.call(rbind, lapply(files_vac, fread))
 
 ### summarise raw data
-# get number of vaccinations
+dt_inf1 <- dt_inf %>% mutate(Num_Infs = rowSums(select(.,Age0:Age18)))
 dt_vac1 <- dt_vac %>% mutate(Num_Vacs = rowSums(select(.,Age0:Age18)))
-dt_vac2 <- dt_vac1 %>% group_by(Vac_Strategy)
-dt_inf1 <- dt_inf %>% group_by(Vac_Strategy, Sim, Cohort, ID) %>% summarise_at(vars(starts_with('Age')), sum)
 
-
+banana <- cbind(dt_inf1[,c("Vac_Strategy", "Sim", "Cohort", "ID", "Param_Index", "Num_Infs")],dt_vac1[,c("Num_Vacs")])
+banana_boat <- banana %>% group_by(Vac_Strategy, Param_Index, Num_Vacs) %>% summarise(Mean_Infs = mean(Num_Infs))
 
 
 
