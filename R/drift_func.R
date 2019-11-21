@@ -12,6 +12,7 @@
 drift_func <- function(nyears = 200, rate = 1){
   # drift for infection
   draws <- rexp(nyears, rate = rate)
+  #ßantigenic_dist <- distances(dt_draws)
   # scale draws by maximum value (to put it on a scale of 0 to 1)
   scaled_drift <- draws/max(draws)
   return(scaled_drift)
