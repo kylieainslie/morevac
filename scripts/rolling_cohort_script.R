@@ -112,18 +112,39 @@ dt_inf1 <- dt_inf %>% mutate(Num_Infs = rowSums(select(.,Age0:Age18)))
 dt_vac1 <- dt_vac %>% mutate(Num_Vacs = rowSums(select(.,Age0:Age18)))
 
 banana <- cbind(dt_inf1[,c("Vac_Strategy", "Sim", "Cohort", "ID", "Param_Index", "Num_Infs")],dt_vac1[,c("Num_Vacs")])
-banana_boat <- banana %>% group_by(Vac_Strategy, Param_Index, Num_Vacs) %>% summarise(Mean_Infs = mean(Num_Infs))
+banana_boat <- banana %>% group_by(Vac_Strategy, Param_Index, Sim) %>% summarise(Mean_Infs = mean(Num_Infs))
+banana_split <- banana_boat %>% spread(Vac_Strategy, Mean_Infs)
+banana_split$Difference <- banana_split$Annual - banana_split$Biennial
+
+# bootstrap to get CI for Difference
+foo <- function(data, indices){
+  dt<-data[indices,]
+  mean(dt$Difference)
+}
+my_bootstrap <- plyr::dlply(banana_split, "Param_Index", function(dat) boot(dat, foo, R=100)) # boostrap for each set of param values
+my_ci <- sapply(my_bootstrap, function(x) boot.ci(x, index = 1, type='perc')$percent[c(4,5)]) # get confidence intervals
+
+banana_split2 <- banana_split %>% group_by(Param_Index) %>% summarise(Mean_Diff = mean(Difference))
+banana_split2$Lower <- my_ci[1,]
+banana_split2$Upper <- my_ci[2,]
 
 # investigate fully vaccinated individuals
 vac_max <- c(max(dt_vac1[dt_vac1$Vac_Strategy == "Annual"]$Num_Vacs), max(dt_vac1[dt_vac1$Vac_Strategy == "Biennial"]$Num_Vacs))
 indivs <- dt_vac1$ID[dt_vac$Vac_Strategy == "Annual" & dt_vac1$Num_Vacs == vac_max[1] |
                      dt_vac$Vac_Strategy == "Biennial" & dt_vac1$Num_Vacs == vac_max[2]]
-dt_inf2 <- dt_inf1[dt_inf1$ID %in% indivs & dt_inf1$Vac_Strategy != "No_Vac",]
-dt_inf_avg <- dt_inf2 %>% group_by(Vac_Strategy, Param_Index) %>% summarise_at(.vars = paste0("Age",0:18),.funs = c(Mean="mean"))
+grape <- dt_inf1[dt_inf1$ID %in% indivs & dt_inf1$Vac_Strategy != "No_Vac",]
+raisin <- grape %>% group_by(Vac_Strategy, Param_Index) %>% summarise_at(.vars = paste0("Age",0:18),.funs = c(Mean="mean"))
 # convert to long format
-dt_inf_avg1 <- dt_inf_avg %>% gather(Age, Mean, Age0_Mean:Age18_Mean)        # long format
-dt_inf_avg1$Age <- as.numeric(substr(dt_inf_avg1$Age,4,4))                   # cut string to only age #
-dt_inf_avg2 <- left_join(dt_inf_avg1, param_values, by = c("Param_Index"))   # add parameter value columns
+wine <- raisin %>% gather(Age, Mean, Age0_Mean:Age18_Mean)        # long format
+wine$Age <- as.factor(as.numeric(str_remove_all(dt_inf_avg1$Age,"[Age_Man]")))        # cut string to only age #
+wine <- left_join(dt_inf_avg1, param_values, by = c("Param_Index"))   # add parameter value columns
+
+p_nv <- ggplot(dt_inf_avg2, aes(x = Mean, fill = Vac_Strategy)) +
+  geom_histogram(position = "dodge") +
+  #scale_fill_identity() +
+  facet_grid(. ~ Age) +
+  theme_classic()
+p_nv
 
 
 
