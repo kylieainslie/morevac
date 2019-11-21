@@ -104,12 +104,43 @@ setwd("~/Dropbox/Kylie/Projects/Morevac/data/sim_data/vaccination_histories")
 files_vac <- list.files(pattern="*.csv")
 dt_vac = do.call(rbind, lapply(files_vac, fread))
 
+setwd("~/Dropbox/Kylie/Projects/Morevac/data")
+param_values <- read.csv("parameter_values.csv", header = TRUE)
+names(param_values)[1] <- "Param_Index"
 ### summarise raw data
 dt_inf1 <- dt_inf %>% mutate(Num_Infs = rowSums(select(.,Age0:Age18)))
 dt_vac1 <- dt_vac %>% mutate(Num_Vacs = rowSums(select(.,Age0:Age18)))
 
 banana <- cbind(dt_inf1[,c("Vac_Strategy", "Sim", "Cohort", "ID", "Param_Index", "Num_Infs")],dt_vac1[,c("Num_Vacs")])
 banana_boat <- banana %>% group_by(Vac_Strategy, Param_Index, Num_Vacs) %>% summarise(Mean_Infs = mean(Num_Infs))
+
+# investigate fully vaccinated individuals
+vac_max <- c(max(dt_vac1[dt_vac1$Vac_Strategy == "Annual"]$Num_Vacs), max(dt_vac1[dt_vac1$Vac_Strategy == "Biennial"]$Num_Vacs))
+indivs <- dt_vac1$ID[dt_vac$Vac_Strategy == "Annual" & dt_vac1$Num_Vacs == vac_max[1] |
+                     dt_vac$Vac_Strategy == "Biennial" & dt_vac1$Num_Vacs == vac_max[2]]
+dt_inf2 <- dt_inf1[dt_inf1$ID %in% indivs & dt_inf1$Vac_Strategy != "No_Vac",]
+dt_inf_avg <- dt_inf2 %>% group_by(Vac_Strategy, Param_Index) %>% summarise_at(.vars = paste0("Age",0:18),.funs = c(Mean="mean"))
+# convert to long format
+dt_inf_avg1 <- dt_inf_avg %>% gather(Age, Mean, Age0_Mean:Age18_Mean)        # long format
+dt_inf_avg1$Age <- as.numeric(substr(dt_inf_avg1$Age,4,4))                   # cut string to only age #
+dt_inf_avg2 <- left_join(dt_inf_avg1, param_values, by = c("Param_Index"))   # add parameter value columns
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
