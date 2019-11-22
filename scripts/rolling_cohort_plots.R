@@ -10,18 +10,18 @@ setwd("~/Dropbox/Kylie/Projects/Morevac/figures/lifetime_infections/")
 ### characterising difference in lifetime infections between annual and every other year
 
 # color by diff conf interval values (<0 blue, 0 black, >0 green)
-banana_split$Diff_Color <- ifelse(banana_split$Upper < 0, '<0',
-                              ifelse(banana_split$Lower <=0 & banana_split$Diff_Upper >=0, 'zero',
-                                     ifelse(banana_split$Diff_Lower >0, '>0', 'something else')))
+banana_split2$Diff_Color <- ifelse(banana_split2$Upper < 0, '<0',
+                              ifelse(banana_split2$Lower <=0 & banana_split2$Upper >=0, 'zero',
+                                     ifelse(banana_split2$Lower >0, '>0', 'something else')))
 
-p_hist <- ggplot(data = diff_sub2, aes(Diff, fill = cut(Diff,100))) +
+p_hist <- ggplot(data = banana_split2, aes(Mean_Diff, fill = Diff_Color)) +
           geom_histogram(bins = 30, show.legend = FALSE) +
-          scale_fill_viridis_d() +
           labs(x = "Difference", y = "Frequency") +
           theme(panel.grid.major = element_blank(),
                 panel.grid.minor = element_blank(),
                 panel.background = element_blank(),
                 axis.line = element_line(colour = "black"))
+p_hist
 theme_set(theme_cowplot(font_size=10)) # reduce default font size
 p_hists <- plot_grid(p_hist2,p_hist, labels = "AUTO", ncol = 1, align = 'v', axis = 'l')
 
@@ -93,9 +93,9 @@ p_nv <- ggplot(dt_li2, aes(x = VE, y = Lifetime_Infs, color = Vac_Strategy)) +
 p_nv
 
 ### scatter plot with marginal histogram
-p2 <- ggplot(diff_sub2, aes(x = Epsilon, y = Diff,color = Diff_Color)) +
+p2 <- ggplot(banana_split2, aes(x = Epsilon, y = Mean_Diff,color = Diff_Color)) +
       geom_point() +
-      geom_errorbar(aes(ymin = Diff_Lower, ymax = Diff_Upper)) +
+      geom_errorbar(aes(ymin = Lower, ymax = Upper)) +
       geom_hline(yintercept = 0, color = "black") +
       xlab("Exposure Penalty") +
       theme(legend.position = "bottom")
