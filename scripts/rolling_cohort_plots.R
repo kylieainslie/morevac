@@ -2,40 +2,19 @@
 ### lifetime infection plots ###
 ################################
 ### read in output files
-library(data.table)
 library(ggExtra)
 
-setwd("~/Dropbox/Kylie/Projects/Morevac/data/lifetime_infs/mean/vac_off_at_16_sim10")
-files2 <- list.files(pattern="*.csv")
-dt_li = do.call(rbind, lapply(files2, fread))[,-1]
-
-setwd("~/Dropbox/Kylie/Projects/Morevac/data/lifetime_infs/mean/vac_off_at_10_sim10")
-files2 <- list.files(pattern="*.csv")
-dt_li2 = do.call(rbind, lapply(files2, fread))[,-1]
-
 ### set working directory to save figures in
-#setwd("~/Dropbox/Kylie/Projects/Morevac/figures")
-
 setwd("~/Dropbox/Kylie/Projects/Morevac/figures/lifetime_infections/")
-
-#dt_li2 <- cbind(dt_li[,1:2],round(dt_li[,c(6:11)],2))
-#dt_li[,-c(1,2)] <- round(dt_li[,-c(1,2)],2)
 
 ### characterising difference in lifetime infections between annual and every other year
 
-diff_sub <- dt_li[dt_li$Vac_Strategy == "Annual",]
-diff_sub2 <- dt_li2[dt_li2$Vac_Strategy == "Annual",]
-
 # color by diff conf interval values (<0 blue, 0 black, >0 green)
-diff_sub$Diff_Color <- ifelse(diff_sub$Diff_Upper < 0, '<0',
-                              ifelse(diff_sub$Diff_Lower <=0 & diff_sub$Diff_Upper >=0, 'zero',
-                                     ifelse(diff_sub$Diff_Lower >0, '>0', 'something else')))
+banana_split$Diff_Color <- ifelse(banana_split$Upper < 0, '<0',
+                              ifelse(banana_split$Lower <=0 & banana_split$Diff_Upper >=0, 'zero',
+                                     ifelse(banana_split$Diff_Lower >0, '>0', 'something else')))
 
-diff_sub2$Diff_Color <- ifelse(diff_sub2$Diff_Upper < 0, '<0',
-                              ifelse(diff_sub2$Diff_Lower <=0 & diff_sub2$Diff_Upper >=0, 'zero',
-                                     ifelse(diff_sub2$Diff_Lower >0, '>0', 'something else')))
-
-p_hist2 <- ggplot(data = diff_sub2, aes(Diff, fill = cut(Diff,100))) +
+p_hist <- ggplot(data = diff_sub2, aes(Diff, fill = cut(Diff,100))) +
           geom_histogram(bins = 30, show.legend = FALSE) +
           scale_fill_viridis_d() +
           labs(x = "Difference", y = "Frequency") +
