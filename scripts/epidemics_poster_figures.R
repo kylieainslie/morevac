@@ -47,7 +47,7 @@ p2a1 <- ggplot(banana_split2, aes(x = Epsilon, y = Mean_Diff,color = Diff_Color)
   ylab('Difference') +
   theme(legend.position = "none")
 
-p1a2 <- ggplot(banana_split2, aes(x = VE, y = Mean_Diff,color = Diff_Color)) +
+p2a2 <- ggplot(banana_split2, aes(x = VE, y = Mean_Diff,color = Diff_Color)) +
   geom_point() +
   geom_errorbar(aes(ymin = Lower, ymax = Upper)) +
   geom_hline(yintercept = 0, color = "black") +
@@ -71,7 +71,7 @@ p2b <- ggplot(data = non_zeros, aes(x = Epsilon, y = VE, color = Diff_Color)) +
   ylab('VaccineEffectiveness') +
   theme(legend.position = "bottom")
 
-# d)
+# c)
 p2c1 <- ggplot(banana_split2, aes(x = Epsilon, y = Mean_Diff,color = Diff_Color)) +
   geom_point() +
   geom_errorbar(aes(ymin = Lower, ymax = Upper)) +
@@ -81,7 +81,7 @@ p2c1 <- ggplot(banana_split2, aes(x = Epsilon, y = Mean_Diff,color = Diff_Color)
   ylab('Difference') +
   theme(legend.position = "none")
 
-p1c2 <- ggplot(banana_split2, aes(x = VE, y = Mean_Diff,color = Diff_Color)) +
+p2c2 <- ggplot(banana_split2, aes(x = VE, y = Mean_Diff,color = Diff_Color)) +
   geom_point() +
   geom_errorbar(aes(ymin = Lower, ymax = Upper)) +
   geom_hline(yintercept = 0, color = "black") +
@@ -106,15 +106,18 @@ p2d <- ggplot(data = non_zeros, aes(x = Epsilon, y = VE, color = Diff_Color)) +
   theme(legend.position = "bottom")
 
 theme_set(theme_cowplot(font_size=10)) # reduce default font size
-p1bc <- plot_grid(p1b,p1c, ncol = 1, align = 'v', axis = 'l')
-p1 <- plot_grid(p1a, p1bc, p1d, labels = "AUTO", ncol = 3, align = 'v', axis = 'l')
+p2 <- plot_grid(p2a, p2b, p2c, p2d, labels = "AUTO", ncol = 2, align = 'v', axis = 'l')
 
-png(file = "figure1.png", width = 10, height = 4,
+png(file = "figure2.png", width = 8, height = 8,
     units = "in", pointsize = 8, res = 300)
-p1
+p2
 dev.off()
 
 # Figure 3 - multi-panel of fully vac indiv
+# a) off at 10: histogram of difference
+# b) off at 16: histogram of difference
+# c) off at 10: table of values where |diff| > 1
+# d) off at 16: table of values where |diff| > 1
 # a)
 p3a <- ggplot(data = banana_pancake2, aes(Mean_Diff, fill = Diff_Color)) +
   geom_histogram(bins = 50, show.legend = FALSE) +
@@ -124,8 +127,8 @@ p3a <- ggplot(data = banana_pancake2, aes(Mean_Diff, fill = Diff_Color)) +
         panel.grid.minor = element_blank(),
         panel.background = element_blank(),
         axis.line = element_line(colour = "black"))
-#b)
-p3b <- ggplot(data = banana_split2, aes(Mean_Diff, fill = Diff_Color)) +
+# b)
+p3b <- ggplot(data = banana_pancake2, aes(Mean_Diff, fill = Diff_Color)) +
   geom_histogram(bins = 50, show.legend = FALSE) +
   scale_fill_manual(values = c("#F8766D","#00BA38","gray85")) +
   labs(x = "Difference", y = "Frequency") +
@@ -133,20 +136,41 @@ p3b <- ggplot(data = banana_split2, aes(Mean_Diff, fill = Diff_Color)) +
         panel.grid.minor = element_blank(),
         panel.background = element_blank(),
         axis.line = element_line(colour = "black"))
-#c)
-non_zeros2 <- banana_pancake2 %>% filter(Diff_Color != "zero") %>% mutate(Abs_Val = abs(Mean_Diff))
-p3c <- ggplot(data = non_zeros2, aes(x = Epsilon, y = VE, color = Diff_Color)) +
-  geom_point(aes(size = Abs_Val)) +
-  scale_size_continuous(range = point_range, name = "|Difference|") +
-  scale_color_manual(name = "Difference", values = c("#F8766D","#00BA38")) +
-  xlab('Exposure Penalty') +
-  ylab('VaccineEffectiveness') +
-  theme(legend.position = "bottom")
+# c) table of values where |diff| > 1
+# banana_cream_pie <- banana_pancake2 %>%
+#                       filter(abs(Mean_Diff) > 1) %>%
+#                       select(Mean_Diff, Vac_Cov, Waning, Take, Epsilon, Rho, VE)
+# customGreen0 = "#DeF7E9"
+# customGreen = "#71CA97"
+# customRed = "#ff7f7f"
+#
+# p3c <- formattable(banana_cream_pie,
+#                    align =c("l","c","c","c","c", "c", "c"), list(
+#         `Mean_Diff` = color_bar(customRed),
+#         `Vac_Cov`= color_tile(customGreen0, customGreen),
+#         `Waning`= color_tile(customGreen0, customGreen),
+#         `Take`= color_tile(customGreen0, customGreen),
+#         `Epsilon`= color_tile(customGreen0, customGreen),
+#         `Rho`= color_tile(customGreen0, customGreen),
+#         `VE`= color_tile(customGreen0, customGreen)
+# ))
+# # d)
+# p3d <- formattable(banana_cream_pie,
+#                    align =c("l","c","c","c","c", "c", "c"), list(
+#                      `Mean_Diff` = color_bar(customRed),
+#                      `Vac_Cov`= color_tile(customGreen0, customGreen),
+#                      `Waning`= color_tile(customGreen0, customGreen),
+#                      `Take`= color_tile(customGreen0, customGreen),
+#                      `Epsilon`= color_tile(customGreen0, customGreen),
+#                      `Rho`= color_tile(customGreen0, customGreen),
+#                      `VE`= color_tile(customGreen0, customGreen)
+#                    ))
+
 
 theme_set(theme_cowplot(font_size=10)) # reduce default font size
-pw <- plot_grid(p3a, p3b, labels = "AUTO", ncol = 1, align = 'v', axis = 'l')
+p3 <- plot_grid(p3a, p3b, labels = "AUTO", ncol = 1, align = 'v', axis = 'l')
 
-png(file = "figure3.png", width = 6, height = 4,
+png(file = "figure3.png", width = 8, height = 8,
     units = "in", pointsize = 8, res = 300)
 p3
 dev.off()
