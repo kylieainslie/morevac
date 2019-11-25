@@ -65,7 +65,7 @@ non_zeros <- banana_split2 %>% filter(Diff_Color != "zero") %>% mutate(Abs_Val =
 
 p2b <- ggplot(data = non_zeros, aes(x = Epsilon, y = VE, color = Diff_Color)) +
   geom_point(aes(size = Abs_Val)) +
-  scale_size_continuous(range = point_range, name = "|Difference|") +
+  scale_size_continuous(name = "|Difference|") +
   scale_color_manual(name = "Difference", values = c("#F8766D","#00BA38")) +
   xlab('Exposure Penalty') +
   ylab('VaccineEffectiveness') +
@@ -116,8 +116,6 @@ dev.off()
 # Figure 3 - multi-panel of fully vac indiv
 # a) off at 10: histogram of difference
 # b) off at 16: histogram of difference
-# c) off at 10: table of values where |diff| > 1
-# d) off at 16: table of values where |diff| > 1
 # a)
 p3a <- ggplot(data = banana_pancake2, aes(Mean_Diff, fill = Diff_Color)) +
   geom_histogram(bins = 50, show.legend = FALSE) +
@@ -136,43 +134,45 @@ p3b <- ggplot(data = banana_pancake2, aes(Mean_Diff, fill = Diff_Color)) +
         panel.grid.minor = element_blank(),
         panel.background = element_blank(),
         axis.line = element_line(colour = "black"))
-# c) table of values where |diff| > 1
-# banana_cream_pie <- banana_pancake2 %>%
-#                       filter(abs(Mean_Diff) > 1) %>%
-#                       select(Mean_Diff, Vac_Cov, Waning, Take, Epsilon, Rho, VE)
-# customGreen0 = "#DeF7E9"
-# customGreen = "#71CA97"
-# customRed = "#ff7f7f"
-#
-# p3c <- formattable(banana_cream_pie,
-#                    align =c("l","c","c","c","c", "c", "c"), list(
-#         `Mean_Diff` = color_bar(customRed),
-#         `Vac_Cov`= color_tile(customGreen0, customGreen),
-#         `Waning`= color_tile(customGreen0, customGreen),
-#         `Take`= color_tile(customGreen0, customGreen),
-#         `Epsilon`= color_tile(customGreen0, customGreen),
-#         `Rho`= color_tile(customGreen0, customGreen),
-#         `VE`= color_tile(customGreen0, customGreen)
-# ))
-# # d)
-# p3d <- formattable(banana_cream_pie,
-#                    align =c("l","c","c","c","c", "c", "c"), list(
-#                      `Mean_Diff` = color_bar(customRed),
-#                      `Vac_Cov`= color_tile(customGreen0, customGreen),
-#                      `Waning`= color_tile(customGreen0, customGreen),
-#                      `Take`= color_tile(customGreen0, customGreen),
-#                      `Epsilon`= color_tile(customGreen0, customGreen),
-#                      `Rho`= color_tile(customGreen0, customGreen),
-#                      `VE`= color_tile(customGreen0, customGreen)
-#                    ))
 
+# Table 1 of param values for |diff| > 1
+# a) off at 10: table of values where |diff| > 1
+# b) off at 16: table of value where |diff| > 1
+banana_cream_pie <- banana_pancake2 %>%
+                      filter(abs(Mean_Diff) > 1.5) %>%
+                      mutate(Difference = ifelse(Mean_Diff <= 0.0,
+                        color_tile(customRed, "transparent")(Mean_Diff*c(Mean_Diff<=0)),
+                        color_tile("transparent", customGreen)(Mean_Diff*c(Mean_Diff>=0)))) %>%
+                      select(Difference, Vac_Cov, Waning, Take, Epsilon, Rho, VE) %>%
+                      arrange(Difference)
 
-theme_set(theme_cowplot(font_size=10)) # reduce default font size
-p3 <- plot_grid(p3a, p3b, labels = "AUTO", ncol = 1, align = 'v', axis = 'l')
+ customGray0 = "gray85"
+ customGray = "gray55"
+ customGreen = "#00BA38" #"#71CA97"
+ customRed = "#F8766D" #"#ff7f7f"
 
-png(file = "figure3.png", width = 8, height = 8,
-    units = "in", pointsize = 8, res = 300)
-p3
-dev.off()
+t1a <- formattable(banana_cream_pie,
+                   align =c("c","c","c","c","c", "c", "c"), list(
+        #`Mean_Diff` = color_tile(customRed, customGreen),
+        `Vac_Cov`= color_tile(customGray0, customGray),
+        `Waning`= color_tile(customGray0, customGray),
+        `Take`= color_tile(customGray0, customGray),
+        `Epsilon`= color_tile(customGray0, customGray),
+        `Rho`= color_tile(customGray0, customGray),
+        `VE`= color_tile(customGray0, customGray)
+        ))
+# b)
+
+t1b <- formattable(banana_cream_pie,
+                   align =c("l","c","c","c","c", "c", "c"), list(
+         #`Mean_Diff` = color_bar(customRed),
+         `Vac_Cov`= color_tile(customGreen0, customGreen),
+         `Waning`= color_tile(customGreen0, customGreen),
+         `Take`= color_tile(customGreen0, customGreen),
+         `Epsilon`= color_tile(customGreen0, customGreen),
+         `Rho`= color_tile(customGreen0, customGreen),
+         `VE`= color_tile(customGreen0, customGreen)
+         ))
+
 
 
