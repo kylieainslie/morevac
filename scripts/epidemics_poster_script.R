@@ -1,12 +1,23 @@
 ### Epidemics Poster Script ###
 
+# load required packages
+library(ggplot2)
+library(tidyr)
+library(cowplot)
+library(dplyr)
+library(boot)
+library(data.table)
+# load morevac package
+setwd("~/Documents/morevac")
+devtools::load_all()
+
 #######################################
 ### read in results (rather than re-run simulations)
-setwd("~/Dropbox/Kylie/Projects/Morevac/data/sim_data/infection_histories")
+setwd("~/Dropbox/Kylie/Projects/Morevac/data/sim_data/off_at_10/infection_histories")
 files_inf <- list.files(pattern="*.csv")
 dt_inf = do.call(rbind, lapply(files_inf, fread))
 
-setwd("~/Dropbox/Kylie/Projects/Morevac/data/sim_data/vaccination_histories")
+setwd("~/Dropbox/Kylie/Projects/Morevac/data/sim_data/off_at_10/vaccination_histories")
 files_vac <- list.files(pattern="*.csv")
 dt_vac = do.call(rbind, lapply(files_vac, fread))
 
@@ -18,7 +29,7 @@ names(param_values)[1] <- "Param_Index"
 dt_inf1 <- dt_inf %>% mutate(Num_Infs = rowSums(select(.,Age0:Age18)))
 dt_vac1 <- dt_vac %>% mutate(Num_Vacs = rowSums(select(.,Age0:Age18)))
 
-banana <- cbind(dt_inf1[,c("Vac_Strategy", "Sim", "Cohort", "ID", "Param_Index", "Num_Infs")],dt_vac1[,c("Num_Vacs")])
+banana <- cbind(dt_inf1[,c("Vac_Strategy", "Sim", "Cohort", "ID", "Param_Index", "Num_Infs")], Num_Vacs = dt_vac1[,c("Num_Vacs")])
 banana_boat <- banana %>% group_by(Vac_Strategy, Param_Index, Sim) %>% summarise(Mean_Infs = mean(Num_Infs))
 banana_split <- banana_boat %>% spread(Vac_Strategy, Mean_Infs)
 banana_split$Difference <- banana_split$Annual - banana_split$Biennial
@@ -54,14 +65,17 @@ banana_pancake <- banana %>%
 # bootstrap
 my_bootstrap2 <- plyr::dlply(banana_pancake, "Param_Index", function(dat) boot(dat, foo, R=100)) # boostrap for each set of param values
 my_ci2 <- sapply(my_bootstrap2, function(x) boot.ci(x, index = 1, type='perc')$percent[c(4,5)]) # get confidence intervals
+my_ci2 <- data.frame(matrix(unlist(my_ci2), nrow=length(my_ci2), byrow=T))
 
 banana_pancake2 <- banana_pancake %>% group_by(Param_Index) %>% summarise(Mean_Diff = mean(Difference))
-banana_pancake2$Lower <- my_ci2[1,]
-banana_pancake2$Upper <- my_ci2[2,]
+banana_pancake2$Lower <- my_ci2[,1]
+banana_pancake2$Upper <- my_ci2[,2]
 banana_pancake2 <- left_join(banana_pancake2, param_values, by = c("Param_Index"))
 # add Diff_Color column for plotting
 banana_pancake2$Diff_Color <- ifelse(banana_pancake2$Upper < 0, '<0',
                                    ifelse(banana_pancake2$Lower <=0 & banana_pancake2$Upper >=0, 'zero',
                                           ifelse(banana_pancake2$Lower >0, '>0', 'something else')))
+
+# randomly select fully vac individuals and plot exposure history
 
 
