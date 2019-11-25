@@ -7,6 +7,7 @@ library(cowplot)
 library(dplyr)
 library(boot)
 library(data.table)
+library(formattable)
 # load morevac package
 setwd("~/Documents/morevac")
 devtools::load_all()
