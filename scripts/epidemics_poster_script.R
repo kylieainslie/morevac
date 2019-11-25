@@ -63,19 +63,21 @@ banana_pancake <- banana %>%
   filter(!is.na(Difference))
 
 # bootstrap
-my_bootstrap2 <- plyr::dlply(banana_pancake, "Param_Index", function(dat) boot(dat, foo, R=100)) # boostrap for each set of param values
+my_bootstrap2 <- plyr::dlply(banana_pancake, "Param_Index", function(dat) boot(dat, foo, R=1000)) # boostrap for each set of param values
 my_ci2 <- sapply(my_bootstrap2, function(x) boot.ci(x, index = 1, type='perc')$percent[c(4,5)]) # get confidence intervals
-my_ci2 <- data.frame(matrix(unlist(my_ci2), nrow=length(my_ci2), byrow=T))
+my_ci2[vapply(my_ci2, is.null, logical(1))] <- list(c(NA, NA))
+my_ci2a <- data.frame(matrix(unlist(my_ci2), nrow=length(my_ci2), byrow=T)) #bind_rows(my_ci2)
 
 banana_pancake2 <- banana_pancake %>% group_by(Param_Index) %>% summarise(Mean_Diff = mean(Difference))
-banana_pancake2$Lower <- my_ci2[,1]
-banana_pancake2$Upper <- my_ci2[,2]
+banana_pancake2$Lower <- my_ci2a[,1]
+banana_pancake2$Upper <- my_ci2a[,2]
 banana_pancake2 <- left_join(banana_pancake2, param_values, by = c("Param_Index"))
 # add Diff_Color column for plotting
 banana_pancake2$Diff_Color <- ifelse(banana_pancake2$Upper < 0, '<0',
                                    ifelse(banana_pancake2$Lower <=0 & banana_pancake2$Upper >=0, 'zero',
                                           ifelse(banana_pancake2$Lower >0, '>0', 'something else')))
-
+banana_pancake2$Diff_Color <- ifelse(is.na(banana_pancake2$Upper) & banana_pancake2$Mean_Diff <0, '<0', banana_pancake2$Diff_Color)
+banana_pancake2$Diff_Color <- ifelse(is.na(banana_pancake2$Lower) & banana_pancake2$Mean_Diff >0, '>0', banana_pancake2$Diff_Color)
 # randomly select fully vac individuals and plot exposure history
 
 
