@@ -8,7 +8,7 @@ setwd("~/Dropbox/Kylie/Presentations/Epidemics 2019")
 p1a <- ggplot(data = banana_split2, aes(Mean_Diff, fill = Diff_Color)) +
   geom_density(alpha = 0.3) +
   scale_fill_manual(name = 'Difference', values = c("#F8766D","#00BA38", "#619CFF"), labels = c('<0', '>0', '0')) +
-  geom_density(data = banana_split2, aes(x = Mean_Diff, color = 'black'), linetype = 'dashed', fill = 'gray', alpha = 0.3) +
+  geom_density(data = banana_split2, aes(x = Mean_Diff, color = 'black'), fill = 'gray', linetype = 'dashed',  alpha = 0.3) +
   scale_color_manual(name = '', values = c('black'), labels = c('Total')) +
   labs(x = "Difference", y = "Frequency") +
   theme(legend.position = c(0.1, 0.9),
@@ -210,15 +210,23 @@ dev.off()
   p3b_alt <- ggplot() +
               geom_density(data = banana_pancake2, aes(x = Mean_Diff, fill = Diff_Color), alpha = 0.3) +
               scale_fill_manual(name="Difference",values=c("#F8766D","#00BA38","#619CFF"), labels = c('<0', '>0', '0')) +
-              geom_density(data = banana_split2, aes(x = Mean_Diff, color = 'black'), linetype = 'dashed', fill = 'gray', alpha = 0.3) +
+              geom_density(data = banana_split2, aes(x = Mean_Diff, color = 'black'), linetype = 'dotted', fill = 'gray', alpha = 0.3) +
               scale_color_manual(name = '', values = c('black'), labels = c('Entire Population')) +
               xlab('Difference')+ylab('Density') +
               theme(legend.position = 'none',
                     axis.text=element_text(size=12),
                     axis.title=element_text(size=14)
                     )
+  p3b_inset <- ggplot() +
+    geom_density(data = banana_split2, aes(x = Mean_Diff, color = 'black'), color = 'black', fill = 'darkgrey', linetype = 'dashed', alpha = 0.3) +
+    geom_density(data = banana_pancake2, aes(x = Mean_Diff, color = 'black'), color = 'black', linetype = 'dotted', fill = 'gray', alpha = 0.3) +
+    theme(axis.title = element_blank())
 
-p3_alt <- plot_grid(p3a_alt, p3b_alt, labels = "AUTO", ncol = 1, align = 'v', axis = 'l')
+  p3b<- p3b_alt +
+    annotation_custom(ggplotGrob(p3a_inset),
+                      xmin = 0.5, xmax = 4, ymin = 0.5, ymax = 3)
+
+p3_alt <- plot_grid(p3a, p3b, labels = "AUTO", ncol = 1, align = 'v', axis = 'l')
 
 
 png(file = "figure3.png", width = 6, height = 4,
