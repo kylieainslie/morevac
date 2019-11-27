@@ -8,6 +8,8 @@ setwd("~/Dropbox/Kylie/Presentations/Epidemics 2019")
 p1a <- ggplot(data = banana_split2, aes(Mean_Diff, fill = Diff_Color)) +
   geom_density(alpha = 0.3) +
   scale_fill_manual(name = 'Difference', values = c("#F8766D","#00BA38", "#619CFF"), labels = c('<0', '>0', '0')) +
+  geom_density(data = banana_split2, aes(x = Mean_Diff, color = 'black'), linetype = 'dashed', fill = 'gray', alpha = 0.3) +
+  scale_color_manual(name = '', values = c('black'), labels = c('Total')) +
   labs(x = "Difference", y = "Frequency") +
   theme(legend.position = c(0.1, 0.9),
         panel.grid.major = element_blank(),
@@ -22,6 +24,8 @@ p1a <- ggplot(data = banana_split2, aes(Mean_Diff, fill = Diff_Color)) +
 p1b <- ggplot(data = banana_split2, aes(Mean_Diff, fill = Diff_Color)) +
   geom_density(alpha = 0.3) +
   scale_fill_manual(name = 'Difference', values = c("#F8766D","#00BA38", "#619CFF"), labels = c('<0', '>0', '0')) +
+  geom_density(data = banana_split2, aes(x = Mean_Diff, color = 'black'), linetype = 'dashed', fill = 'gray', alpha = 0.3) +
+  scale_color_manual(name = '', values = c('black'), labels = c('Total')) +
   labs(x = "Difference", y = "Frequency") +
   theme(legend.position = 'none',
         panel.grid.major = element_blank(),
@@ -128,7 +132,7 @@ p2c <- plot_grid(p2c1, p2c2, labels = "AUTO", ncol = 1, align = 'v', axis = 'l')
 non_zeros <- banana_split2 %>% filter(Diff_Color != "zero") %>% mutate(Abs_Val = abs(Mean_Diff))
 
 p2d <- ggplot(data = non_zeros, aes(x = Epsilon, y = VE, color = Diff_Color)) +
-  geom_point(aes(size = Abs_Val)) +
+  geom_point(aes(size = Abs_Val), alpha = 0.7) +
   scale_size_continuous(name = "|Difference|") +
   scale_color_manual(name = "Difference", values = c("#F8766D","#00BA38")) +
   xlab('Exposure Penalty') +
@@ -250,4 +254,9 @@ t1b <- formattable(banana_cream_pie,
                    ))
 t1b
 
+# call plot from file
+test_file <- system.file("figure1.png", package = "cowplot")
+ggdraw() +
+  draw_image(test_file, scale = .7) +
+  draw_plot(p)
 
