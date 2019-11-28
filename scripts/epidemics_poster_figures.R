@@ -10,8 +10,9 @@ p1a <- ggplot(data = banana_split2, aes(Mean_Diff, fill = Diff_Color)) +
   scale_fill_manual(name = 'Difference', values = c("#F8766D","#00BA38", "#619CFF"), labels = c('<0', '>0', '0')) +
   geom_density(data = banana_split2, aes(x = Mean_Diff, color = 'black'), fill = 'gray', linetype = 'dashed',  alpha = 0.3) +
   scale_color_manual(name = '', values = c('black'), labels = c('Total')) +
-  labs(x = "Difference", y = "Frequency") +
-  theme(legend.position = c(0.1, 0.9),
+  scale_x_continuous(limits = c(-1,0.5)) +
+  labs(x = "Difference", y = "Frequency", title = "Vaccination from Ages 2-10") +
+  theme(legend.position = c(0.1, 0.8),
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
         panel.background = element_blank(),
@@ -19,14 +20,16 @@ p1a <- ggplot(data = banana_split2, aes(Mean_Diff, fill = Diff_Color)) +
         axis.text=element_text(size=12),
         axis.title=element_text(size=14),
         legend.text = element_text(size=12),
-        legend.title = element_text(size=12))
+        legend.title = element_text(size=12),
+        plot.title = element_text(size = 14, face = 'bold'))
 
 p1b <- ggplot(data = banana_split2, aes(Mean_Diff, fill = Diff_Color)) +
   geom_density(alpha = 0.3) +
   scale_fill_manual(name = 'Difference', values = c("#F8766D","#00BA38", "#619CFF"), labels = c('<0', '>0', '0')) +
   geom_density(data = banana_split2, aes(x = Mean_Diff, color = 'black'), linetype = 'dashed', fill = 'gray', alpha = 0.3) +
   scale_color_manual(name = '', values = c('black'), labels = c('Total')) +
-  labs(x = "Difference", y = "Frequency") +
+  scale_x_continuous(limits = c(-1,0.5)) +
+  labs(x = "Difference", y = "Frequency", title = "Vaccination from Ages 2-16") +
   theme(legend.position = 'none',
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
@@ -35,11 +38,12 @@ p1b <- ggplot(data = banana_split2, aes(Mean_Diff, fill = Diff_Color)) +
         axis.text=element_text(size=12),
         axis.title=element_text(size=14),
         legend.text = element_text(size=12),
-        legend.title = element_text(size=12))
+        legend.title = element_text(size=12),
+        plot.title = element_text(size = 14, face = 'bold'))
 
 p1 <- plot_grid(p1a, p1b, labels = "AUTO", ncol = 1, align = 'v', axis = 'l')
 
-png(file = "figure1.png", width = 6, height = 4,
+png(file = "figure1.png", width = 10, height = 8,
     units = "in", pointsize = 8, res = 300)
 p1
 dev.off()
@@ -60,6 +64,9 @@ p2a1 <- ggplot(banana_hammock, aes(x = Epsilon, y = Mean_Diff, color = Diff_Colo
   xlab("Exposure Penalty") +
   ylab('Difference') +
   theme(legend.position = "none",
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
         axis.text=element_text(size=12),
         axis.title=element_text(size=14)) +
   geom_point(data = banana_hammock0, aes(x = Epsilon, y = Mean_Diff), alpha = 0.4) +
@@ -74,31 +81,36 @@ p2a2 <- ggplot(banana_hammock, aes(x = VE, y = Mean_Diff, color = Diff_Color)) +
   xlab("Vaccine Effectiveness") +
   ylab('Difference') +
   theme(legend.position = "none",
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
         axis.text=element_text(size=12),
         axis.title=element_text(size=14)) +
   geom_point(data = banana_hammock0, aes(x = VE, y = Mean_Diff), alpha = 0.4) +
   geom_errorbar(data = banana_hammock0, aes(ymin = Lower, ymax = Upper), alpha = 0.4)
 
-p2a <- plot_grid(p2a1, p2a2, labels = "AUTO", ncol = 1, align = 'v', axis = 'l')
+p2a <- plot_grid(p2a1, p2a2, ncol = 1, align = 'v', axis = 'l')
 
 # b)
 # subset only points with CIs that don't include 0
 non_zeros <- banana_split2 %>% filter(Diff_Color != "zero") %>% mutate(Abs_Val = abs(Mean_Diff))
 
 p2b <- ggplot(data = non_zeros, aes(x = Epsilon, y = VE, color = Diff_Color)) +
-  geom_point(aes(size = Abs_Val)) +
+  geom_point(aes(size = Abs_Val), alpha = 0.7) +
   scale_size_continuous(name = "|Difference|") +
   scale_color_manual(name = "Difference", values = c("#F8766D","#00BA38")) +
   xlab('Exposure Penalty') +
-  ylab('VaccineEffectiveness') +
+  ylab('Vaccine Effectiveness') +
   theme(legend.position = "bottom",
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
         axis.text=element_text(size=12),
         axis.title=element_text(size=14),
         legend.text = element_text(size=12),
         legend.title = element_text(size=12))
 
 # c)
-# a)
 p2c1 <- ggplot(banana_hammock, aes(x = Epsilon, y = Mean_Diff, color = Diff_Color)) +
   geom_point() +
   geom_errorbar(aes(ymin = Lower, ymax = Upper)) +
@@ -107,6 +119,9 @@ p2c1 <- ggplot(banana_hammock, aes(x = Epsilon, y = Mean_Diff, color = Diff_Colo
   xlab("Exposure Penalty") +
   ylab('Difference') +
   theme(legend.position = "none",
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
         axis.text=element_text(size=12),
         axis.title=element_text(size=14)) +
   geom_point(data = banana_hammock0, aes(x = Epsilon, y = Mean_Diff), alpha = 0.4) +
@@ -120,12 +135,15 @@ p2c2 <- ggplot(banana_hammock, aes(x = VE, y = Mean_Diff, color = Diff_Color)) +
   xlab("Vaccine Effectiveness") +
   ylab('Difference') +
   theme(legend.position = "none",
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
         axis.text=element_text(size=12),
         axis.title=element_text(size=14)) +
   geom_point(data = banana_hammock0, aes(x = VE, y = Mean_Diff), alpha = 0.4) +
   geom_errorbar(data = banana_hammock0, aes(ymin = Lower, ymax = Upper), alpha = 0.4)
 
-p2c <- plot_grid(p2c1, p2c2, labels = "AUTO", ncol = 1, align = 'v', axis = 'l')
+p2c <- plot_grid(p2c1, p2c2, ncol = 1, align = 'v', axis = 'l')
 
 # d)
 # subset only points with CIs that don't include 0
@@ -138,6 +156,9 @@ p2d <- ggplot(data = non_zeros, aes(x = Epsilon, y = VE, color = Diff_Color)) +
   xlab('Exposure Penalty') +
   ylab('VaccineEffectiveness') +
   theme(legend.position = "bottom",
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
         axis.text=element_text(size=12),
         axis.title=element_text(size=14),
         legend.text = element_text(size=12),
@@ -145,7 +166,7 @@ p2d <- ggplot(data = non_zeros, aes(x = Epsilon, y = VE, color = Diff_Color)) +
 
 p2 <- plot_grid(p2a, p2b, p2c, p2d, labels = "AUTO", ncol = 2, align = 'v', axis = 'l')
 
-png(file = "figure2.png", width = 8, height = 8,
+png(file = "figure2.png", width = 12, height = 8,
     units = "in", pointsize = 8, res = 300)
 p2
 dev.off()
@@ -191,17 +212,25 @@ dev.off()
               scale_fill_manual(name="Difference",values=c("#F8766D","#00BA38","#619CFF"), labels = c('<0', '>0', '0')) +
               geom_density(data = banana_pancake2, aes(x = Mean_Diff, color = 'black'), linetype = 'dotted', fill = 'gray', alpha = 0.3) +
               scale_color_manual(name = '', values = c('black'), labels = c('Total')) +
-              xlab('Difference')+ylab('Density') +
+              scale_x_continuous(limits = c(-4,4)) +
+              xlab('Difference')+ylab('Density') + ggtitle('Vaccination from Ages 2-10') +
               theme(legend.position = c(0.1, 0.8),
+                    panel.grid.major = element_blank(),
+                    panel.grid.minor = element_blank(),
+                    panel.background = element_blank(),
                     axis.text=element_text(size=12),
                     axis.title=element_text(size=14),
                     legend.text = element_text(size = 12),
-                    legend.title = element_text(size = 12))
+                    legend.title = element_text(size = 12),
+                    plot.title = element_text(size = 14, face = 'bold'))
 
   p3a_inset <- ggplot() +
                 geom_density(data = banana_split2, aes(x = Mean_Diff, color = 'black'), color = 'black', fill = 'darkgrey', linetype = 'dashed', alpha = 0.3) +
                 geom_density(data = banana_pancake2, aes(x = Mean_Diff, color = 'black'), color = 'black', linetype = 'dotted', fill = 'gray', alpha = 0.3) +
-                theme(axis.title = element_blank())
+                theme(axis.title = element_blank(),
+                      panel.grid.major = element_blank(),
+                      panel.grid.minor = element_blank(),
+                      panel.background = element_blank())
 
   p3a <- p3a_alt +
           annotation_custom(ggplotGrob(p3a_inset),
@@ -212,24 +241,32 @@ dev.off()
               scale_fill_manual(name="Difference",values=c("#F8766D","#00BA38","#619CFF"), labels = c('<0', '>0', '0')) +
               geom_density(data = banana_split2, aes(x = Mean_Diff, color = 'black'), linetype = 'dotted', fill = 'gray', alpha = 0.3) +
               scale_color_manual(name = '', values = c('black'), labels = c('Entire Population')) +
-              xlab('Difference')+ylab('Density') +
+              scale_x_continuous(limits = c(-4,4)) +
+              xlab('Difference')+ylab('Density') + ggtitle('Vaccination from Ages 2-16') +
               theme(legend.position = 'none',
+                    panel.grid.major = element_blank(),
+                    panel.grid.minor = element_blank(),
+                    panel.background = element_blank(),
                     axis.text=element_text(size=12),
-                    axis.title=element_text(size=14)
+                    axis.title=element_text(size=14),
+                    plot.title = element_text(size = 14, face = 'bold')
                     )
   p3b_inset <- ggplot() +
     geom_density(data = banana_split2, aes(x = Mean_Diff, color = 'black'), color = 'black', fill = 'darkgrey', linetype = 'dashed', alpha = 0.3) +
     geom_density(data = banana_pancake2, aes(x = Mean_Diff, color = 'black'), color = 'black', linetype = 'dotted', fill = 'gray', alpha = 0.3) +
-    theme(axis.title = element_blank())
+    theme(axis.title = element_blank(),
+          panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(),
+          panel.background = element_blank())
 
   p3b<- p3b_alt +
     annotation_custom(ggplotGrob(p3a_inset),
-                      xmin = 0.5, xmax = 4, ymin = 0.5, ymax = 3)
+                      xmin = 0.5, xmax = 4, ymin = 1.5, ymax = 4.5)
 
 p3_alt <- plot_grid(p3a, p3b, labels = "AUTO", ncol = 1, align = 'v', axis = 'l')
 
 
-png(file = "figure3.png", width = 6, height = 4,
+png(file = "figure3.png", width = 10, height = 8,
     units = "in", pointsize = 8, res = 300)
 p3_alt
 dev.off()

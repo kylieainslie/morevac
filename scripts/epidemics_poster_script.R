@@ -14,11 +14,11 @@ devtools::load_all()
 
 #######################################
 ### read in results (rather than re-run simulations)
-setwd("~/Dropbox/Kylie/Projects/Morevac/data/sim_data/off_at_16/infection_histories")
+setwd("~/Dropbox/Kylie/Projects/Morevac/data/sim_data/off_at_10/infection_histories")
 files_inf <- list.files(pattern="*.csv")
 dt_inf = do.call(rbind, lapply(files_inf, fread))
 
-setwd("~/Dropbox/Kylie/Projects/Morevac/data/sim_data/off_at_16/vaccination_histories")
+setwd("~/Dropbox/Kylie/Projects/Morevac/data/sim_data/off_at_10/vaccination_histories")
 files_vac <- list.files(pattern="*.csv")
 dt_vac = do.call(rbind, lapply(files_vac, fread))
 
