@@ -3,7 +3,7 @@ library(Rgraphviz)
 library(proftools)
 
 Rprof(tmp <-tempfile(),line.profiling = TRUE)
-multiannual2()
+multiannual2() # function to profile
 Rprof(line.profiling = TRUE)
 summaryRprof(tmp)
 plotProfileCallGraph(readProfileData(tmp),score = "total")

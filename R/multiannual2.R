@@ -83,8 +83,8 @@ multiannual2 <- function(n = 1000,
     )
     colnames(null_inf_counter) <- c(paste0("Age",0:(maxage-1)))
 
-  # calculate drift for each year
-    drift <- drift_func(nyears = years, rate = 0.5)
+  # calculate drift and antigenic distance for each year
+    drift <- drift_func(nyears = years, rate = 1)
   # determine years of vaccination
     actual_year_vec <- start_year:end_year
     vac_this_year <- ifelse(actual_year_vec>=start_vac_year & actual_year_vec %% vac_strategy == 0, 1, 0)
@@ -94,23 +94,26 @@ multiannual2 <- function(n = 1000,
     year_counter <- 1
     actual_year <- start_year
 
+  # protection function
+    pi_t_theta <- function(beta = 10, titre, alpha = log(3)){
+      1 - (1/(1 + exp(beta*(log(titre)-alpha))))
+    }
 # start loop over years
   while (year_counter < years+1){
   # initialize infection counter for current year
     inf_counter <- null_inf_counter
     # calculate vaccine distance from circulating strain
-    vaccine_dist[year_counter] <- min(1,sum(drift[(year_counter-years_since_vac_update[year_counter]):year_counter]))
+    vaccine_dist[year_counter] <- drift[year_counter, year_counter-years_since_vac_update[year_counter]]
+      #min(1,sum(drift[(year_counter-years_since_vac_update[year_counter]):year_counter]))
     # update vaccine?
     update[year_counter] <- vaccine_update(years_since_vac_update = years_since_vac_update[year_counter],
-                                           accumulated_drift = vaccine_dist[year_counter])
+                                           antigenic_dist = vaccine_dist[year_counter])
     # change years since vac update to 0 if updated in current year
-    years_since_vac_update[year_counter] <- years_since_vac_update[year_counter] *
-      (1 - update[year_counter]) +
-      (1 - update[year_counter])
+    years_since_vac_update[year_counter] <- years_since_vac_update[year_counter] * (1 - update[year_counter]) + (1 - update[year_counter])
 
     # determine protective effect of vaccine based on distance from circulating strain
     if (update[year_counter] == 0){
-      mygamma <- (1-vac_protect)*((1/(1-vaccine_dist[year_counter])))
+      mygamma <- (1-vac_protect)*pi_t_theta(titre = vaccine_dist[year_counter])    # ((1/(1-vaccine_dist[year_counter])))
     } else {mygamma <- 1-vac_protect}
 
   # generate random numbers for infection and vaccination
