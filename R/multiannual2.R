@@ -94,8 +94,8 @@ multiannual2 <- function(n = 1000,
     year_counter <- 1
     actual_year <- start_year
 
-  # protection function
-    pi_t_theta <- function(beta = 10, titre, alpha = log(3)){
+  # protection function from Caudeville et al. 2010
+    pi_t_theta <- function(beta = 2.102, titre, alpha = log(3.385)){
       1 - (1/(1 + exp(beta*(log(titre)-alpha))))
     }
 # start loop over years
