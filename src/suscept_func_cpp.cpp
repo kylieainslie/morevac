@@ -19,34 +19,31 @@ double suscept_func_cpp(int inf_history,
                         double gamma,
                         double drift_x,
                         double drift_v,
-                        double wane_rate,
-                        int version) {
+                        double wane_rate) {
 
   int vac_ind = 0; // initialize vac_ind
   double rtn = 0;  // initialize return value
-  double w = 0;       // initialize waning
+  double w = 0;    // initialize waning
+  double pi_x;
+  double pi_v;
 // vaccinated in current year
   if(vac_history == 0){
      vac_ind = 1;
   }
+// determine susceptibility due to infection
+  if (inf_history < 999){
+    pi_x = (1/(1 + exp(1.299*((std::max(log(200)-drift_x,0)-log(2.844))))));
+  } else {pi_x = 1;}
 // determine amount of waning
-   w = (1-vac_ind)*((1 - gamma) * vac_history * wane_rate);
-// non-constant drift values
+  w = (1-vac_ind)*((1 - gamma) * vac_history * wane_rate);
+// determine susceptibility due to infection
   if (vac_history < 999){
-     if (version == 1){
-          rtn = std::min(1.0, std::min(drift_x,(vac_ind*gamma) + (1-vac_ind)*(gamma + drift_v + w))); // either-or
-      } else if (version == 2) {
-          rtn = std::min(1.0,drift_x) * std::min(1.0, (vac_ind*gamma) + (1-vac_ind)*(gamma + drift_v + w)); // multiplicative
-      }
-     } else if (vac_history >= 999){
-       rtn = std::min(1.0,drift_x);
-     }
-// infected and drift=0
-  if (drift_x == 0 && drift_v == 0 && inf_history < 999){
-      rtn = 0;
-  }
+    pi_v = (1-gamma)*(1/(1 + exp(1.299*((std::max(log(200)-drift_v,0)-log(2.844)))))) - w;
+  } else {pi_v = 1};
+// calculate susceptibility
+  rtn = pi_x * pi_v;
 
-  return(rtn);
+ return(rtn);
 }
 
 /*** R
