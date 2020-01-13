@@ -7,7 +7,7 @@
 #' @return binary indicator of whether the vaccine will be updated (0 - no, 1 - yes)
 #' @keywords morevac
 #' @export
-vaccine_update <- function(years_since_vac_update, antigenic_dist, d = 0.5){
+vaccine_update <- function(years_since_vac_update, antigenic_dist, d = 3){
   if(years_since_vac_update == 0){
     rtn <- 0
     return(rtn)
