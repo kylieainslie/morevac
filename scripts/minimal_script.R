@@ -6,7 +6,8 @@
   library(reshape2)
   library(cowplot)
   library(stringr)
-
+  library(rdist)
+  library(dplyr)
 # load morevac package
   setwd("C:/Users/kainslie/Documents/GitHub/morevac")
 # setwd("~/Documents/morevac")
