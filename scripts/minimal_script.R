@@ -45,9 +45,9 @@ setwd("/Volumes/kainslie/morevac_sims/data")
 yearRange = 2000:2019
 ageRange = 0:19
 
-tags1 <- c("vs0vc50r09v1_w_drift","vs1vc50r09v1_w_drift","vs2vc50r09v1_w_drift")                                # filename tags
-sim_out1 <- read_in_sim_data(tags1)                                               # read in sim results files
+tags1 <- c("vs0vc50r09v1_w_drift","vs1vc50r09v1_w_drift","vs2vc50r09v1_w_drift")   # filename tags
+sim_out1 <- read_in_sim_data(tags1)                                                # read in sim results files
 dat1 <- process_sim_output(sim_out1, year_range = yearRange, age_range = ageRange) # process sim data
-pa1 <- plot_attack_rates(dat = dat1[[1]], by_vac = TRUE, c_bands = TRUE)          # plot attack rates
-pl1 <- plot_lifetime_infections(dat = dat1[[2]], by_vac = TRUE, x=0.5)            # plot lifetime infections
+pa1 <- plot_attack_rates(dat = dat1[[1]], by_vac = TRUE, c_bands = TRUE)           # plot attack rates
+pl1 <- plot_lifetime_infections(dat = dat1[[2]], by_vac = TRUE, x=0.5)             # plot lifetime infections
 
