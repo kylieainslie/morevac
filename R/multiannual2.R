@@ -38,8 +38,6 @@ multiannual2 <- function(n = 1000,
                          vac_coverage = 0.5,
                          beta_pandemic = 0.4,
                          beta_epidemic = 0.2,
-                         delta_x = NULL,
-                         delta_v = NULL,
                          vac_protect = 0.7,
                          suscept_func_version = 1,
                          vac_strategy = 1,
@@ -103,8 +101,7 @@ multiannual2 <- function(n = 1000,
   # initialize infection counter for current year
     inf_counter <- null_inf_counter
     # calculate vaccine distance from circulating strain
-    vaccine_dist[year_counter] <- min(1,sum(drift[(year_counter-years_since_vac_update[year_counter]):year_counter]))
-      #antigenic_dist[year_counter, year_counter-years_since_vac_update[year_counter]]
+    vaccine_dist[year_counter] <- antigenic_dist[year_counter, year_counter-years_since_vac_update[year_counter]]
 
     # update vaccine?
     update[year_counter] <- vaccine_update(years_since_vac_update = years_since_vac_update[year_counter],
@@ -114,14 +111,14 @@ multiannual2 <- function(n = 1000,
 
     # determine protective effect of vaccine based on distance from circulating strain
     if (update[year_counter] == 0){
-      mygamma <- (1-vac_protect)*((1/(1-vaccine_dist[year_counter]))) # pi_t_theta(titre = 200 - exp(vaccine_dist[year_counter]))
+      mygamma <- (1-vac_protect)*pi_t_theta(titre = 200 - exp(vaccine_dist[year_counter]))
     } else {mygamma <- 1-vac_protect}
 
   # generate random numbers for infection and vaccination
     rn_inf <- runif(n,0,1)
     rn_vac <- runif(n,0,1)
   # loop over individuals
-      i <- 1
+    i <- 1
     while(i < n+1){
       #print(i)
       a <- ages[i] + 1
@@ -132,8 +129,7 @@ multiannual2 <- function(n = 1000,
       if(is.na(inf_hist_mat[i,a])){inf_hist_mat[i,a]<-0}
       if(is.na(vac_hist_mat[i,a])){vac_hist_mat[i,a]<-0}
     # determine whether an individual was vaccinated in the year (or two) previously
-      if (a-vac_strategy < 1){prior_vac <- 0
-      } else {prior_vac <- vac_hist_mat[i,a-vac_strategy]}
+      prior_vac <- if_else(a-vac_strategy < 1, 0, vac_hist_mat[i,a-vac_strategy])
 
       # determine who will be vaccinated
       if (actual_year >= start_vac_year){
@@ -154,29 +150,18 @@ multiannual2 <- function(n = 1000,
         inf_counter[4,a] <- inf_counter[4,a] + vac_hist_mat[i,a]
         inf_counter[6,a] <- inf_counter[6,a] + (1-vac_hist_mat[i,a])
       # determine delta_v
-        if(is.null(delta_v)) {
-          constant <- 0
-          if (v[i,a]>=999){
-            new_delta_v <- 1
-          } else if (v[i,a] == 0){
-            new_delta_v <- 0
-          } else {new_delta_v <- min(1,sum(drift[(year_counter-v[i,a]+1):year_counter]))}
-        } else {
-          constant <- 1
-          new_delta_v <- delta_v
-          }
+        if (v[i,a]>=999){
+          new_delta_v <- 1
+        } else if (v[i,a] == 0){
+          new_delta_v <- 0
+        } else {new_delta_v <- min(1,sum(drift[(year_counter-v[i,a]+1):year_counter]))}
+
       # determine delta_x
-        if(is.null(delta_x)){
-          constant <- 0
-          if (x[i,a] >= 999){
-            new_delta_x <- 1
-          } else if (x[i,a] == 0){
-            new_delta_x <- 0
-          } else if (x[i,a] > 0 & x[i,a] < 999) {new_delta_x <- min(1,sum(drift[(year_counter-x[i,a]+1):year_counter]))}
-        } else {
-          constant <- 1
-          new_delta_x <- delta_x
-        }
+        if (x[i,a] >= 999){
+          new_delta_x <- 1
+        } else if (x[i,a] == 0){
+          new_delta_x <- 0
+        } else if (x[i,a] > 0 & x[i,a] < 999) {new_delta_x <- min(1,sum(drift[(year_counter-x[i,a]+1):year_counter]))}
 
       # calculate susceptibility function for person i
         suscept_mat[i,a] <- suscept_func_cpp(inf_history = x[i,a],
