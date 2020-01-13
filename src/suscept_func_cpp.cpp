@@ -20,8 +20,7 @@ double suscept_func_cpp(int inf_history,
                         double drift_x,
                         double drift_v,
                         double wane_rate,
-                        int version,
-                        int constant) {
+                        int version) {
 
   int vac_ind = 0; // initialize vac_ind
   double rtn = 0;  // initialize return value
@@ -32,14 +31,6 @@ double suscept_func_cpp(int inf_history,
   }
 // determine amount of waning
    w = (1-vac_ind)*((1 - gamma) * vac_history * wane_rate);
-// constant drift values
-   if(constant == 1){
-        if (version == 1){
-          rtn = std::min(1.0, std::min(inf_history*drift_x,(vac_ind*gamma)+(vac_history*drift_v) + w)); // either-or
-        } else if (version == 2) {
-          rtn = std::min(1.0,inf_history*drift_x) * std::min(1.0, gamma + (vac_history*drift_v) + w); // multiplicative
-        }
-   } else {
 // non-constant drift values
   if (vac_history < 999){
      if (version == 1){
@@ -50,7 +41,6 @@ double suscept_func_cpp(int inf_history,
      } else if (vac_history >= 999){
        rtn = std::min(1.0,drift_x);
      }
-   }
 // infected and drift=0
   if (drift_x == 0 && drift_v == 0 && inf_history < 999){
       rtn = 0;
@@ -62,5 +52,5 @@ double suscept_func_cpp(int inf_history,
 /*** R
 suscept_func_cpp(inf_history = 0, vac_history = 3,gamma = 0.3,
                  drift_x = 0.7, drift_v = 0.1, wane_rate = 0,
-                 version = 1, constant = 0)
+                 version = 1)
 */
