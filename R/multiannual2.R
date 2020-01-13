@@ -60,7 +60,7 @@ multiannual2 <- function(n = 1000,
 # create empty vectors
   # vaccine strain update
     vaccine_dist <- numeric(years)
-    update <- vaccine_dist
+    update <- vaccine_dist[-1]
     years_since_vac_update <- vaccine_dist
   # attack rate and ve
     attack_rate <- c(rep(NA,years))
@@ -83,35 +83,34 @@ multiannual2 <- function(n = 1000,
     antigenic_dist <- drift_func(nyears = years, rate = 1)
   # determine years of vaccination
     actual_year_vec <- start_year:end_year
-    vac_this_year <- ifelse(actual_year_vec>=start_vac_year & actual_year_vec %% vac_strategy == 0, 1, 0)
-    vac_this_year <- ifelse(is.na(vac_this_year),0,vac_this_year)
+    vac_this_year <- if_else(actual_year_vec>=start_vac_year & actual_year_vec %% vac_strategy == 0, 1, 0)
+    vac_this_year <- if_else(is.na(vac_this_year), 0, vac_this_year)
 
   # year counter
     year_counter <- 1
     actual_year <- start_year
 
   # protection function from Coudeville et al. 2010
-    # pi_t_theta <- function(beta = 1.299, titre, alpha = log(2.844)){
-    #   1 - (1/(1 + exp(beta*(log(titre)-alpha))))
-    # }
+    pi_t_theta <- function(beta = 1.299, titre, alpha = log(2.844)){
+       1 - (1/(1 + exp(beta*(log(titre)-alpha))))
+    }
 # start loop over years
   while (year_counter < years+1){
   # initialize infection counter for current year
     inf_counter <- null_inf_counter
-    # calculate vaccine distance from circulating strain
-    vaccine_dist[year_counter] <- antigenic_dist[year_counter, year_counter-years_since_vac_update[year_counter]]
-
-    # update vaccine?
-    update[year_counter] <- vaccine_update(years_since_vac_update = years_since_vac_update[year_counter],
+    if (actual_year >= start_vac_year){
+      # calculate vaccine distance from circulating strain
+        vaccine_dist[year_counter] <- antigenic_dist[year_counter, year_counter-years_since_vac_update[year_counter]]
+      # update vaccine?
+        update[year_counter] <- vaccine_update(years_since_vac_update = years_since_vac_update[year_counter],
                                            antigenic_dist = vaccine_dist[year_counter])
-    # change years since vac update to 0 if updated in current year
-    years_since_vac_update[year_counter] <- years_since_vac_update[year_counter] * (1 - update[year_counter]) + (1 - update[year_counter])
-
-    # determine protective effect of vaccine based on distance from circulating strain
-    if (update[year_counter] == 0){
-      mygamma <- (1-vac_protect)*pi_t_theta(titre = 200 - exp(vaccine_dist[year_counter]))
-    } else {mygamma <- 1-vac_protect}
-
+      # change years since vac update to 0 if updated in current year
+        years_since_vac_update[year_counter] <- if_else(update[year_counter] == 1, 0, years_since_vac_update[year_counter])
+      # determine protective effect of vaccine based on distance from circulating strain
+        if (update[year_counter] == 0){
+          mygamma <- (1-vac_protect)*pi_t_theta(titre = 200 - exp(vaccine_dist[year_counter]))
+        } else {mygamma <- 1-vac_protect}
+    }
   # generate random numbers for infection and vaccination
     rn_inf <- runif(n,0,1)
     rn_vac <- runif(n,0,1)
