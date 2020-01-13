@@ -147,19 +147,9 @@ multiannual2 <- function(n = 1000,
         inf_counter[4,a] <- inf_counter[4,a] + vac_hist_mat[i,a]
         inf_counter[6,a] <- inf_counter[6,a] + (1-vac_hist_mat[i,a])
       # determine antigenic distance from vaccine strain to circulating strain
-        if (v[i,a]>=999){
-          delta_v <- 1 # need to change this value*************
-        } else if (v[i,a] == 0){
-          delta_v <- 0
-        } else {delta_v <- antigenic_dist[(year_counter-v[i,a]+1), year_counter]}
-          # min(1,sum(drift[(year_counter-v[i,a]+1):year_counter]))}
-
+        delta_v <- if_else (v[i,a]>=999, 999, antigenic_dist[(year_counter-v[i,a]), year_counter])
       # determine delta_x
-        if (x[i,a] >= 999){
-          delta_x <- 1 # need to change this value*************
-        } else if (x[i,a] == 0){
-          delta_x <- 0
-        } else if (x[i,a] > 0 & x[i,a] < 999) {delta_x <- min(1,sum(drift[(year_counter-x[i,a]+1):year_counter]))}
+        delta_x <- if_else (x[i,a]>=999, 999, antigenic_dist[(year_counter-x[i,a]), year_counter])
 
       # calculate susceptibility function for person i
         suscept_mat[i,a] <- suscept_func_cpp(inf_history = x[i,a],
@@ -168,13 +158,10 @@ multiannual2 <- function(n = 1000,
                                              drift_x = delta_x,
                                              drift_v = delta_v,
                                              wane_rate = wane,
-                                             version = suscept_func_version,
-                                             constant = constant)
+                                             version = suscept_func_version)
 
-        # for first year have pandemic transmission rate
-        if (year_counter==1){
-          mybeta <-beta_pandemic
-        } else {mybeta <- beta_epidemic}
+      # for first year have pandemic transmission rate
+        mybeta <- if_else (year_counter==1, beta_pandemic, beta_epidemic)
 
       # infect person i
         inf_hist_mat[i,a] <- infect_cpp(susceptibility = suscept_mat[i,a], foi = mybeta, randnum_inf = rn_inf[i])
