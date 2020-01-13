@@ -12,10 +12,10 @@
 drift_func <- function(nyears = 200, rate = 1){
   # drift for infection
   draws <- rexp(nyears, rate = rate)
-  drift <- cumsum(draws)
-  drift_data <- data.frame(x = 1:nyears, y = drift)
-  antigenic_dist <- pdist(drift_data)
+  # drift <- cumsum(draws)
+  # drift_data <- data.frame(x = 1:nyears, y = drift)
+  # antigenic_dist <- pdist(drift_data)
   # scale draws by maximum value (to put it on a scale of 0 to 1)
-  #scaled_drift <- draws/max(draws)
-  return(antigenic_dist)
+  scaled_drift <- draws/max(draws)
+  return(scaled_drfit)
 }
