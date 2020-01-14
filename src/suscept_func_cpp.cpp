@@ -29,9 +29,7 @@ double suscept_func_cpp(int inf_history,
   double titre_vac;
   double epsilon = 0.0001;
 // vaccinated in current year
-  if(vac_history == 0){
-     vac_ind = 1;
-  }
+  if(vac_history == 0){vac_ind = 1;}
 // determine susceptibility due to infection
   if (inf_history < 999){
     // determine log titre for value due to infection
