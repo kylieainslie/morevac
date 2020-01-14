@@ -8,7 +8,8 @@ run_sim_2(sim = 100, n = 10000, years = 1820:2019, max_age = 80,
   start_vac_year = 2000, vac_cov = c(rep(0.5, 80)), betas = c(0.4,
   rep(0.2, 199)), vac_protect = 0.7, suscept_version = 2,
   vac_strategy = 1, rho = 0.9, wane = 0, take = 1,
-  file.out = FALSE, tag = "", seed = NULL)
+  epsilon = 0.03, drift_off = FALSE, file.out = FALSE, tag = "",
+  seed = NULL)
 }
 \arguments{
 \item{sim}{number of simulations to run}

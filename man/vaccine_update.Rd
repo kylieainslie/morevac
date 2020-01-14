@@ -4,14 +4,14 @@
 \alias{vaccine_update}
 \title{Vaccine update function}
 \usage{
-vaccine_update(years_since_vac_update, accumulated_drift, d = 0.5)
+vaccine_update(years_since_vac_update, antigenic_dist, d = 3)
 }
 \arguments{
 \item{years_since_vac_update}{number of years since last vaccine update}
 
-\item{accumulated_drift}{amount of drift since last vac update}
+\item{antigenic_dist}{antigenic_distance between circulating strain and vaccine strain since last vaccine update}
 
-\item{d}{distance threshold for vaccine update}
+\item{d}{euclidean distance threshold for vaccine update}
 }
 \value{
 binary indicator of whether the vaccine will be updated (0 - no, 1 - yes)

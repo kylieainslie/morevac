@@ -12,7 +12,7 @@ drift_func(nyears = 200, rate = 1)
 \item{rate}{rate of exponential distribution to draw from}
 }
 \value{
-vector of scaled drift values for each year
+distance matrix
 }
 \description{
 This function determines the amount of drift each year.

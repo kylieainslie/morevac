@@ -81,8 +81,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // suscept_func_cpp
-double suscept_func_cpp(int inf_history, int vac_history, double gamma, double drift_x, double drift_v, double wane_rate, int version, int constant);
-RcppExport SEXP _morevac_suscept_func_cpp(SEXP inf_historySEXP, SEXP vac_historySEXP, SEXP gammaSEXP, SEXP drift_xSEXP, SEXP drift_vSEXP, SEXP wane_rateSEXP, SEXP versionSEXP, SEXP constantSEXP) {
+double suscept_func_cpp(int inf_history, int vac_history, double gamma, double drift_x, double drift_v, double wane_rate);
+RcppExport SEXP _morevac_suscept_func_cpp(SEXP inf_historySEXP, SEXP vac_historySEXP, SEXP gammaSEXP, SEXP drift_xSEXP, SEXP drift_vSEXP, SEXP wane_rateSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -92,9 +92,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type drift_x(drift_xSEXP);
     Rcpp::traits::input_parameter< double >::type drift_v(drift_vSEXP);
     Rcpp::traits::input_parameter< double >::type wane_rate(wane_rateSEXP);
-    Rcpp::traits::input_parameter< int >::type version(versionSEXP);
-    Rcpp::traits::input_parameter< int >::type constant(constantSEXP);
-    rcpp_result_gen = Rcpp::wrap(suscept_func_cpp(inf_history, vac_history, gamma, drift_x, drift_v, wane_rate, version, constant));
+    rcpp_result_gen = Rcpp::wrap(suscept_func_cpp(inf_history, vac_history, gamma, drift_x, drift_v, wane_rate));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -157,7 +155,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_morevac_infect_cpp_2", (DL_FUNC) &_morevac_infect_cpp_2, 13},
     {"_morevac_initialize_pop_cpp", (DL_FUNC) &_morevac_initialize_pop_cpp, 4},
     {"_morevac_lifetime_infections_cpp", (DL_FUNC) &_morevac_lifetime_infections_cpp, 3},
-    {"_morevac_suscept_func_cpp", (DL_FUNC) &_morevac_suscept_func_cpp, 8},
+    {"_morevac_suscept_func_cpp", (DL_FUNC) &_morevac_suscept_func_cpp, 6},
     {"_morevac_vaccinate_cpp", (DL_FUNC) &_morevac_vaccinate_cpp, 11},
     {"_morevac_vaccinate_cpp_2", (DL_FUNC) &_morevac_vaccinate_cpp_2, 8},
     {"_morevac_vaccine_update_cpp", (DL_FUNC) &_morevac_vaccine_update_cpp, 3},
