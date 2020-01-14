@@ -15,8 +15,6 @@
 #' @param beta_pandemic force of infection when simulation starts
 #' @param beta_epidemic annual force of infection (after initialization of model)
 #' @param mygamma protective effect of vaccine
-#' @param suscept_func_version integer indicating which susceptibility version to use.
-#'        1 = either-or, 2 = multiplicative.
 #' @param vac_strategy Integer value indicating frequency of vaccination (1 = annual, 2 = biannual, 3 =triannual,...)
 #' @param rho correlation of vaccination
 #' @param wane amount of protection of vaccine due to waning (0, 1) (inclusive)
@@ -37,7 +35,6 @@ multiannual2 <- function(n = 1000,
                          beta_pandemic = 0.4,
                          beta_epidemic = 0.2,
                          vac_protect = 0.7,
-                         suscept_func_version = 1,
                          vac_strategy = 1,
                          rho = 0,
                          wane = 0,
@@ -60,7 +57,7 @@ multiannual2 <- function(n = 1000,
 # create empty vectors
   # vaccine strain update
     vaccine_dist <- numeric(years)
-    update <- vaccine_dist[-1]
+    update <- vaccine_dist
     years_since_vac_update <- vaccine_dist
   # attack rate and ve
     attack_rate <- c(rep(NA,years))
@@ -92,7 +89,7 @@ multiannual2 <- function(n = 1000,
 
   # protection function from Coudeville et al. 2010
     pi_t_theta <- function(beta = 1.299, titre, alpha = log(2.844)){
-       1 - (1/(1 + exp(beta*(log(titre)-alpha))))
+       1 - (1/(1 + exp(beta*(titre-alpha))))
     }
 # start loop over years
   while (year_counter < years+1){
@@ -108,7 +105,7 @@ multiannual2 <- function(n = 1000,
         years_since_vac_update[year_counter] <- if_else(update[year_counter] == 1, 0, years_since_vac_update[year_counter])
       # determine protective effect of vaccine based on distance from circulating strain
         if (update[year_counter] == 0){
-          mygamma <- (1-vac_protect)*pi_t_theta(titre = 200 - exp(vaccine_dist[year_counter]))
+          mygamma <- (1-vac_protect)*pi_t_theta(titre = log(300) - vaccine_dist[year_counter])
         } else {mygamma <- 1-vac_protect}
     }
   # generate random numbers for infection and vaccination
@@ -126,7 +123,7 @@ multiannual2 <- function(n = 1000,
       if(is.na(inf_hist_mat[i,a])){inf_hist_mat[i,a]<-0}
       if(is.na(vac_hist_mat[i,a])){vac_hist_mat[i,a]<-0}
     # determine whether an individual was vaccinated in the year (or two) previously
-      prior_vac <- if_else(a-vac_strategy < 1, 0, vac_hist_mat[i,a-vac_strategy])
+      prior_vac <- ifelse(a-vac_strategy < 1, 0, vac_hist_mat[i,a-vac_strategy])
 
       # determine who will be vaccinated
       if (actual_year >= start_vac_year){
@@ -147,9 +144,9 @@ multiannual2 <- function(n = 1000,
         inf_counter[4,a] <- inf_counter[4,a] + vac_hist_mat[i,a]
         inf_counter[6,a] <- inf_counter[6,a] + (1-vac_hist_mat[i,a])
       # determine antigenic distance from vaccine strain to circulating strain
-        delta_v <- if_else (v[i,a]>=999, 999, antigenic_dist[(year_counter-v[i,a]), year_counter])
+        delta_v <- ifelse (v[i,a]>=999, 999, antigenic_dist[(year_counter-v[i,a]), year_counter])
       # determine delta_x
-        delta_x <- if_else (x[i,a]>=999, 999, antigenic_dist[(year_counter-x[i,a]), year_counter])
+        delta_x <- ifelse (x[i,a]>=999, 999, antigenic_dist[(year_counter-x[i,a]), year_counter])
 
       # calculate susceptibility function for person i
         suscept_mat[i,a] <- suscept_func_cpp(inf_history = x[i,a],
@@ -157,8 +154,7 @@ multiannual2 <- function(n = 1000,
                                              gamma = mygamma,
                                              drift_x = delta_x,
                                              drift_v = delta_v,
-                                             wane_rate = wane,
-                                             version = suscept_func_version)
+                                             wane_rate = wane)
 
       # for first year have pandemic transmission rate
         mybeta <- if_else (year_counter==1, beta_pandemic, beta_epidemic)

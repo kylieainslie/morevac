@@ -33,7 +33,7 @@ double suscept_func_cpp(int inf_history,
 // determine susceptibility due to infection
   if (inf_history < 999){
     // determine log titre for value due to infection
-    titre_inf = log(200)-drift_x;
+    titre_inf = log(300)-drift_x;
     pi_x = (1/(1 + exp(1.299*((titre_inf-log(2.844))))));
   } else {pi_x = 1.0;}
   //  Rcpp::Rcout << "pi_x = " << std::endl;
