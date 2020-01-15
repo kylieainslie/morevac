@@ -14,7 +14,7 @@
   devtools::load_all()
 
 # run multi-annual model
-  out <- multiannual2()
+  out <- multiannual()
 
 # outputs
   # plot attack rates
