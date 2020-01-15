@@ -5,10 +5,6 @@ find_delta_v <- function(v, drift) {
     .Call(`_morevac_find_delta_v`, v, drift)
 }
 
-infect_cpp <- function(susceptibility, foi, randnum_inf) {
-    .Call(`_morevac_infect_cpp`, susceptibility, foi, randnum_inf)
-}
-
 infect_cpp_2 <- function(inf_history, years_since_last_vac, vac_history, suscept_mat, x, ages_mat, delta_v, gammas, drift, foi, wane_rate, epsilon, version) {
     .Call(`_morevac_infect_cpp_2`, inf_history, years_since_last_vac, vac_history, suscept_mat, x, ages_mat, delta_v, gammas, drift, foi, wane_rate, epsilon, version)
 }
@@ -19,14 +15,6 @@ initialize_pop_cpp <- function(n, nyears, init_ages, max_age) {
 
 lifetime_infections_cpp <- function(a, lifetime_inf, inf_stat) {
     .Call(`_morevac_lifetime_infections_cpp`, a, lifetime_inf, inf_stat)
-}
-
-suscept_func_cpp <- function(inf_history, vac_history, gamma, drift_x, drift_v, wane_rate) {
-    .Call(`_morevac_suscept_func_cpp`, inf_history, vac_history, gamma, drift_x, drift_v, wane_rate)
-}
-
-vaccinate_cpp <- function(prior_vac, vac_this_year, vac_cov, take, age, rho, randnum_vac, actual_year, start_vac_year, start_vac_age, stop_vac_age) {
-    .Call(`_morevac_vaccinate_cpp`, prior_vac, vac_this_year, vac_cov, take, age, rho, randnum_vac, actual_year, start_vac_year, start_vac_age, stop_vac_age)
 }
 
 vaccinate_cpp_2 <- function(vac_hist_mat, v, ages_mat, vac_this_year, vac_cov, take, rho, vac_strategy) {
