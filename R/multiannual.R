@@ -53,15 +53,13 @@ multiannual <- function(n = 10000,
     antigenic_dist <- drift$antigenic_dist
     if (drift_off){antigenic_dist <- 0}
   # determine vaccine update schedule
-    run_update <- vaccine_update_cpp(drift = antigenic_drift, threshold = 2, vac_protect = vac_protect)
+    run_update <- vaccine_update_cpp(drift = antigenic_drift, threshold = 4, vac_protect = vac_protect)
   # determine value of protection from infection due to vaccination
   # (the value of protection is dependent on the distance of the
   # vaccination strain relative to the circulating strain)
     gammas <- run_update$gammas
   # determine years of vaccination
-    vac_this_year <- ifelse(years>=start_vac_year, 1, 0)
-    # vac_this_year <- ifelse(years>=start_vac_year & years %% vac_strategy == 0, 1, 0)
-    # vac_this_year <- ifelse(is.na(vac_this_year),0,vac_this_year)
+    vac_this_year <- if_else(years>=start_vac_year, 1, 0)
   # vaccinate
     vac_pop <- vaccinate_cpp_2(vac_hist_mat = init_pop$vac_hist_mat,
                                v = init_pop$time_since_last_vac,
