@@ -9,28 +9,29 @@ using namespace Rcpp;
 // @keywords morevac
 // @export
 // [[Rcpp::export]]
-List vaccine_update_cpp(NumericVector drift,double threshold, double vac_protect) {
+List vaccine_update_cpp(NumericMatrix drift, double threshold, double vac_protect) {
 
-  double vaccine_dist;
-  IntegerVector update(drift.size());
+  NumericVector vaccine_dist;
+  IntegerVector update(drift.nrow());
   int years_since_vac_update = 0;
-  NumericVector gammas(drift.size());
-// set initial values of vaccine_dist and update vectoes
+  NumericVector gammas(drift.nrow());
+// set initial values of vaccine_dist and update vectors
   vaccine_dist = 0;
   update[0] = 1;
   gammas[0] = 1-vac_protect;
 // calculate vaccine distance from circulating strain
-  for (int j = 1; j < drift.size(); ++j){
-    vaccine_dist += drift[j];
-    if(vaccine_dist > threshold){
-      update[j] = 1;              // update vaccine
-      years_since_vac_update = 0; // change years since vac update to 0 if updated in current year
-      vaccine_dist = 0;           // reset vaccine_dist to 0
-      gammas[j] = 1-vac_protect;  // set protection from vaccination to 1-VE
-      } else {
-      update[j] = 0;
-      years_since_vac_update += 1;
-      gammas[j] = (1-vac_protect)*((1/(1-vaccine_dist)));
+  for (int j = 1; j < drift.nrow(); ++j){
+      vaccine_dist[j] = drift(j, j - years_since_vac_update);
+      if(vaccine_dist > threshold){
+        update[j] = 1;              // update vaccine
+        years_since_vac_update = 0; // change years since vac update to 0 if updated in current year
+//      vaccine_dist = 0;           // reset vaccine_dist to 0
+        gammas[j] = 1-vac_protect;  // set protection from vaccination to 1-VE
+        } else {
+        update[j] = 0;
+        years_since_vac_update += 1;
+        gammas[j] = 1 - vac_protect*(1 - (1/(1 + exp(beta*((log(300 - vaccine_dist[j]))-log(2.844))))));
+      }
     }
   }
 
@@ -39,12 +40,6 @@ List vaccine_update_cpp(NumericVector drift,double threshold, double vac_protect
   rtn["gammas"] = gammas;
   return(rtn);
 }
-
-
-// You can include R code blocks in C++ files processed with sourceCpp
-// (useful for testing and development). The R code will be automatically
-// run after the compilation.
-//
 
 /*** R
 vaccine_update_cpp(drift = drift_vec, threshold = 0.5, vac_protect = 0.7)
