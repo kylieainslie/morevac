@@ -50,9 +50,10 @@ multiannual <- function(n = 10000,
 
   # determine drift
     drift <- drift_func(nyears = length(years), rate = drift_rate)
-    if (drift_off){drift <- c(rep(0,length(years)))}
+    antigenic_dist <- drift$antigenic_dist
+    if (drift_off){antigenic_dist <- 0}
   # determine vaccine update schedule
-    run_update <- vaccine_update_cpp(drift = drift, threshold = 0.5, vac_protect = vac_protect)
+    run_update <- vaccine_update_cpp(drift = antigenic_drift, threshold = 2, vac_protect = vac_protect)
     vac_update <- run_update$update
   # determine value of protection from infection due to vaccination
   # (the value of protection is dependent on the distance of the
