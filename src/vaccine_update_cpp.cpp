@@ -21,18 +21,17 @@ List vaccine_update_cpp(NumericMatrix drift, double threshold, double vac_protec
   gammas[0] = 1-vac_protect;
 // calculate vaccine distance from circulating strain
   for (int j = 1; j < drift.nrow(); ++j){
-      vaccine_dist[j] = drift(j, j - years_since_vac_update);
-      if(vaccine_dist > threshold){
+    vaccine_dist[j] = drift(j, j - years_since_vac_update);
+      if(vaccine_dist[j] > threshold){
         update[j] = 1;              // update vaccine
         years_since_vac_update = 0; // change years since vac update to 0 if updated in current year
 //      vaccine_dist = 0;           // reset vaccine_dist to 0
         gammas[j] = 1-vac_protect;  // set protection from vaccination to 1-VE
-        } else {
+      } else {
         update[j] = 0;
         years_since_vac_update += 1;
-        gammas[j] = 1 - vac_protect*(1 - (1/(1 + exp(beta*((log(300 - vaccine_dist[j]))-log(2.844))))));
+        gammas[j] = 1 - vac_protect*(1 - (1/(1 + exp(1.299*((log(300 - vaccine_dist[j]))-log(2.844))))));
       }
-    }
   }
 
   List rtn;
@@ -42,5 +41,7 @@ List vaccine_update_cpp(NumericMatrix drift, double threshold, double vac_protec
 }
 
 /*** R
-vaccine_update_cpp(drift = drift_vec, threshold = 0.5, vac_protect = 0.7)
+drift <- drift_func(nyears = 10, rate = 1)
+dist_mat <- drift$antigenic_dist
+vaccine_update_cpp(drift = dist_mat, threshold = 2.0, vac_protect = 0.7)
 */
