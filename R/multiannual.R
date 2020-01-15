@@ -54,7 +54,6 @@ multiannual <- function(n = 10000,
     if (drift_off){antigenic_dist <- 0}
   # determine vaccine update schedule
     run_update <- vaccine_update_cpp(drift = antigenic_drift, threshold = 2, vac_protect = vac_protect)
-    vac_update <- run_update$update
   # determine value of protection from infection due to vaccination
   # (the value of protection is dependent on the distance of the
   # vaccination strain relative to the circulating strain)
@@ -83,15 +82,14 @@ multiannual <- function(n = 10000,
                                  drift = drift, delta_v = delta_v,
                                  gammas = gammas, foi = betas,
                                  wane_rate = wane,
-                                 epsilon = epsilon,
-                                 version = suscept_func_version)
+                                 epsilon = epsilon)
 
       # return
       rtn <- list(inf_history = infect_pop,
                   vac_history = vac_pop,
                   ages = init_pop$ages_mat,
                   drift = drift,
-                  vac_update = vac_update,
+                  vac_update = run_update$update,
                   gammas = gammas,
                   vac_this_year = vac_this_year
       )
