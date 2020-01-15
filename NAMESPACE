@@ -4,7 +4,7 @@ exportPattern("^[[:alpha:]]+")
 importFrom(Rcpp, evalCpp)
 importFrom("grDevices", "dev.off", "pdf")
 importFrom("graphics", "plot")
-importFrom("stats", "quantile", "reap", "runif")
+importFrom("stats", "quantile", "runif")
 importFrom("utils", "head", "read.csv", "setTxtProgressBar", "tail", "txtProgressBar", "write.csv")
 
 export(boot_ar)
