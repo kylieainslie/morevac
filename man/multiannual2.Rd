@@ -7,9 +7,8 @@
 multiannual2(n = 1000, years = 200, maxage = 80, start_year = 1820,
   start_vac_year = 2000, start_vac_age = 2, stop_vac_age = 10,
   vac_coverage = 0.5, beta_pandemic = 0.4, beta_epidemic = 0.2,
-  delta_x = NULL, delta_v = NULL, vac_protect = 0.7,
-  suscept_func_version = 1, vac_strategy = 1, rho = 0, wane = 0,
-  take = 1, seed = NULL)
+  vac_protect = 0.7, suscept_func_version = 1, vac_strategy = 1,
+  rho = 0, wane = 0, take = 1, seed = NULL)
 }
 \arguments{
 \item{n}{number of individuals to be simulated}
@@ -29,10 +28,6 @@ multiannual2(n = 1000, years = 200, maxage = 80, start_year = 1820,
 \item{beta_pandemic}{force of infection when simulation starts}
 
 \item{beta_epidemic}{annual force of infection (after initialization of model)}
-
-\item{delta_x}{drift parameter from natural infection}
-
-\item{delta_v}{drift parameter from vaccination}
 
 \item{suscept_func_version}{integer indicating which susceptibility version to use.
 1 = either-or, 2 = multiplicative.}

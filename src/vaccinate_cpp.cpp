@@ -35,7 +35,7 @@ int vaccinate_cpp(int prior_vac,
   if (actual_year < start_vac_year || age < start_vac_age || vac_this_year <= 0 || age > stop_vac_age){
     return(rtn);
   }
-// if it's a vaccination year & individual is old enough -> possibly vaccination
+// if it's a vaccination year & individual is old enough -> possibly vaccinate
   if (actual_year >= start_vac_year && age >= start_vac_age && vac_this_year == 1){
 // determine vaccination probability by incorporating prior vaccination
     if (prior_vac == 1){

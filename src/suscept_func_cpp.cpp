@@ -9,7 +9,6 @@ using namespace Rcpp;
 // @param ve Vaccine efficacy
 // @param drift_x Amount of drift from infection
 // @param drift_v Amount of drift from vaccination
-// @param version Which susceptibility function to use: 1 = either-or, 2 = multiplicative
 // @return Numeric value of susceptibility
 // @keywords morevac
 // @export
@@ -26,20 +25,33 @@ double suscept_func_cpp(int inf_history,
   double w = 0;    // initialize waning
   double pi_x;
   double pi_v;
+  double titre_inf;
+  double titre_vac;
+  double epsilon = 0.0001;
 // vaccinated in current year
-  if(vac_history == 0){
-     vac_ind = 1;
-  }
+  if(vac_history == 0){vac_ind = 1;}
 // determine susceptibility due to infection
   if (inf_history < 999){
-    pi_x = (1/(1 + exp(1.299*((std::max(log(200)-drift_x,0)-log(2.844))))));
-  } else {pi_x = 1;}
-// determine amount of waning
-  w = (1-vac_ind)*((1 - gamma) * vac_history * wane_rate);
+    // determine log titre for value due to infection
+    titre_inf = log(300)-drift_x;
+    pi_x = (1/(1 + exp(1.299*((titre_inf-log(2.844))))));
+  } else {pi_x = 1.0;}
+  //  Rcpp::Rcout << "pi_x = " << std::endl;
+  //  Rcpp::Rcout << pi_x << std::endl;
 // determine susceptibility due to infection
   if (vac_history < 999){
-    pi_v = (1-gamma)*(1/(1 + exp(1.299*((std::max(log(200)-drift_v,0)-log(2.844)))))) - w;
-  } else {pi_v = 1};
+    // determine amount of waning
+    w = gamma + (1-gamma)*wane_rate*(1-vac_ind) - epsilon;
+  //  Rcpp::Rcout << "w = " << std::endl;
+  //  Rcpp::Rcout << w << std::endl;
+    // determine log titre for based on vaccination
+    titre_vac = log(1/w - 1)/1.299 + log(2.844) - drift_v;
+  //  Rcpp::Rcout << "titre_vac = " << std::endl;
+  //  Rcpp::Rcout << titre_vac << std::endl;
+    pi_v = (1/(1 + exp(1.299*((titre_vac-log(2.844))))));
+  //  Rcpp::Rcout << "pi_v = " << std::endl;
+  //  Rcpp::Rcout << pi_v << std::endl;
+  } else {pi_v = 1.0;}
 // calculate susceptibility
   rtn = pi_x * pi_v;
 
@@ -47,7 +59,6 @@ double suscept_func_cpp(int inf_history,
 }
 
 /*** R
-suscept_func_cpp(inf_history = 0, vac_history = 3,gamma = 0.3,
-                 drift_x = 0.7, drift_v = 0.1, wane_rate = 0,
-                 version = 1)
+suscept_func_cpp(inf_history = 1, vac_history = 1, gamma = 0.3,
+                 drift_x = 15, drift_v = 0, wane_rate = 1)
 */

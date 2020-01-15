@@ -8,6 +8,12 @@ get_attack_rates(inf_history, ages_mat = NULL, vac_history = NULL,
   years)
 }
 \arguments{
+\item{inf_history}{matrix of infection histories for each person}
+
+\item{ages_mat}{matrix of ages of each person for every year}
+
+\item{vac_history}{matrix of vaccination history for each person}
+
 \item{years}{vector of years to run simulation over (YYYY format)}
 }
 \value{
