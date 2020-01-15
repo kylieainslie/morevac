@@ -14,7 +14,7 @@
 #' @param vac_coverage vaccination coverage
 #' @param beta_pandemic force of infection when simulation starts
 #' @param beta_epidemic annual force of infection (after initialization of model)
-#' @param mygamma protective effect of vaccine
+#' @param vac_protect protective effect of vaccine
 #' @param vac_strategy Integer value indicating frequency of vaccination (1 = annual, 2 = biannual, 3 =triannual,...)
 #' @param rho correlation of vaccination
 #' @param wane amount of protection of vaccine due to waning (0, 1) (inclusive)
@@ -54,11 +54,6 @@ multiannual2 <- function(n = 1000,
   ages <- as.numeric(rownames(init))
 
   end_year <- start_year + years - 1
-# create empty vectors
-  # vaccine strain update
-    vaccine_dist <- numeric(years)
-    update <- vaccine_dist
-    years_since_vac_update <- vaccine_dist
   # attack rate and ve
     attack_rate <- c(rep(NA,years))
     ve <- attack_rate
@@ -84,33 +79,12 @@ multiannual2 <- function(n = 1000,
     vac_this_year <- if_else(actual_year_vec>=start_vac_year & actual_year_vec %% vac_strategy == 0, 1, 0)
     vac_this_year <- if_else(is.na(vac_this_year), 0, vac_this_year)
 
-  # protection function from Coudeville et al. 2010
-    pi_t_theta <- function(beta = 1.299, titre, alpha = log(2.844)){
-       1 - (1/(1 + exp(beta*(titre-alpha))))
-    }
-# determine vaccine dist and update schedule
-  y <- 1
-
-  while (y < years+1){
-      # calculate vaccine distance from circulating strain
-        vaccine_dist[y] <- antigenic_dist[y, y-years_since_vac_update[y]]
-      # update vaccine?
-        update[y] <- vaccine_update(years_since_vac_update = years_since_vac_update[y],
-                                    antigenic_dist = vaccine_dist[y])
-      # change years since vac update to 0 if updated in current year
-        years_since_vac_update[y] <- if_else(update[y] == 1, 0, years_since_vac_update[y])
-      # determine protective effect of vaccine based on distance from circulating strain
-        mygamma <- 1-vac_protect*pi_t_theta(titre = log(300) - vaccine_dist[y])
-        if(update[y] == 1) {mygamma <- 1-vac_protect}
-    # update counters
-    if (y < years) {years_since_vac_update[y + 1] <- years_since_vac_update[y] + 1}
-    y <- y + 1
-  }
-
   # initialize year counter
     year_counter <- 1
     actual_year <- start_year
-
+  # gammas
+    update_schedule <- vaccine_distance_func(years = 200, vac_start_year = 181, antigenic_dist_mat = antigenic_dist, vac_protect = 0.7)
+    gammas <- update_schedule$Gamma
 ### main simulation
   # loop over years
   while (year_counter < years+1){
@@ -136,7 +110,7 @@ multiannual2 <- function(n = 1000,
 
       # determine who will be vaccinated
       if (actual_year >= start_vac_year){
-       vac_hist_mat[i,a] <- vaccinate_cpp(prior_vac = prior_vac,
+      vac_hist_mat[i,a] <- vaccinate_cpp(prior_vac = prior_vac,
                                           vac_this_year = vac_this_year[year_counter],
                                           vac_cov = vac_coverage,
                                           take = take,
@@ -160,7 +134,7 @@ multiannual2 <- function(n = 1000,
       # calculate susceptibility function for person i
         suscept_mat[i,a] <- suscept_func_cpp(inf_history = x[i,a],
                                              vac_history = v[i,a],
-                                             gamma = mygamma,
+                                             gamma = gammas[year_counter],
                                              drift_x = delta_x,
                                              drift_v = delta_v,
                                              wane_rate = wane)
@@ -222,8 +196,10 @@ multiannual2 <- function(n = 1000,
 
   dat <- data.frame(Year=start_year:end_year,Attack_Rate=attack_rate)
   ve_dat <- data.frame(Year=start_vac_year:end_year,VE=ve[(years-(end_year-start_vac_year)):years])
-  drift_dat <- data.frame(Year=start_year:end_year,Drift=drift$drift$y, Vac_Distance=vaccine_dist,Vac_Update=update,
-                          Years_Since_Vac_Update = years_since_vac_update)
+  drift_dat <- data.frame(Year=start_year:end_year,Drift=drift$drift$y,
+                          Vac_Distance=update_schedule$Vaccine_Distance,
+                          Vac_Update=update_schedule$Update_Schedule,
+                          Years_Since_Vac_Update = update_schedule$Years_Since_Update)
   # return
     rtn <- list(history = init,
                 attack_rate = dat,
