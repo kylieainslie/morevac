@@ -15,5 +15,7 @@ drift_func <- function(nyears = 200, rate = 1){
   drift <- cumsum(draws)
   drift_data <- data.frame(x = 1:nyears, y = drift)
   antigenic_dist <- pdist(drift_data) # calculate distance between strains
-  return(antigenic_dist)
+
+  rtn <- list(drift = drift_data, antigenic_dist = antigenic_dist)
+  return(rtn)
 }
