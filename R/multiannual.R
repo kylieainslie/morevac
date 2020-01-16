@@ -76,7 +76,7 @@ multiannual <- function(n = 10000,
                                  suscept_mat = init_pop$suscept_mat,
                                  x = init_pop$time_since_last_inf,
                                  ages_mat = init_pop$ages_mat,
-                                 drift = drift, delta_v = delta_v,
+                                 dist_mat = antigenic_dist, delta_v = delta_v,
                                  gammas = gammas, foi = betas,
                                  wane_rate = wane,
                                  epsilon = epsilon)
