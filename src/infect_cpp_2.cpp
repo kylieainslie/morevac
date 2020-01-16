@@ -49,7 +49,7 @@ List infect_cpp_2(NumericMatrix inf_history,
     for (int i = 0; i < nindiv; ++i){
       if (ages_mat(i,j) == 0) {
         x(i,j) = 999; // reset x if age = 0
-        epsilon[i] = 0; // reset epsilon if age = 0
+        exposure_count[i] = 0; // reset exposure_count if age = 0
       }
      // determine delta_x(i,j)
         if (x(i,j) >= 999){
