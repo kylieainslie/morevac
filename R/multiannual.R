@@ -1,5 +1,8 @@
 ### MoReVac - Modelling Repeat Vaccination ###
 ### Agent-based model of repeat vaccination in birth cohort
+# created:
+# modified: 16/01/2020
+# author: Kylie Ainslie
 
 #' Multi-annual model of infection and vaccination (version 2)
 #'
