@@ -1,13 +1,18 @@
 ### For cluster
-#setwd('/Volumes/kainslie/cluster')
-setwd('Q:/cluster')
+# getting started
+# install.package("drat") # if you don't have it already
+# drat:::add("mrc-ide")
+# install.packages("didehpc")
+
+setwd('/Volumes/kainslie/cluster')
+# setwd('Q:/cluster')
 # set up your details and which cluster you want (big or small)
 options(didehpc.username = "kainslie",
         didehpc.cluster = "big")
 
 # dont really know what these lines do but you need them
 context::context_log_start()
-root <- "contexts2"
+root <- "contexts"
 
 # setting up the context: what files need to be sourced for your function to work, what packages you need
 # package sources only required here because the package I am using is not on CRAN
