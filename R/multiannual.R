@@ -31,14 +31,13 @@ multiannual <- function(n = 10000,
                         vac_coverage = c(rep(0.5,80)),
                         betas = c(0.4,rep(0.2,199)),
                         vac_protect = 0.7,
-                        suscept_func_version = 2,
                         vac_strategy = 1,
                         rho = 0.9,
                         wane = 0,
                         take = 1,
                         drift_rate = 1,
                         drift_off = FALSE,
-                        epsilon = 0.03,
+                        epsilon = 0,
                         seed = NULL
                         ){
 
@@ -53,7 +52,7 @@ multiannual <- function(n = 10000,
     antigenic_dist <- drift$antigenic_dist
     if (drift_off){antigenic_dist <- 0}
   # determine vaccine update schedule
-    run_update <- vaccine_update_cpp(drift = antigenic_drift, threshold = 4, vac_protect = vac_protect)
+    run_update <- vaccine_update_cpp(drift = antigenic_dist, threshold = 4, vac_protect = vac_protect)
   # determine value of protection from infection due to vaccination
   # (the value of protection is dependent on the distance of the
   # vaccination strain relative to the circulating strain)
@@ -69,7 +68,7 @@ multiannual <- function(n = 10000,
                                rho = rho, vac_strategy = vac_strategy)
 
     # calculate delta_v values
-      delta_v <- find_delta_v(v = vac_pop$v, drift = drift)
+      delta_v <- find_delta_v(v = vac_pop$v, dist_mat = antigenic_dist)
     # run infection model
       infect_pop <- infect_cpp_2(inf_history = init_pop$inf_hist_mat,
                                  vac_history = vac_pop$vac_hist_mat,
