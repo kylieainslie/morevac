@@ -53,13 +53,16 @@ try(data.table::fwrite(vac_histories, file = paste0(file,"_vac_hist.csv"), col.n
 
 #######################################
 ### read in results (rather than re-run simulations)
-dt_inf <- fread()
+dt_inf <- fread("~/Dropbox/Kylie/Projects/Morevac/data/sim_data/baseline/baseline_inf_hist.csv")
+dt_vac <- fread("~/Dropbox/Kylie/Projects/Morevac/data/sim_data/baseline/baseline_vac_hist.csv")
+
 ### summarise raw data
 dt_inf1 <- dt_inf %>% mutate(Num_Infs = rowSums(select(.,Age0:Age18)))
 dt_vac1 <- dt_vac %>% mutate(Num_Vacs = rowSums(select(.,Age0:Age18)))
 
-banana <- cbind(dt_inf1[,c("Vac_Strategy", "Sim", "Cohort", "ID", "Param_Index", "Num_Infs")],Num_Vacs = dt_vac1[,c("Num_Vacs")])
-banana_boat <- banana %>% group_by(Vac_Strategy, Param_Index, Sim) %>% summarise(Mean_Infs = mean(Num_Infs))
+banana1 <- dt_inf1 %>% group_by(Vac_Strategy, Sim, Cohort) %>% mutate(Tot_Infs = colSums(select(.,Age0:Age18)))
+banana <- cbind(dt_inf1[,c("Vac_Strategy", "Sim", "Cohort", "ID", "Num_Infs")], Num_Vacs = dt_vac1[,c("Num_Vacs")])
+banana_boat <- banana %>% group_by(Vac_Strategy, Sim) %>% summarise(Mean_Infs = mean(Num_Infs), Mean_AR = mean(colSums(select(.,Age0:Age18))/n()))
 banana_split <- banana_boat %>% spread(Vac_Strategy, Mean_Infs)
 banana_split$Difference <- banana_split$Annual - banana_split$Biennial
 
@@ -77,9 +80,9 @@ banana_split2$Upper <- my_ci[2,]
 banana_split2 <- left_join(banana_split2, param_values, by = c("Param_Index"))
 
 # post process sim results
-sim0_results <- postprocess_sim_results_for_rolling_cohort(simdat = sim_test0, total_year_range = myyears, nsim = n_sim)
-sim1_results <- postprocess_sim_results_for_rolling_cohort(simdat = sim_test1, total_year_range = myyears, nsim = n_sim)
-sim2_results <- postprocess_sim_results_for_rolling_cohort(simdat = sim_test2, total_year_range = myyears, nsim = n_sim)
+# sim0_results <- postprocess_sim_results_for_rolling_cohort(simdat = sim_test0, total_year_range = myyears, nsim = n_sim)
+# sim1_results <- postprocess_sim_results_for_rolling_cohort(simdat = sim_test1, total_year_range = myyears, nsim = n_sim)
+# sim2_results <- postprocess_sim_results_for_rolling_cohort(simdat = sim_test2, total_year_range = myyears, nsim = n_sim)
 
 cat("\n Bootstrapping... \n")
 # bootstrapping
