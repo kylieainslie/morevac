@@ -1,5 +1,22 @@
 ### Bootstrap simulation results ###
 
+# preamble
+# load required packages
+library(ggplot2)
+library(tidyr)
+library(reshape2)
+library(cowplot)
+library(stringr)
+library(foreach)
+library(doParallel)
+library(dplyr)
+library(lhs)
+library(boot)
+library(data.table)
+# load morevac package
+setwd("~/Documents/morevac")
+devtools::load_all()
+
 # parameters
 n_sim = 100
 nindiv <- 30000
@@ -22,6 +39,42 @@ sim_test1 <- run_sim_2(sim = n_sim, n = nindiv, years = myyears, betas = mybetas
 cat("\n Every other year vaccination simulation running... \n")
 sim_test2 <- run_sim_2(sim = n_sim, n = nindiv, years = myyears, betas = mybetas, vac_cov = vac_cov_dat$Biennial, vac_strategy = 2,
                        wane = 1, take = 1, epsilon = 0, vac_protect = 0.7, rho = 0.9)
+
+# combine sim results into one data.table
+inf_histories <- rbindlist(list(No_Vac = sim0_results$inf_history, Annual = sim1_results$inf_history, Biennial = sim2_results$inf_history), idcol = 'Vac_Strategy')
+vac_histories <- rbindlist(list(No_Vac = sim0_results$vac_history, Annual = sim1_results$vac_history, Biennial = sim2_results$vac_history), idcol = 'Vac_Strategy')
+
+# write raw output to file
+file <- "~/Dropbox/Kylie/Projects/Morevac/data/sim_data/baseline/baseline"
+try(data.table::fwrite(inf_histories, file = paste0(file,"_inf_hist.csv"), col.names = TRUE,
+                       row.names = FALSE, sep = ","))
+try(data.table::fwrite(vac_histories, file = paste0(file,"_vac_hist.csv"), col.names = TRUE,
+                       row.names = FALSE, sep = ","))
+
+#######################################
+### read in results (rather than re-run simulations)
+dt_inf <- fread()
+### summarise raw data
+dt_inf1 <- dt_inf %>% mutate(Num_Infs = rowSums(select(.,Age0:Age18)))
+dt_vac1 <- dt_vac %>% mutate(Num_Vacs = rowSums(select(.,Age0:Age18)))
+
+banana <- cbind(dt_inf1[,c("Vac_Strategy", "Sim", "Cohort", "ID", "Param_Index", "Num_Infs")],Num_Vacs = dt_vac1[,c("Num_Vacs")])
+banana_boat <- banana %>% group_by(Vac_Strategy, Param_Index, Sim) %>% summarise(Mean_Infs = mean(Num_Infs))
+banana_split <- banana_boat %>% spread(Vac_Strategy, Mean_Infs)
+banana_split$Difference <- banana_split$Annual - banana_split$Biennial
+
+# bootstrap to get CI for Difference
+foo <- function(data, indices){
+  dt<-data[indices,]
+  mean(dt$Difference)
+}
+my_bootstrap <- plyr::dlply(banana_split, "Param_Index", function(dat) boot(dat, foo, R=100)) # boostrap for each set of param values
+my_ci <- sapply(my_bootstrap, function(x) boot.ci(x, index = 1, type='perc')$percent[c(4,5)]) # get confidence intervals
+
+banana_split2 <- banana_split %>% group_by(Param_Index) %>% summarise(Mean_Diff = mean(Difference))
+banana_split2$Lower <- my_ci[1,]
+banana_split2$Upper <- my_ci[2,]
+banana_split2 <- left_join(banana_split2, param_values, by = c("Param_Index"))
 
 # post process sim results
 sim0_results <- postprocess_sim_results_for_rolling_cohort(simdat = sim_test0, total_year_range = myyears, nsim = n_sim)
