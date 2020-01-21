@@ -75,21 +75,22 @@ banana_boat2$Lower <- my_ci[1,]
 banana_boat2$Upper <- my_ci[2,]
 
 # Difference in Lifetime Infs
-banana_split <- banana_boat %>% spread(Vac_Strategy, Mean_Infs)
-banana_split$Difference <- banana_split$Annual - banana_split$Biennial
+banana_split <- banana_boat %>% spread(Vac_Strategy, Mean_Infs) %>%
+                  mutate(Diff_AB = Annual - Biennial, Diff_AN = Annual - No_Vac, Diff_BN = Biennial - No_Vac) %>%
+                  select(Sim, Diff_AB, Diff_AN, Diff_BN) %>%
+                  gather(Type, Difference, Diff_AB:Diff_BN)
 
 # bootstrap to get CI for Difference
 foo <- function(data, indices){
   dt<-data[indices,]
   mean(dt$Difference)
 }
-my_bootstrap <- plyr::dlply(banana_split, "Param_Index", function(dat) boot(dat, foo, R=100)) # boostrap for each set of param values
+my_bootstrap <- plyr::dlply(banana_split, "Type", function(dat) boot(dat, foo, R=100)) # boostrap for each set of param values
 my_ci <- sapply(my_bootstrap, function(x) boot.ci(x, index = 1, type='perc')$percent[c(4,5)]) # get confidence intervals
 
-banana_split2 <- banana_split %>% group_by(Param_Index) %>% summarise(Mean_Diff = mean(Difference))
+banana_split2 <- banana_split %>% group_by(Type) %>% summarise(Mean_Diff = mean(Difference))
 banana_split2$Lower <- my_ci[1,]
 banana_split2$Upper <- my_ci[2,]
-banana_split2 <- left_join(banana_split2, param_values, by = c("Param_Index"))
 
 ### summarise raw data for attack rates
 chocolate <- dt_inf %>%
