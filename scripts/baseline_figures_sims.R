@@ -61,27 +61,22 @@ dt_inf1 <- dt_inf %>% mutate(Num_Infs = rowSums(select(.,Age0:Age18)))
 dt_vac1 <- dt_vac %>% mutate(Num_Vacs = rowSums(select(.,Age0:Age18)))
 
 banana <- cbind(dt_inf1[,c("Vac_Strategy", "Sim", "Cohort", "ID", "Num_Infs")], Num_Vacs = dt_vac1[,c("Num_Vacs")])
-banana_boat <- banana %>% group_by(Vac_Strategy, Sim) %>% summarise(Mean_Infs = mean(Num_Infs), Mean_AR = mean(colSums(select(.,Age0:Age18))/n()))
+banana_boat <- banana %>% group_by(Vac_Strategy, Sim) %>% summarise(Mean_Infs = mean(Num_Infs))
+
+# bootstrap to get CI for Lifetime Infs
+foo <- function(data, indices){
+  dt<-data[indices,]
+  mean(dt$Mean_Infs)
+}
+my_bootstrap <- plyr::dlply(banana_boat, "Vac_Strategy", function(dat) boot(dat, foo, R=100)) # boostrap for each set of param values
+my_ci <- sapply(my_bootstrap, function(x) boot.ci(x, index = 1, type='perc')$percent[c(4,5)]) # get confidence intervals
+banana_boat2 <- banana_boat %>% group_by(Vac_Strategy) %>% summarise(Mean_Infs = mean(Mean_Infs))
+banana_boat2$Lower <- my_ci[1,]
+banana_boat2$Upper <- my_ci[2,]
+
+# Difference in Lifetime Infs
 banana_split <- banana_boat %>% spread(Vac_Strategy, Mean_Infs)
 banana_split$Difference <- banana_split$Annual - banana_split$Biennial
-
-### summarise raw data for attack rates
-chocolate <- dt_inf1 %>%
-              group_by(Vac_Strategy, Sim, Cohort) %>%
-              select(-ID) %>%
-              summarise_all(list(sum))
-chocolate_sprinkles <- dt_inf1 %>%
-                        group_by(Vac_Strategy, Sim, Cohort) %>%
-                        do(tail(.,1))
-chocolate$ID <- chocolate_sprinkles$ID
-chocolate_sundae <- chocolate %>%
-                      mutate(AR0 = Age0/ID, AR1 = Age1/ID, AR2 = Age2/ID, AR3 = Age3/ID,
-                             AR4 = Age4/ID, AR5 = Age5/ID, AR6 = Age6/ID, AR7 = Age7/ID,
-                             AR8 = Age8/ID, AR9 = Age9/ID, AR10 = Age10/ID, AR11 = Age11/ID,
-                             AR12 = Age12/ID, AR13 = Age13/ID, AR14 = Age14/ID, AR15 = Age15/ID,
-                             AR16 = Age16/ID, AR17 = Age17/ID, AR18 = Age18/ID) %>%
-                      select(Vac_Strategy, Sim, Cohort, AR0:AR18)
-
 
 # bootstrap to get CI for Difference
 foo <- function(data, indices){
@@ -96,13 +91,26 @@ banana_split2$Lower <- my_ci[1,]
 banana_split2$Upper <- my_ci[2,]
 banana_split2 <- left_join(banana_split2, param_values, by = c("Param_Index"))
 
-# post process sim results
-# sim0_results <- postprocess_sim_results_for_rolling_cohort(simdat = sim_test0, total_year_range = myyears, nsim = n_sim)
-# sim1_results <- postprocess_sim_results_for_rolling_cohort(simdat = sim_test1, total_year_range = myyears, nsim = n_sim)
-# sim2_results <- postprocess_sim_results_for_rolling_cohort(simdat = sim_test2, total_year_range = myyears, nsim = n_sim)
+### summarise raw data for attack rates
+chocolate <- dt_inf %>%
+              group_by(Vac_Strategy, Sim, Cohort) %>%
+              select(-ID) %>%
+              summarise_all(list(sum))
+chocolate_sprinkles <- dt_inf1 %>%
+                        group_by(Vac_Strategy, Sim, Cohort) %>%
+                        do(tail(.,1))
+chocolate$ID <- chocolate_sprinkles$ID
+chocolate_sundae <- chocolate %>%
+                      mutate(AR0 = Age0/ID, AR1 = Age1/ID, AR2 = Age2/ID, AR3 = Age3/ID,
+                             AR4 = Age4/ID, AR5 = Age5/ID, AR6 = Age6/ID, AR7 = Age7/ID,
+                             AR8 = Age8/ID, AR9 = Age9/ID, AR10 = Age10/ID, AR11 = Age11/ID,
+                             AR12 = Age12/ID, AR13 = Age13/ID, AR14 = Age14/ID, AR15 = Age15/ID,
+                             AR16 = Age16/ID, AR17 = Age17/ID, AR18 = Age18/ID) %>%
+                      select(Vac_Strategy, Sim, Cohort, AR0:AR18) %>%
+                      group_by(Vac_Strategy, Sim) %>%
+                      summarise_at(vars(AR0:AR18), mean)
 
-cat("\n Bootstrapping... \n")
-# bootstrapping
+# bootstrap to get CI for ARs
 foo <- function(data, indices){
   dt<-data[indices,]
   c(apply(dt, 2, median, na.rm = TRUE))
