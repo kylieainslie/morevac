@@ -1,6 +1,7 @@
-### Bootstrap simulation results ###
+### Baseline scenario script ###
+# last modified: 21/01/2020
 
-# preamble
+### preamble
 # load required packages
 library(ggplot2)
 library(tidyr)
@@ -13,11 +14,13 @@ library(dplyr)
 library(lhs)
 library(boot)
 library(data.table)
+library(rdist)
 # load morevac package
 setwd("~/Documents/morevac")
 devtools::load_all()
+###
 
-# parameters
+### define input parameters
 n_sim = 100
 nindiv <- 30000
 max_age = 80
@@ -27,8 +30,8 @@ vac_cut_off <- 10
 vac_cov_dat <- data.frame(Age = 0:(max_age-1), No_Vac = numeric(max_age), Annual = numeric(max_age), Biennial = numeric(max_age))
 vac_cov_dat$Annual[3:(vac_cut_off + 1)] <- 0.44
 vac_cov_dat$Biennial[seq(3,vac_cut_off+1,2)] <- 0.44
-
-# output note to user
+#######################################
+### run simulations
 cat("\n No vaccination simulation running... \n")
 # returns 3 arrays with inf_hist_mat, vac_hist_mat, and ages_mat from each sim
 sim_test0 <- run_sim_2(sim = n_sim, n = nindiv, years = myyears, betas = mybetas, vac_cov = vac_cov_dat$No_vac, vac_strategy = 0,
@@ -121,7 +124,7 @@ my_ci <- sapply(my_bootstrap, function(x) boot.ci(x, index = 1, type='perc')$per
 chocolate_sundae2 <- chocolate_sundae %>% group_by(Vac_Strategy, Age) %>% summarise(Mean_AR = mean(Attack_Rate))
 chocolate_sundae2$Lower <- my_ci[1,]
 chocolate_sundae2$Upper <- my_ci[2,]
-
+#######################################
 ### plots
 p_ar_baseline <- ggplot(data = chocolate_sundae2, aes(x = Age, y = Mean_AR, colour= Vac_Strategy)) +
                  geom_line() +
