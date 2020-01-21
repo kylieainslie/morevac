@@ -109,38 +109,24 @@ chocolate_sundae <- chocolate %>%
                              AR16 = Age16/ID, AR17 = Age17/ID, AR18 = Age18/ID) %>%
                       select(Vac_Strategy, Sim, Cohort, AR0:AR18) %>%
                       group_by(Vac_Strategy, Sim) %>%
-                      summarise_at(vars(AR0:AR18), mean)
+                      summarise_at(vars(AR0:AR18), mean) %>%
+                      gather(Age, Attack_Rate, AR0:AR18) %>%
+                      mutate(Age = as.numeric(str_remove(Age, 'AR')))
 
 # bootstrap to get CI for ARs
 foo <- function(data, indices){
   dt<-data[indices,]
-  c(apply(dt, 2, median, na.rm = TRUE))
+  mean(dt$Attack_Rate)
 }
 
-myBootstrap0 <- boot(sim0_results$Attack_Rate, foo, R=1000)
-myBootstrap1 <- boot(sim1_results$Attack_Rate, foo, R=1000)
-myBootstrap2 <- boot(sim2_results$Attack_Rate, foo, R=1000)
+my_bootstrap <- plyr::dlply(chocolate_sundae, "Age", function(dat) boot(dat, foo, R=100)) # boostrap for each set of param values
+my_ci <- sapply(my_bootstrap, function(x) boot.ci(x, index = 1, type='perc')$percent[c(4,5)]) # get confidence intervals
 
-# create data set of original medians and percentiles from bootstrapping
-myAR0 <- data.frame(Age= 0:18, Vac_Strategy = c(rep('No Vaccination',19)), Attack_Rate = myBootstrap0$t0, Lower = numeric(19), Upper = numeric(19))
-myAR1 <- data.frame(Age= 0:18, Vac_Strategy = c(rep('Annual',19)), Attack_Rate = myBootstrap1$t0, Lower = numeric(19), Upper = numeric(19))
-myAR2 <- data.frame(Age= 0:18, Vac_Strategy = c(rep('Every Other Year',19)), Attack_Rate = myBootstrap2$t0, Lower = numeric(19), Upper = numeric(19))
+chocolate_sundae2 <- chocolate_sundae %>% group_by(Age) %>% summarise(Mean_AR = mean(Attack_Rate))
+chocolate_sundae2$Lower <- my_ci[1,]
+chocolate_sundae2$Upper <- my_ci[2,]
 
-for (j in 1:dim(myAR0)[1]){
-  # no vaccination
-  myAR0[j,'Lower'] <- boot.ci(myBootstrap0, index=j, type='perc')$percent[4]
-  myAR0[j,'Upper'] <- boot.ci(myBootstrap0, index=j, type='perc')$percent[5]
-  # annual
-  myAR1[j,'Lower'] <- boot.ci(myBootstrap1, index=j, type='perc')$percent[4]
-  myAR1[j,'Upper'] <- boot.ci(myBootstrap1, index=j, type='perc')$percent[5]
-  # biennial
-  myAR2[j,'Lower'] <- boot.ci(myBootstrap2, index=j, type='perc')$percent[4]
-  myAR2[j,'Upper'] <- boot.ci(myBootstrap2, index=j, type='perc')$percent[5]
-
-}
-# combine AR sim results into single data set to plot
-dat <- rbind(myAR0, myAR1, myAR2)
-
+### plots
 p_ar_baseline <- ggplot(data = dat, aes(x = Age, y = Attack_Rate, colour= Vac_Strategy)) +
                  geom_line() +
                  geom_ribbon(aes(x=Age,ymin=Lower,ymax=Upper,linetype=NA, fill = Vac_Strategy),alpha=0.2) +
