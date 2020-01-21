@@ -56,15 +56,32 @@ try(data.table::fwrite(vac_histories, file = paste0(file,"_vac_hist.csv"), col.n
 dt_inf <- fread("~/Dropbox/Kylie/Projects/Morevac/data/sim_data/baseline/baseline_inf_hist.csv")
 dt_vac <- fread("~/Dropbox/Kylie/Projects/Morevac/data/sim_data/baseline/baseline_vac_hist.csv")
 
-### summarise raw data
+### summarise raw data for lifetime infections
 dt_inf1 <- dt_inf %>% mutate(Num_Infs = rowSums(select(.,Age0:Age18)))
 dt_vac1 <- dt_vac %>% mutate(Num_Vacs = rowSums(select(.,Age0:Age18)))
 
-banana1 <- dt_inf1 %>% group_by(Vac_Strategy, Sim, Cohort) %>% mutate(Tot_Infs = colSums(select(.,Age0:Age18)))
 banana <- cbind(dt_inf1[,c("Vac_Strategy", "Sim", "Cohort", "ID", "Num_Infs")], Num_Vacs = dt_vac1[,c("Num_Vacs")])
 banana_boat <- banana %>% group_by(Vac_Strategy, Sim) %>% summarise(Mean_Infs = mean(Num_Infs), Mean_AR = mean(colSums(select(.,Age0:Age18))/n()))
 banana_split <- banana_boat %>% spread(Vac_Strategy, Mean_Infs)
 banana_split$Difference <- banana_split$Annual - banana_split$Biennial
+
+### summarise raw data for attack rates
+chocolate <- dt_inf1 %>%
+              group_by(Vac_Strategy, Sim, Cohort) %>%
+              select(-ID) %>%
+              summarise_all(list(sum))
+chocolate_sprinkles <- dt_inf1 %>%
+                        group_by(Vac_Strategy, Sim, Cohort) %>%
+                        do(tail(.,1))
+chocolate$ID <- chocolate_sprinkles$ID
+chocolate_sundae <- chocolate %>%
+                      mutate(AR0 = Age0/ID, AR1 = Age1/ID, AR2 = Age2/ID, AR3 = Age3/ID,
+                             AR4 = Age4/ID, AR5 = Age5/ID, AR6 = Age6/ID, AR7 = Age7/ID,
+                             AR8 = Age8/ID, AR9 = Age9/ID, AR10 = Age10/ID, AR11 = Age11/ID,
+                             AR12 = Age12/ID, AR13 = Age13/ID, AR14 = Age14/ID, AR15 = Age15/ID,
+                             AR16 = Age16/ID, AR17 = Age17/ID, AR18 = Age18/ID) %>%
+                      select(Vac_Strategy, Sim, Cohort, AR0:AR18)
+
 
 # bootstrap to get CI for Difference
 foo <- function(data, indices){
