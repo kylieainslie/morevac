@@ -119,10 +119,10 @@ foo <- function(data, indices){
   mean(dt$Attack_Rate)
 }
 
-my_bootstrap <- plyr::dlply(chocolate_sundae, "Age", function(dat) boot(dat, foo, R=100)) # boostrap for each set of param values
+my_bootstrap <- plyr::dlply(chocolate_sundae, c("Vac_Strategy","Age"), function(dat) boot(dat, foo, R=100)) # boostrap for each set of param values
 my_ci <- sapply(my_bootstrap, function(x) boot.ci(x, index = 1, type='perc')$percent[c(4,5)]) # get confidence intervals
 
-chocolate_sundae2 <- chocolate_sundae %>% group_by(Age) %>% summarise(Mean_AR = mean(Attack_Rate))
+chocolate_sundae2 <- chocolate_sundae %>% group_by(Vac_Strategy, Age) %>% summarise(Mean_AR = mean(Attack_Rate))
 chocolate_sundae2$Lower <- my_ci[1,]
 chocolate_sundae2$Upper <- my_ci[2,]
 
@@ -143,76 +143,6 @@ p_ar_baseline <- ggplot(data = dat, aes(x = Age, y = Attack_Rate, colour= Vac_St
                       legend.margin = margin(6, 6, 6, 6),
                       legend.key = element_rect(fill = "white"))
 p_ar_baseline
-
-### lifetime infections
-lifetime_infs0 <- data.frame(sim0_results$Lifetime_Infections, Vac_Strategy = c(rep("No Vaccination",dim(sim0_results$Lifetime_Infections)[1])))
-lifetime_infs1 <- data.frame(sim1_results$Lifetime_Infections, Vac_Strategy = c(rep("Annual",dim(sim1_results$Lifetime_Infections)[1])))
-lifetime_infs2 <- data.frame(sim2_results$Lifetime_Infections, Vac_Strategy = c(rep("Every Other Year",dim(sim2_results$Lifetime_Infections)[1])))
-
-# wide format
-li0_wide <- spread(lifetime_infs0, Num_Vacs, med)
-li1_wide <- spread(lifetime_infs1, Num_Vacs, med)
-li2_wide <- spread(lifetime_infs2, Num_Vacs, med)
-all_li_wide <- rbind.fill(li0_wide, li1_wide, li2_wide)
-
-# bootstrapping
-foo2 <- function(data, indices){
-  dt<-data[indices,]
-  c(apply(dt[,-c(1,2)], 2, median, na.rm = TRUE))
-}
-
-#set.seed(12345)
-myBootstrap0 <- boot(all_li_wide[all_li_wide$Vac_Strategy == 'No Vaccination',], foo2, R=1000)
-myBootstrap1 <- boot(all_li_wide[all_li_wide$Vac_Strategy == 'Annual',], foo2, R=1000)
-myBootstrap2 <- boot(all_li_wide[all_li_wide$Vac_Strategy == 'Every Other Year',], foo2, R=1000)
-num_cols <- length(myBootstrap1$t0)
-# create data set of original medians and percentiles from bootstrapping
-myLTI0 <- data.frame(Num_Vacs= 0:(num_cols-1), Vac_Strategy = c(rep('No Vaccination',num_cols)), Lifetime_Infs = myBootstrap0$t0, Lower = rep(NA,num_cols), Upper = rep(NA,num_cols))
-myLTI1 <- data.frame(Num_Vacs= 0:(num_cols-1), Vac_Strategy = c(rep('Annual',num_cols)), Lifetime_Infs = myBootstrap1$t0, Lower = rep(NA,num_cols), Upper = rep(NA,num_cols))
-myLTI2 <- data.frame(Num_Vacs= 0:(num_cols-1), Vac_Strategy = c(rep('Every Other Year',num_cols)), Lifetime_Infs = myBootstrap2$t0, Lower = rep(NA,num_cols), Upper = rep(NA,num_cols))
-
-# no vaccination
-lower.ci <- boot.ci(myBootstrap0, index=1, type='perc')$percent[4]
-upper.ci<- boot.ci(myBootstrap0, index=1, type='perc')$percent[5]
-myLTI0[1,'Lower'] <- ifelse (is.null(lower.ci), NA, lower.ci)
-myLTI0[1,'Upper'] <- ifelse (is.null(upper.ci), NA, upper.ci)
-
-tryCatch({ # don't stop for loop if there is an error in calculating bootstrap CIs
-  for (k in 1:dim(myLTI1)[1]){
-    print(k)
-    # annual
-    a.lower.ci <- boot.ci(myBootstrap1, index=k, type='perc')$percent[4]
-    a.upper.ci <-  boot.ci(myBootstrap1, index=k, type='perc')$percent[5]
-    myLTI1[k,'Lower'] <- ifelse (is.null(a.lower.ci), NA, a.lower.ci)
-    myLTI1[k,'Upper'] <- ifelse (is.null(a.upper.ci), NA, a.upper.ci)
-    # biennial
-    if(sum(myBootstrap2$t[,k], na.rm = TRUE) > 0){
-      b.lower.ci <- boot.ci(myBootstrap2, index=k, type='perc')$percent[4]
-      b.upper.ci <-  boot.ci(myBootstrap2, index=k, type='perc')$percent[5]
-      myLTI2[k,'Lower'] <- ifelse (is.null(b.lower.ci), NA, b.lower.ci)
-      myLTI2[k,'Upper'] <- ifelse (is.null(b.upper.ci), NA, b.upper.ci)
-    } else {next}
-  }
-}, error=function(e){cat("ERROR :",conditionMessage(e), "\n")})
-# combine AR sim results into single data set to plot
-dat2 <- rbind(myLTI0, myLTI1, myLTI2)
-dat2 <- dat2[!is.na(dat2$Lifetime_Infs),] # remove NA rows
-dat2$Vac_Status <- "None"
-for(i in 1:dim(dat2)[1]){
-  if (dat2$Vac_Strategy[i] == "Annual"){
-    if (dat2$Num_Vacs[i] < 9 & dat2$Num_Vacs[i] > 0){dat2$Vac_Status[i] <- "Partially"
-    } else if (dat2$Num_Vacs[i] == 9) {dat2$Vac_Status[i] <- "Fully" }
-  }
-
-  if (dat2$Vac_Strategy[i] == "Every Other Year"){
-    if(dat2$Num_Vacs[i] < 5 & dat2$Num_Vacs[i] > 0){dat2$Vac_Status[i] <- "Partially"
-    } else if (dat2$Num_Vacs[i] == 5){ dat2$Vac_Status[i] <- "Fully" }
-  }
-}
-dat2$Vac_Status <- as.factor(dat2$Vac_Status)
-dat2$Vac_Status <- factor(dat2$Vac_Status,levels(dat2$Vac_Status)[c(2,3,1)])
-# take out partially vaccinated folks
-dat2a <- dat2[dat2$Vac_Status!="Partially",]
 
 p_li_baseline <- ggplot(data=dat2a, aes(x=Vac_Status, y=Lifetime_Infs, fill=Vac_Strategy)) +
                  geom_bar(stat="identity", color = "black", position=position_dodge(), width = 0.65) +
