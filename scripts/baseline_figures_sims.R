@@ -102,16 +102,12 @@ chocolate_sprinkles <- dt_inf1 %>%
                         do(tail(.,1))
 chocolate$ID <- chocolate_sprinkles$ID
 chocolate_sundae <- chocolate %>%
-                      mutate(AR0 = Age0/ID, AR1 = Age1/ID, AR2 = Age2/ID, AR3 = Age3/ID,
-                             AR4 = Age4/ID, AR5 = Age5/ID, AR6 = Age6/ID, AR7 = Age7/ID,
-                             AR8 = Age8/ID, AR9 = Age9/ID, AR10 = Age10/ID, AR11 = Age11/ID,
-                             AR12 = Age12/ID, AR13 = Age13/ID, AR14 = Age14/ID, AR15 = Age15/ID,
-                             AR16 = Age16/ID, AR17 = Age17/ID, AR18 = Age18/ID) %>%
-                      select(Vac_Strategy, Sim, Cohort, AR0:AR18) %>%
+                      mutate_at(vars(Age0:Age18), funs(./ID)) %>%
+                      select(Vac_Strategy, Sim, Cohort, Age0:Age18) %>%
                       group_by(Vac_Strategy, Sim) %>%
-                      summarise_at(vars(AR0:AR18), mean) %>%
-                      gather(Age, Attack_Rate, AR0:AR18) %>%
-                      mutate(Age = as.numeric(str_remove(Age, 'AR')))
+                      summarise_at(vars(Age0:Age18), mean) %>%
+                      gather(Age, Attack_Rate, Age0:Age18) %>%
+                      mutate(Age = as.numeric(str_remove(Age, 'Age')))
 
 # bootstrap to get CI for ARs
 foo <- function(data, indices){
@@ -127,7 +123,7 @@ chocolate_sundae2$Lower <- my_ci[1,]
 chocolate_sundae2$Upper <- my_ci[2,]
 
 ### plots
-p_ar_baseline <- ggplot(data = dat, aes(x = Age, y = Attack_Rate, colour= Vac_Strategy)) +
+p_ar_baseline <- ggplot(data = chocolate_sundae2, aes(x = Age, y = Mean_AR, colour= Vac_Strategy)) +
                  geom_line() +
                  geom_ribbon(aes(x=Age,ymin=Lower,ymax=Upper,linetype=NA, fill = Vac_Strategy),alpha=0.2) +
                  xlab("Age (years)") +
@@ -144,18 +140,29 @@ p_ar_baseline <- ggplot(data = dat, aes(x = Age, y = Attack_Rate, colour= Vac_St
                       legend.key = element_rect(fill = "white"))
 p_ar_baseline
 
-p_li_baseline <- ggplot(data=dat2a, aes(x=Vac_Status, y=Lifetime_Infs, fill=Vac_Strategy)) +
+p_li_baseline <- ggplot(data=banana_boat2, aes(x=Vac_Strategy, y=Mean_Infs, fill=Vac_Strategy)) +
                  geom_bar(stat="identity", color = "black", position=position_dodge(), width = 0.65) +
                  geom_errorbar(aes(ymin=Lower, ymax=Upper), width=.2, position=position_dodge(.9)) +
                  ylab('Number of Lifetime Infections') +
-                 xlab("Vaccination Status") +
+                 xlab("Vaccination Strategy") +
+                 scale_x_discrete(labels=c("Annual", "Biennial", "No Vaccination")) +
+                 scale_y_continuous(limits = c(0,3)) +
                  theme(panel.grid.major = element_blank(),
                        panel.grid.minor = element_blank(),
                        panel.background = element_blank(),
                        axis.line = element_line(colour = "black"),
-                       legend.position = c(0.95, 0.95),
-                       legend.justification = c("right", "top"),
-                       legend.box.just = "right",
-                       legend.margin = margin(6, 6, 6, 6),
-                       legend.key = element_rect(fill = "white"))
+                       legend.position = "none")
 p_li_baseline
+
+figure1 <- plot_grid(p_ar_baseline,p_li_baseline, labels = "AUTO", ncol = 2, align = 'v', axis = 'l')
+
+filename <- "~/Dropbox/Kylie/Projects/Morevac/figures/"
+png(file = paste0(filename,"figure1.png"), width = 12, height = 6,
+    units = "in", pointsize = 8, res = 300)
+figure1
+dev.off()
+
+
+
+
+
