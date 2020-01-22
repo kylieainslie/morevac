@@ -1,83 +1,8 @@
 ### Manuscript figures ###
 
-###################################
-### Figure 2 - baseline results ###
-###################################
-# baseline figures: wane = 100%,
-#     take = 100%, epsilon = 0%,
-#     VE = 70%, rho = 90%
-###################################
-# AR, vac off at 10
-p_ar_baseline <- ggplot(data = chocolate_sundae2, aes(x = Age, y = Mean_AR, colour= Vac_Strategy)) +
-  geom_line() +
-  geom_ribbon(aes(x=Age,ymin=Lower,ymax=Upper,linetype=NA, fill = Vac_Strategy),alpha=0.2) +
-  xlab("Age (years)") +
-  ylab("Attack Rate") +
-  #labs(fill = "Vaccination Strategy") +
-  theme(panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.background = element_blank(),
-        axis.line = element_line(colour = "black"),
-        legend.position = c(0.95, 0.95),
-        legend.justification = c("right", "top"),
-        legend.box.just = "right",
-        legend.margin = margin(6, 6, 6, 6),
-        legend.key = element_rect(fill = "white"))
-# AR, vac off at 16
-p_ar_baseline16 <- ggplot(data = chocolate_sundae2, aes(x = Age, y = Mean_AR, colour= Vac_Strategy)) +
-  geom_line() +
-  geom_ribbon(aes(x=Age,ymin=Lower,ymax=Upper,linetype=NA, fill = Vac_Strategy),alpha=0.2) +
-  xlab("Age (years)") +
-  ylab("Attack Rate") +
-  #labs(fill = "Vaccination Strategy") +
-  theme(panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.background = element_blank(),
-        axis.line = element_line(colour = "black"),
-        legend.position = c(0.95, 0.95),
-        legend.justification = c("right", "top"),
-        legend.box.just = "right",
-        legend.margin = margin(6, 6, 6, 6),
-        legend.key = element_rect(fill = "white"))
-
-# lifetime infections
-
-p_li_baseline <- ggplot(data=banana_boat2, aes(x=Vac_Strategy, y=Mean_Infs, fill=Vac_Strategy)) +
-  geom_bar(stat="identity", color = "black", position=position_dodge(), width = 0.65) +
-  geom_errorbar(aes(ymin=Lower, ymax=Upper), width=.2, position=position_dodge(.9)) +
-  ylab('Number of Lifetime Infections') +
-  xlab("Vaccination Strategy") +
-  scale_x_discrete(labels=c("Annual", "Biennial", "No Vaccination")) +
-  scale_y_continuous(limits = c(0,3)) +
-  theme(panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.background = element_blank(),
-        axis.line = element_line(colour = "black"),
-        legend.position = "none")
-p_li_baseline
-
-figure1 <- plot_grid(p_ar_baseline,p_li_baseline, labels = "AUTO", ncol = 2, align = 'v', axis = 'l')
-
-filename <- "~/Dropbox/Kylie/Projects/Morevac/figures/"
-png(file = paste0(filename,"figure1.png"), width = 12, height = 6,
-    units = "in", pointsize = 8, res = 300)
-figure1
-dev.off()
-### Figure 2
-
-# from image files
-# from_file_fig2a <- ggdraw() + draw_image("figure2a.png")
-#
-# from_file_fig2 <- plot_grid(from_file_fig2a, from_file_fig2b, from_file_fig2c, from_file_fig2d, labels = "AUTO", ncol = 2,
-#                             align = 'v', axis = 'l')
-# save figure
-# png(filename = "figure2.png", width = 6, height = 6, units = "in", res = 300)
-# plot(from_file_fig2)
-# dev.off()
-
-###############################
-### Model schematic figures ###
-###############################
+##################################
+### Figure 1 - Model schematic ###
+##################################
 # run multi-annual model
 out <- multiannual(n=10000, vac_coverage = vac_cov_dat$Off_At_10, vac_strategy = 1)
 # isolate birth cohort in 2000
@@ -140,28 +65,110 @@ p_gamma
 
 # susceptibility plot
 p_suscept <- ggplot(data = person, aes(x = Year, y = suscept)) +
-             geom_line() +
-             geom_ribbon(aes(ymax = suscept),ymin=0,alpha=0.1,) +
-             xlab('Year') +
-             ylab('Susceptibility') +
-             scale_x_continuous(limits = c(2000,2019), expand = c(0,0)) +
-             scale_y_continuous(limits = c(0,1), expand = c(0,0)) +
-             theme(panel.grid.major = element_blank(),
-                   panel.grid.minor = element_blank(),
-                   panel.background = element_blank(),
-                   axis.line = element_line(colour = "black"))
+  geom_line() +
+  geom_ribbon(aes(ymax = suscept),ymin=0,alpha=0.1,) +
+  xlab('Year') +
+  ylab('Susceptibility') +
+  scale_x_continuous(limits = c(2000,2019), expand = c(0,0)) +
+  scale_y_continuous(limits = c(0,1), expand = c(0,0)) +
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(colour = "black"))
 vac_cols <- cols[drift_dat$Shade_Group[which(drift_dat$Year %in% vax)]]
 p_suscept <- p_suscept +
-             geom_vline(xintercept=vax, linetype="dashed", colour = vac_cols) +
-             geom_vline(xintercept=infections, colour = 'red')
+  geom_vline(xintercept=vax, linetype="dashed", colour = vac_cols) +
+  geom_vline(xintercept=infections, colour = 'red')
 p_suscept
 library(cowplot)
 theme_set(theme_cowplot(font_size=12)) # reduce default font size
-p <- plot_grid(p_drift, p_suscept, labels = "AUTO", ncol = 1, align = 'v', axis = 'l')
-p
+figure1 <- plot_grid(p_drift, p_suscept, labels = "AUTO", ncol = 1, align = 'v', axis = 'l')
 
 # save figure
-png(filename = "model_schematic_fig.png", width = 6, height = 6, units = "in", res = 300)
-plot(p)
+filename <- "~/Dropbox/Kylie/Projects/Morevac/figures/"
+png(file = paste0(filename,"figure1.png"), width = 6, height = 8,
+    units = "in", pointsize = 8, res = 300)
+plot(figure1)
 dev.off()
+
+###################################
+### Figure 2 - baseline results ###
+###################################
+# baseline figures: wane = 100%,
+#     take = 100%, epsilon = 0%,
+#     VE = 70%, rho = 90%
+###################################
+# AR, vac off at 10
+p_ar_baseline <- ggplot(data = chocolate_sundae2, aes(x = Age, y = Mean_AR, colour= Vac_Strategy)) +
+  geom_line() +
+  geom_ribbon(aes(x=Age,ymin=Lower,ymax=Upper,linetype=NA, fill = Vac_Strategy),alpha=0.2) +
+  xlab("Age (years)") +
+  ylab("Attack Rate") +
+  #labs(fill = "Vaccination Strategy") +
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(colour = "black"),
+        legend.position = c(0.95, 0.95),
+        legend.justification = c("right", "top"),
+        legend.box.just = "right",
+        legend.margin = margin(6, 6, 6, 6),
+        legend.key = element_rect(fill = "white"))
+# AR, vac off at 16
+p_ar_baseline16 <- ggplot(data = chocolate_sundae2, aes(x = Age, y = Mean_AR, colour= Vac_Strategy)) +
+  geom_line() +
+  geom_ribbon(aes(x=Age,ymin=Lower,ymax=Upper,linetype=NA, fill = Vac_Strategy),alpha=0.2) +
+  xlab("Age (years)") +
+  ylab("Attack Rate") +
+  #labs(fill = "Vaccination Strategy") +
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(colour = "black"),
+        legend.position = c(0.95, 0.95),
+        legend.justification = c("right", "top"),
+        legend.box.just = "right",
+        legend.margin = margin(6, 6, 6, 6),
+        legend.key = element_rect(fill = "white"))
+
+# lifetime infections
+banana_boat2$Vac_Off <- 10
+banana_boat2a$Vac_Off <- 16
+banana_peel <- rbind(banana_boat2,banana_boat2a)
+
+p_li_baseline <- ggplot(data=banana_peel, aes(x=Vac_Strategy, y=Mean_Infs, fill=Vac_Off)) +
+  geom_bar(stat="identity", color = "black", position=position_dodge(), width = 0.65) +
+  geom_errorbar(aes(ymin=Lower, ymax=Upper), width=.2, position=position_dodge(.9)) +
+  ylab('Number of Lifetime Infections') +
+  xlab("Vaccination Strategy") +
+  scale_x_discrete(labels=c("Annual", "Biennial", "No Vaccination")) +
+  scale_y_continuous(limits = c(0,3)) +
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(colour = "black"),
+        legend.position = "none")
+p_li_baseline
+
+ar_plots <- plot_grid(p_ar_baseline,p_ar_baseline16, labels = "AUTO", ncol = 1, align = 'v', axis = 'l')
+figure2 <- plot_grid(ar_plots,p_li_baseline, labels = c("","C"), ncol = 2, align = 'v', axis = 'l')
+
+filename <- "~/Dropbox/Kylie/Projects/Morevac/figures/"
+png(file = paste0(filename,"figure2.png"), width = 12, height = 6,
+    units = "in", pointsize = 8, res = 300)
+figure2
+dev.off()
+################################
+### Figure 3 - scatter plots ###
+################################
+# from image files
+# from_file_fig2a <- ggdraw() + draw_image("figure2a.png")
+#
+# from_file_fig2 <- plot_grid(from_file_fig2a, from_file_fig2b, from_file_fig2c, from_file_fig2d, labels = "AUTO", ncol = 2,
+#                             align = 'v', axis = 'l')
+# save figure
+# png(filename = "figure2.png", width = 6, height = 6, units = "in", res = 300)
+# plot(from_file_fig2)
+# dev.off()
+
 
