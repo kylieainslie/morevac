@@ -1,10 +1,14 @@
-### Results figures ###
+### Manuscript figures ###
 
-###############################
-### Figure 1 - baseline     ###
-###############################
-# baseline figures: wane = 100%, take = 100%, epsilon = 0%, VE = 70%, rho = 90%
-p_ar_baseline <- ggplot(data = dat, aes(x = Age, y = Attack_Rate, colour= Vac_Strategy)) +
+###################################
+### Figure 2 - baseline results ###
+###################################
+# baseline figures: wane = 100%,
+#     take = 100%, epsilon = 0%,
+#     VE = 70%, rho = 90%
+###################################
+# AR, vac off at 10
+p_ar_baseline <- ggplot(data = chocolate_sundae2, aes(x = Age, y = Mean_AR, colour= Vac_Strategy)) +
   geom_line() +
   geom_ribbon(aes(x=Age,ymin=Lower,ymax=Upper,linetype=NA, fill = Vac_Strategy),alpha=0.2) +
   xlab("Age (years)") +
@@ -19,35 +23,46 @@ p_ar_baseline <- ggplot(data = dat, aes(x = Age, y = Attack_Rate, colour= Vac_St
         legend.box.just = "right",
         legend.margin = margin(6, 6, 6, 6),
         legend.key = element_rect(fill = "white"))
-p_ar_baseline
+# AR, vac off at 16
+p_ar_baseline16 <- ggplot(data = chocolate_sundae2, aes(x = Age, y = Mean_AR, colour= Vac_Strategy)) +
+  geom_line() +
+  geom_ribbon(aes(x=Age,ymin=Lower,ymax=Upper,linetype=NA, fill = Vac_Strategy),alpha=0.2) +
+  xlab("Age (years)") +
+  ylab("Attack Rate") +
+  #labs(fill = "Vaccination Strategy") +
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(colour = "black"),
+        legend.position = c(0.95, 0.95),
+        legend.justification = c("right", "top"),
+        legend.box.just = "right",
+        legend.margin = margin(6, 6, 6, 6),
+        legend.key = element_rect(fill = "white"))
 
-p_li_baseline <- ggplot(data=dat2a, aes(x=Vac_Status, y=Lifetime_Infs, fill=Vac_Strategy)) +
-                 geom_bar(stat="identity", color = "black", position=position_dodge(), width = 0.65) +
-                 geom_errorbar(aes(ymin=Lower, ymax=Upper), width=.2, position=position_dodge(.9)) +
-                 ylab('Number of Lifetime Infections') +
-                 xlab("Vaccination Status") +
-                 theme(panel.grid.major = element_blank(),
-                       panel.grid.minor = element_blank(),
-                       panel.background = element_blank(),
-                       axis.line = element_line(colour = "black"),
-                       legend.position = c(0.95, 0.95),
-                       legend.justification = c("right", "top"),
-                       legend.box.just = "right",
-                       legend.margin = margin(6, 6, 6, 6),
-                       legend.key = element_rect(fill = "white"))
+# lifetime infections
+
+p_li_baseline <- ggplot(data=banana_boat2, aes(x=Vac_Strategy, y=Mean_Infs, fill=Vac_Strategy)) +
+  geom_bar(stat="identity", color = "black", position=position_dodge(), width = 0.65) +
+  geom_errorbar(aes(ymin=Lower, ymax=Upper), width=.2, position=position_dodge(.9)) +
+  ylab('Number of Lifetime Infections') +
+  xlab("Vaccination Strategy") +
+  scale_x_discrete(labels=c("Annual", "Biennial", "No Vaccination")) +
+  scale_y_continuous(limits = c(0,3)) +
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(colour = "black"),
+        legend.position = "none")
 p_li_baseline
 
-theme_set(theme_cowplot(font_size=10)) # reduce default font size
-fig1 <- plot_grid(p_ar_baseline, p_li_baseline, labels = "AUTO", ncol = 1,align = 'v', axis = 'l')
-# save figure
-png(filename = "figure1_baseline.png") #, width = 6, height = 6, units = "in", res = 300)
-plot(fig1)
-dev.off()
+figure1 <- plot_grid(p_ar_baseline,p_li_baseline, labels = "AUTO", ncol = 2, align = 'v', axis = 'l')
 
-pdf(filename = "figure1_baseline.pdf") #, width = 6, height = 6, units = "in", res = 300)
-plot(fig1)
+filename <- "~/Dropbox/Kylie/Projects/Morevac/figures/"
+png(file = paste0(filename,"figure1.png"), width = 12, height = 6,
+    units = "in", pointsize = 8, res = 300)
+figure1
 dev.off()
-
 ### Figure 2
 
 # from image files
