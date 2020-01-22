@@ -21,12 +21,12 @@ devtools::load_all()
 ###
 
 ### define input parameters
-n_sim = 100
+n_sim = 50
 nindiv <- 30000
 max_age = 80
 myyears <- 1820:2028
 mybetas <- c(0.4,rep(0.2,length(myyears)-1))
-vac_cut_off <- 10
+vac_cut_off <- 16
 vac_cov_dat <- data.frame(Age = 0:(max_age-1), No_Vac = numeric(max_age), Annual = numeric(max_age), Biennial = numeric(max_age))
 vac_cov_dat$Annual[3:(vac_cut_off + 1)] <- 0.44
 vac_cov_dat$Biennial[seq(3,vac_cut_off+1,2)] <- 0.44
@@ -43,12 +43,17 @@ cat("\n Every other year vaccination simulation running... \n")
 sim_test2 <- run_sim_2(sim = n_sim, n = nindiv, years = myyears, betas = mybetas, vac_cov = vac_cov_dat$Biennial, vac_strategy = 2,
                        wane = 1, take = 1, epsilon = 0, vac_protect = 0.7, rho = 0.9)
 
+# extract cohorts from each sim and combine raw inf and vac histories for every simulation
+sim0_results <- postprocess_sim_results_for_rolling_cohort(simdat = sim_test0, total_year_range = myyears, nsim = n_sim)
+sim1_results <- postprocess_sim_results_for_rolling_cohort(simdat = sim_test1, total_year_range = myyears, nsim = n_sim)
+sim2_results <- postprocess_sim_results_for_rolling_cohort(simdat = sim_test2, total_year_range = myyears, nsim = n_sim)
+
 # combine sim results into one data.table
 inf_histories <- rbindlist(list(No_Vac = sim0_results$inf_history, Annual = sim1_results$inf_history, Biennial = sim2_results$inf_history), idcol = 'Vac_Strategy')
 vac_histories <- rbindlist(list(No_Vac = sim0_results$vac_history, Annual = sim1_results$vac_history, Biennial = sim2_results$vac_history), idcol = 'Vac_Strategy')
 
 # write raw output to file
-file <- "~/Dropbox/Kylie/Projects/Morevac/data/sim_data/baseline/baseline"
+file <- "~/Dropbox/Kylie/Projects/Morevac/data/sim_data/baseline/baseline_vacoff16"
 try(data.table::fwrite(inf_histories, file = paste0(file,"_inf_hist.csv"), col.names = TRUE,
                        row.names = FALSE, sep = ","))
 try(data.table::fwrite(vac_histories, file = paste0(file,"_vac_hist.csv"), col.names = TRUE,
@@ -58,6 +63,9 @@ try(data.table::fwrite(vac_histories, file = paste0(file,"_vac_hist.csv"), col.n
 ### read in results (rather than re-run simulations)
 dt_inf <- fread("~/Dropbox/Kylie/Projects/Morevac/data/sim_data/baseline/baseline_inf_hist.csv")
 dt_vac <- fread("~/Dropbox/Kylie/Projects/Morevac/data/sim_data/baseline/baseline_vac_hist.csv")
+
+#dt_inf <- fread("~/Dropbox/Kylie/Projects/Morevac/data/sim_data/baseline/baseline_vacoff16_inf_hist.csv")
+#dt_vac <- fread("~/Dropbox/Kylie/Projects/Morevac/data/sim_data/baseline/baseline_vacoff16_vac_hist.csv")
 
 ### summarise raw data for lifetime infections
 dt_inf1 <- dt_inf %>% mutate(Num_Infs = rowSums(select(.,Age0:Age18)))
