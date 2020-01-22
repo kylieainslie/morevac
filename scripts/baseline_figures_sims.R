@@ -61,12 +61,17 @@ try(data.table::fwrite(vac_histories, file = paste0(file,"_vac_hist.csv"), col.n
 
 #######################################
 ### read in results (rather than re-run simulations)
-dt_inf <- fread("~/Dropbox/Kylie/Projects/Morevac/data/sim_data/baseline/baseline_inf_hist.csv")
-dt_vac <- fread("~/Dropbox/Kylie/Projects/Morevac/data/sim_data/baseline/baseline_vac_hist.csv")
+inf_dat <- fread("~/Dropbox/Kylie/Projects/Morevac/data/sim_data/baseline/baseline_inf_hist.csv")
+vac_dat <- fread("~/Dropbox/Kylie/Projects/Morevac/data/sim_data/baseline/baseline_vac_hist.csv")
 
-#dt_inf <- fread("~/Dropbox/Kylie/Projects/Morevac/data/sim_data/baseline/baseline_vacoff16_inf_hist.csv")
-#dt_vac <- fread("~/Dropbox/Kylie/Projects/Morevac/data/sim_data/baseline/baseline_vacoff16_vac_hist.csv")
+inf_dat_16 <- fread("~/Dropbox/Kylie/Projects/Morevac/data/sim_data/baseline/baseline_vacoff16_inf_hist.csv")
+inf_dat_16 <- fread("~/Dropbox/Kylie/Projects/Morevac/data/sim_data/baseline/baseline_vacoff16_vac_hist.csv")
 
+dt_inf <- inf_dat
+dt_vac <- vac_dat
+
+# dt_inf <- inf_dat_16
+# dt_vac <- vac_dat_16
 ### summarise raw data for lifetime infections
 dt_inf1 <- dt_inf %>% mutate(Num_Infs = rowSums(select(.,Age0:Age18)))
 dt_vac1 <- dt_vac %>% mutate(Num_Vacs = rowSums(select(.,Age0:Age18)))
@@ -75,15 +80,15 @@ banana <- cbind(dt_inf1[,c("Vac_Strategy", "Sim", "Cohort", "ID", "Num_Infs")], 
 banana_boat <- banana %>% group_by(Vac_Strategy, Sim) %>% summarise(Mean_Infs = mean(Num_Infs))
 
 # bootstrap to get CI for Lifetime Infs
-foo <- function(data, indices){
+foo1 <- function(data, indices){
   dt<-data[indices,]
   mean(dt$Mean_Infs)
 }
-my_bootstrap <- plyr::dlply(banana_boat, "Vac_Strategy", function(dat) boot(dat, foo, R=100)) # boostrap for each set of param values
+my_bootstrap <- plyr::dlply(banana_boat, "Vac_Strategy", function(dat) boot(dat, foo1, R=100)) # boostrap for each set of param values
 my_ci <- sapply(my_bootstrap, function(x) boot.ci(x, index = 1, type='perc')$percent[c(4,5)]) # get confidence intervals
-banana_boat2 <- banana_boat %>% group_by(Vac_Strategy) %>% summarise(Mean_Infs = mean(Mean_Infs))
-banana_boat2$Lower <- my_ci[1,]
-banana_boat2$Upper <- my_ci[2,]
+banana_boat2a <- banana_boat %>% group_by(Vac_Strategy) %>% summarise(Mean_Infs = mean(Mean_Infs))
+banana_boat2a$Lower <- my_ci[1,]
+banana_boat2a$Upper <- my_ci[2,]
 
 # Difference in Lifetime Infs
 banana_split <- banana_boat %>% spread(Vac_Strategy, Mean_Infs) %>%
@@ -92,11 +97,11 @@ banana_split <- banana_boat %>% spread(Vac_Strategy, Mean_Infs) %>%
                   gather(Type, Difference, Diff_AB:Diff_BN)
 
 # bootstrap to get CI for Difference
-foo <- function(data, indices){
+foo2 <- function(data, indices){
   dt<-data[indices,]
   mean(dt$Difference)
 }
-my_bootstrap <- plyr::dlply(banana_split, "Type", function(dat) boot(dat, foo, R=100)) # boostrap for each set of param values
+my_bootstrap <- plyr::dlply(banana_split, "Type", function(dat) boot(dat, foo2, R=100)) # boostrap for each set of param values
 my_ci <- sapply(my_bootstrap, function(x) boot.ci(x, index = 1, type='perc')$percent[c(4,5)]) # get confidence intervals
 
 banana_split2 <- banana_split %>% group_by(Type) %>% summarise(Mean_Diff = mean(Difference))
@@ -121,57 +126,19 @@ chocolate_sundae <- chocolate %>%
                       mutate(Age = as.numeric(str_remove(Age, 'Age')))
 
 # bootstrap to get CI for ARs
-foo <- function(data, indices){
+foo3 <- function(data, indices){
   dt<-data[indices,]
   mean(dt$Attack_Rate)
 }
 
-my_bootstrap <- plyr::dlply(chocolate_sundae, c("Vac_Strategy","Age"), function(dat) boot(dat, foo, R=100)) # boostrap for each set of param values
+my_bootstrap <- plyr::dlply(chocolate_sundae, c("Vac_Strategy","Age"), function(dat) boot(dat, foo3, R=100)) # boostrap for each set of param values
 my_ci <- sapply(my_bootstrap, function(x) boot.ci(x, index = 1, type='perc')$percent[c(4,5)]) # get confidence intervals
 
 chocolate_sundae2 <- chocolate_sundae %>% group_by(Vac_Strategy, Age) %>% summarise(Mean_AR = mean(Attack_Rate))
 chocolate_sundae2$Lower <- my_ci[1,]
 chocolate_sundae2$Upper <- my_ci[2,]
 #######################################
-### plots
-p_ar_baseline <- ggplot(data = chocolate_sundae2, aes(x = Age, y = Mean_AR, colour= Vac_Strategy)) +
-                 geom_line() +
-                 geom_ribbon(aes(x=Age,ymin=Lower,ymax=Upper,linetype=NA, fill = Vac_Strategy),alpha=0.2) +
-                 xlab("Age (years)") +
-                 ylab("Attack Rate") +
-                 #labs(fill = "Vaccination Strategy") +
-                 theme(panel.grid.major = element_blank(),
-                      panel.grid.minor = element_blank(),
-                      panel.background = element_blank(),
-                      axis.line = element_line(colour = "black"),
-                      legend.position = c(0.95, 0.95),
-                      legend.justification = c("right", "top"),
-                      legend.box.just = "right",
-                      legend.margin = margin(6, 6, 6, 6),
-                      legend.key = element_rect(fill = "white"))
-p_ar_baseline
 
-p_li_baseline <- ggplot(data=banana_boat2, aes(x=Vac_Strategy, y=Mean_Infs, fill=Vac_Strategy)) +
-                 geom_bar(stat="identity", color = "black", position=position_dodge(), width = 0.65) +
-                 geom_errorbar(aes(ymin=Lower, ymax=Upper), width=.2, position=position_dodge(.9)) +
-                 ylab('Number of Lifetime Infections') +
-                 xlab("Vaccination Strategy") +
-                 scale_x_discrete(labels=c("Annual", "Biennial", "No Vaccination")) +
-                 scale_y_continuous(limits = c(0,3)) +
-                 theme(panel.grid.major = element_blank(),
-                       panel.grid.minor = element_blank(),
-                       panel.background = element_blank(),
-                       axis.line = element_line(colour = "black"),
-                       legend.position = "none")
-p_li_baseline
-
-figure1 <- plot_grid(p_ar_baseline,p_li_baseline, labels = "AUTO", ncol = 2, align = 'v', axis = 'l')
-
-filename <- "~/Dropbox/Kylie/Projects/Morevac/figures/"
-png(file = paste0(filename,"figure1.png"), width = 12, height = 6,
-    units = "in", pointsize = 8, res = 300)
-figure1
-dev.off()
 
 
 
