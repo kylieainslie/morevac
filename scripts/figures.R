@@ -115,52 +115,57 @@ p_ar_baseline <- ggplot(data = chocolate_sundae2, aes(x = Age, y = Mean_AR, colo
         legend.margin = margin(6, 6, 6, 6),
         legend.key = element_rect(fill = "white"))
 # AR, vac off at 16
-p_ar_baseline16 <- ggplot(data = chocolate_sundae2, aes(x = Age, y = Mean_AR, colour= Vac_Strategy)) +
+p_ar_baseline16 <- ggplot(data = chocolate_sundae2, aes(x = Age, y = Mean_AR, colour = Vac_Strategy)) +
   geom_line() +
   geom_ribbon(aes(x=Age,ymin=Lower,ymax=Upper,linetype=NA, fill = Vac_Strategy),alpha=0.2) +
   xlab("Age (years)") +
   ylab("Attack Rate") +
-  #labs(fill = "Vaccination Strategy") +
+  #labs(x = "Age (years)", y = "Attack Rate", colour = "Vaccination Strategy") +
+  # scale_fill_discrete(name="Vaccination Strategy",
+  #                     labels=c("Annual", "Biennial", "No Vaccination")) +
   theme(panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
         panel.background = element_blank(),
         axis.line = element_line(colour = "black"),
-        legend.position = c(0.95, 0.95),
-        legend.justification = c("right", "top"),
-        legend.box.just = "right",
-        legend.margin = margin(6, 6, 6, 6),
-        legend.key = element_rect(fill = "white"))
+        legend.position = "none")
+        # legend.position = c(0.95, 0.95),
+        # legend.justification = c("right", "top"),
+        # legend.box.just = "right",
+        # legend.margin = margin(6, 6, 6, 6),
+        # legend.key = element_rect(fill = "white"))
 
 # lifetime infections
 banana_boat2$Vac_Off <- 10
 banana_boat2a$Vac_Off <- 16
 banana_peel <- rbind(banana_boat2,banana_boat2a)
 
-p_li_baseline <- ggplot(data=banana_peel, aes(x=Vac_Strategy, y=Mean_Infs, fill=Vac_Off)) +
+p_li_baseline <- ggplot(data=banana_peel, aes(x=Vac_Strategy, y=Mean_Infs, fill=as.factor(Vac_Off))) +
   geom_bar(stat="identity", color = "black", position=position_dodge(), width = 0.65) +
-  geom_errorbar(aes(ymin=Lower, ymax=Upper), width=.2, position=position_dodge(.9)) +
-  ylab('Number of Lifetime Infections') +
-  xlab("Vaccination Strategy") +
+  geom_errorbar(aes(ymin=Lower, ymax=Upper), width=.2, position=position_dodge(.65)) +
+  labs(x = "Vaccination Strategy", y = "Number of Lifetime Infections", fill = "Vaccination \nAge Cutoff") +
+  #ylab('Number of Lifetime Infections') +
+  #xlab("Vaccination Strategy") +
   scale_x_discrete(labels=c("Annual", "Biennial", "No Vaccination")) +
   scale_y_continuous(limits = c(0,3)) +
   theme(panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
         panel.background = element_blank(),
-        axis.line = element_line(colour = "black"),
-        legend.position = "none")
+        axis.line = element_line(colour = "black"))
 p_li_baseline
 
 ar_plots <- plot_grid(p_ar_baseline,p_ar_baseline16, labels = "AUTO", ncol = 1, align = 'v', axis = 'l')
 figure2 <- plot_grid(ar_plots,p_li_baseline, labels = c("","C"), ncol = 2, align = 'v', axis = 'l')
 
 filename <- "~/Dropbox/Kylie/Projects/Morevac/figures/"
-png(file = paste0(filename,"figure2.png"), width = 12, height = 6,
+png(file = paste0(filename,"figure2_alt.png"), width = 12, height = 8,
     units = "in", pointsize = 8, res = 300)
 figure2
 dev.off()
 ################################
 ### Figure 3 - scatter plots ###
 ################################
+
+
 # from image files
 # from_file_fig2a <- ggdraw() + draw_image("figure2a.png")
 #
