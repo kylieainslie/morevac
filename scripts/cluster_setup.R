@@ -13,7 +13,7 @@ options(didehpc.username = "kainslie",
 
 # dont really know what these lines do but you need them
 context::context_log_start()
-root <- "contexts"
+root <- "contexts3"
 
 # setting up the context: what files need to be sourced for your function to work, what packages you need
 # package sources only required here because the package I am using is not on CRAN
