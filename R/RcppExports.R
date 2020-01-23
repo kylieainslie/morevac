@@ -2,26 +2,26 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 find_delta_v <- function(v, dist_mat) {
-    .Call(`_morevac_find_delta_v`, v, dist_mat)
+    .Call('_morevac_find_delta_v', PACKAGE = 'morevac', v, dist_mat)
 }
 
 infect_cpp_2 <- function(inf_history, years_since_last_vac, vac_history, suscept_mat, x, ages_mat, delta_v, dist_mat, gammas, foi, wane_rate, epsilon) {
-    .Call(`_morevac_infect_cpp_2`, inf_history, years_since_last_vac, vac_history, suscept_mat, x, ages_mat, delta_v, dist_mat, gammas, foi, wane_rate, epsilon)
+    .Call('_morevac_infect_cpp_2', PACKAGE = 'morevac', inf_history, years_since_last_vac, vac_history, suscept_mat, x, ages_mat, delta_v, dist_mat, gammas, foi, wane_rate, epsilon)
 }
 
 initialize_pop_cpp <- function(n, nyears, init_ages, max_age) {
-    .Call(`_morevac_initialize_pop_cpp`, n, nyears, init_ages, max_age)
+    .Call('_morevac_initialize_pop_cpp', PACKAGE = 'morevac', n, nyears, init_ages, max_age)
 }
 
 lifetime_infections_cpp <- function(a, lifetime_inf, inf_stat) {
-    .Call(`_morevac_lifetime_infections_cpp`, a, lifetime_inf, inf_stat)
+    .Call('_morevac_lifetime_infections_cpp', PACKAGE = 'morevac', a, lifetime_inf, inf_stat)
 }
 
 vaccinate_cpp_2 <- function(vac_hist_mat, v, ages_mat, vac_this_year, vac_cov, take, rho, vac_strategy) {
-    .Call(`_morevac_vaccinate_cpp_2`, vac_hist_mat, v, ages_mat, vac_this_year, vac_cov, take, rho, vac_strategy)
+    .Call('_morevac_vaccinate_cpp_2', PACKAGE = 'morevac', vac_hist_mat, v, ages_mat, vac_this_year, vac_cov, take, rho, vac_strategy)
 }
 
 vaccine_update_cpp <- function(drift, threshold, vac_protect) {
-    .Call(`_morevac_vaccine_update_cpp`, drift, threshold, vac_protect)
+    .Call('_morevac_vaccine_update_cpp', PACKAGE = 'morevac', drift, threshold, vac_protect)
 }
 
