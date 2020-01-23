@@ -29,6 +29,8 @@ multiannual2(n = 1000, years = 200, maxage = 80, start_year = 1820,
 
 \item{beta_epidemic}{annual force of infection (after initialization of model)}
 
+\item{vac_protect}{protective effect of vaccine}
+
 \item{vac_strategy}{Integer value indicating frequency of vaccination (1 = annual, 2 = biannual, 3 =triannual,...)}
 
 \item{rho}{correlation of vaccination}
@@ -40,8 +42,6 @@ multiannual2(n = 1000, years = 200, maxage = 80, start_year = 1820,
 \item{seed}{set random seed}
 
 \item{vac_start_year}{year that vaccination starts}
-
-\item{mygamma}{protective effect of vaccine}
 }
 \value{
 list with two elements: 1) a list of infection histories and attack rates and

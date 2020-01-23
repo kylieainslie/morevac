@@ -6,10 +6,9 @@
 \usage{
 multiannual(n = 10000, years = 1820:2019, max_age = 80,
   start_vac_year = 2000, vac_coverage = c(rep(0.5, 80)),
-  betas = c(0.4, rep(0.2, 199)), vac_protect = 0.7,
-  suscept_func_version = 2, vac_strategy = 1, rho = 0.9, wane = 0,
-  take = 1, drift_rate = 1, drift_off = FALSE, epsilon = 0.03,
-  seed = NULL)
+  betas = c(0.4, rep(0.2, 199)), vac_protect = 0.7, vac_strategy = 1,
+  rho = 0.9, wane = 0, take = 1, drift_rate = 1,
+  drift_off = FALSE, epsilon = 0, seed = NULL)
 }
 \arguments{
 \item{n}{number of individuals to be simulated}
@@ -23,9 +22,6 @@ multiannual(n = 10000, years = 1820:2019, max_age = 80,
 \item{betas}{vector of force of infection parameters for every year}
 
 \item{vac_protect}{protective effect of vaccine}
-
-\item{suscept_func_version}{integer indicating which susceptibility version to use.
-1 = either-or, 2 = multiplicative.}
 
 \item{vac_strategy}{Integer value indicating frequency of vaccination (1 = annual, 2 = biannual, 3 =triannual,...)}
 
@@ -42,6 +38,9 @@ multiannual(n = 10000, years = 1820:2019, max_age = 80,
 \item{start_vac_age}{age at which an individual may be vaccinated}
 
 \item{stop_vac_age}{age at which vaccination stops}
+
+\item{suscept_func_version}{integer indicating which susceptibility version to use.
+1 = either-or, 2 = multiplicative.}
 }
 \value{
 list with two elements: 1) a list of infection histories and attack rates and
