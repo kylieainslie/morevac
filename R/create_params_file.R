@@ -1,15 +1,15 @@
 ### create parameter file
 
-#' @param n_sim
-#' @param n_indiv
-#' @param max_age
-#' @param vac_cutoff
-#' @param start_year
-#' @param end_year
-#' @param pandemic_beta
-#' @param epidemic_beta
-#' @param lhc_size
-#' @param out_file
+#' @param n_sim number of simulations
+#' @param n_indiv number of individuals
+#' @param max_age maximum age of individuals
+#' @param vac_cutoff age at which vaccination stops
+#' @param start_year start simulation year (YYYY format)
+#' @param end_year end simulation year (YYYY format)
+#' @param pandemic_beta value of pandemic force of infection
+#' @param epidemic_beta value of epidemic force of infection
+#' @param lhc_size number of latin hypercube parameter combinations
+#' @param out_file name of output file
 #' @return tibble with parameter values and writes csv file to the working directory with parameter values
 #' @keywords morevac
 #' @export
