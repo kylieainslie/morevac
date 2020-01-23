@@ -13,13 +13,14 @@ options(didehpc.username = "kainslie",
 
 # dont really know what these lines do but you need them
 context::context_log_start()
-root <- "contexts2"
+root <- "contexts"
 
 # setting up the context: what files need to be sourced for your function to work, what packages you need
 # package sources only required here because the package I am using is not on CRAN
 ctx <- context::context_save(path = root,
                              packages = c("morevac","Rcpp"),
                              package_sources = provisionr::package_sources(github = "kylieainslie/morevac",
+                                                                           #local = "morevac_1.0.tar.gz",
                                                                            cran = "https://cran.ma.imperial.ac.uk/")
                              )
 
