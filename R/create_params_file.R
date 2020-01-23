@@ -1,5 +1,6 @@
 ### create parameter file
 
+#' This function creates parameter input file
 #' @param n_sim number of simulations
 #' @param n_indiv number of individuals
 #' @param max_age maximum age of individuals
