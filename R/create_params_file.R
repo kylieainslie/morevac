@@ -1,6 +1,7 @@
 ### create parameter file
 
 create_params_file <- function(n_sim = 100, n_indiv = 30000, max_age = 80, vac_cutoff = 10,
+                               start_year = 1820, end_year = 2028, pandemic_beta = 0.4, epidemic_beta = 0.2,
                                lhc_size = 1000, out_file = "parameter_values", seed = NULL){
 
   if(!is.null(seed)){set.seed(seed)}
@@ -12,6 +13,10 @@ create_params_file <- function(n_sim = 100, n_indiv = 30000, max_age = 80, vac_c
   rtn <- tibble(n_sim = c(rep(n_sim, lhc_size)),
                 n_indiv = c(rep(n_indiv, lhc_size)),
                 max_age = c(rep(max_age, lhc_size)),
+                start_year = c(rep(start_year, lhc_size)),
+                end_year = c(rep(end_year, lhc_size)),
+                pandemic_beta = c(rep(pandemic_beta, lhc_size)),
+                epidemic_beta = c(rep(epidemic_beta, lhc_size)),
                 vac_cutoff = c(rep(vac_cutoff, lhc_size)),
                 vac_cov = qunif(mylhc[,"Vac_Cov"], min = 0, max = 0.5),
                 exposure_penalty = qunif(mylhc[,"Epsilon"], min = 0.001, max = 0.1),
