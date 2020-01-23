@@ -13,7 +13,7 @@ options(didehpc.username = "kainslie",
 
 # dont really know what these lines do but you need them
 context::context_log_start()
-root <- "contexts"
+root <- "contexts2"
 
 # setting up the context: what files need to be sourced for your function to work, what packages you need
 # package sources only required here because the package I am using is not on CRAN
@@ -27,16 +27,4 @@ ctx <- context::context_save(path = root,
 obj <- didehpc::queue_didehpc(ctx)
 
 # 'job' is the thing I am running on the cluster
-
-# separate job for each vac strategy
-job1 <- obj$enqueue(run_sim(sim = s,nindiv = n,vaccov = vc,version = v,
-                            rho = r, wane = w, take = take, vac_strategy = vs[1],
-                            file.out = TRUE, tag = tags[1]))
-
-job2 <- obj$enqueue(run_sim(sim = s,nindiv = n,vaccov = vc,version = v,
-                            rho = r, wane = w, take = take, vac_strategy = vs[2],
-                            file.out = TRUE, tag = tags[2]))
-
-job3 <- obj$enqueue(run_sim(sim = s,nindiv = n,vaccov = vc,version = v,
-                            rho = r, wane = w, take = take, vac_strategy = vs[3],
-                            file.out = TRUE, tag = tags[3]))
+job <- obj$enqueue(run_sims_all(params_file = "param_values.csv", out_file = "test"))
