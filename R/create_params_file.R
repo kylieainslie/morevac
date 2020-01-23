@@ -1,5 +1,18 @@
 ### create parameter file
 
+#' @param n_sim
+#' @param n_indiv
+#' @param max_age
+#' @param vac_cutoff
+#' @param start_year
+#' @param end_year
+#' @param pandemic_beta
+#' @param epidemic_beta
+#' @param lhc_size
+#' @param out_file
+#' @return tibble with parameter values and writes csv file to the working directory with parameter values
+#' @keywords morevac
+#' @export
 create_params_file <- function(n_sim = 100, n_indiv = 30000, max_age = 80, vac_cutoff = 10,
                                start_year = 1820, end_year = 2028, pandemic_beta = 0.4, epidemic_beta = 0.2,
                                lhc_size = 1000, out_file = "parameter_values", seed = NULL){
