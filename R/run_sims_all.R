@@ -1,7 +1,12 @@
-### run simulations on cluster ###
+### run simulations from parameter file ###
 # created: 23/01/2020
 # last modified: 23/01/2020
 
+#' @param params_file character string indicating the name of the file with input parameter values
+#' @param out_file character string indicating name of output file
+#' @return writes csv files to the working directory with infection and vaccination histories for every row of params_file
+#' @keywords morevac
+#' @export
 run_sims_all <- function(params_file, out_file = "test"){
 
   ### read in parameter file
