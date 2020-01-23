@@ -1,9 +1,9 @@
 ### For cluster
 # getting started
 # install.package("drat") # if you don't have it already
-drat:::add("mrc-ide")
-install.packages("provisionr")
-install.packages("didehpc")
+# drat:::add("mrc-ide")
+# install.packages("provisionr")
+# install.packages("didehpc")
 
 setwd('/Volumes/kainslie/cluster')
 # setwd('Q:/cluster')
@@ -13,12 +13,12 @@ options(didehpc.username = "kainslie",
 
 # dont really know what these lines do but you need them
 context::context_log_start()
-root <- "contexts3"
+root <- "contexts"
 
 # setting up the context: what files need to be sourced for your function to work, what packages you need
 # package sources only required here because the package I am using is not on CRAN
 ctx <- context::context_save(path = root,
-                             packages = c("morevac","Rcpp"),
+                             packages = c("morevac","Rcpp","dplyr","data.table","rdist"),
                              package_sources = provisionr::package_sources(github = "kylieainslie/morevac",
                                                                            cran = "https://cran.ma.imperial.ac.uk/")
                              )
@@ -28,3 +28,5 @@ obj <- didehpc::queue_didehpc(ctx)
 
 # 'job' is the thing I am running on the cluster
 job <- obj$enqueue(run_sims_all(params_file = "param_values.csv", out_file = "test"))
+
+# job<-obj$enqueue(multiannual())
