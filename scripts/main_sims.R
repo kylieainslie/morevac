@@ -99,7 +99,9 @@ for (b in 1:10){
 # stopCluster(cl)
 
 #######################################
-
+# test new functions
+params <- create_params_file(n_sim = 5, n_indiv = 1000, lhc_size = 10, out_file = "~/Dropbox/Kylie/Projects/Morevac/data/param_values")
+run_sims_on_cluster(params_file = "~/Dropbox/Kylie/Projects/Morevac/data/param_values.csv", out_file = "~/Dropbox/Kylie/Projects/Morevac/data/test")
 #######################################
 ### read in results (rather than re-run simulations)
 setwd("~/Dropbox/Kylie/Projects/Morevac/data/sim_data/off_at_10/infection_histories")

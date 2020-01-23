@@ -21,6 +21,7 @@ devtools::load_all()
 ###
 
 ### define input parameters
+file <- "baseline10"
 n_sim = 50
 nindiv <- 30000
 max_age = 80
@@ -53,7 +54,8 @@ inf_histories <- rbindlist(list(No_Vac = sim0_results$inf_history, Annual = sim1
 vac_histories <- rbindlist(list(No_Vac = sim0_results$vac_history, Annual = sim1_results$vac_history, Biennial = sim2_results$vac_history), idcol = 'Vac_Strategy')
 
 # write raw output to file
-file <- "~/Dropbox/Kylie/Projects/Morevac/data/sim_data/baseline/baseline_vacoff16"
+#file <- "~/Dropbox/Kylie/Projects/Morevac/data/sim_data/baseline/baseline_vacoff16"
+
 try(data.table::fwrite(inf_histories, file = paste0(file,"_inf_hist.csv"), col.names = TRUE,
                        row.names = FALSE, sep = ","))
 try(data.table::fwrite(vac_histories, file = paste0(file,"_vac_hist.csv"), col.names = TRUE,
