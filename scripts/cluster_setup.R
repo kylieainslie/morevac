@@ -20,7 +20,6 @@ root <- "contexts"
 ctx <- context::context_save(path = root,
                              packages = c("morevac","Rcpp"),
                              package_sources = provisionr::package_sources(github = "kylieainslie/morevac",
-                                                                           #local = "morevac_1.0.tar.gz",
                                                                            cran = "https://cran.ma.imperial.ac.uk/")
                              )
 

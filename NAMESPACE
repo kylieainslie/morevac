@@ -2,6 +2,12 @@
 useDynLib(morevac)
 exportPattern("^[[:alpha:]]+")
 importFrom(Rcpp, evalCpp)
+importFrom("grDevices", "dev.off", "pdf")
+importFrom("graphics", "plot")
+importFrom("stats", "median", "qnorm", "quantile", "qunif", "rexp",
+           "runif", "sd")
+importFrom("utils", "head", "read.csv", "setTxtProgressBar", "tail",
+           "txtProgressBar")
 
 export(boot_ar)
 export(boot_li)
