@@ -9,10 +9,7 @@ importFrom("stats", "median", "qnorm", "quantile", "qunif", "rexp",
 importFrom("utils", "head", "read.csv", "setTxtProgressBar", "tail",
            "txtProgressBar")
 
-export(boot_ar)
-export(boot_li)
 export(drift_func)
-export(get_attack_rates)
 export(get_cohort_ar)
 export(get_cohorts)
 export(get_lifetime_inf)
