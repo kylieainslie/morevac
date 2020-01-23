@@ -1,8 +1,9 @@
 ### For cluster
 # getting started
 # install.package("drat") # if you don't have it already
-# drat:::add("mrc-ide")
-# install.packages("didehpc")
+drat:::add("mrc-ide")
+install.packages("provisionr")
+install.packages("didehpc")
 
 setwd('/Volumes/kainslie/cluster')
 # setwd('Q:/cluster')
@@ -26,18 +27,7 @@ ctx <- context::context_save(path = root,
 obj <- didehpc::queue_didehpc(ctx)
 
 # 'job' is the thing I am running on the cluster
-# set parameter values
-s <- 100
-n <- 10000
-vc <- 0
-v <- 2
-r <- 0.9
-w <- 1
-take <- 1
-vs <- c(0,1,2)
-tags <- c(paste0('vs',vs[1],'vc',vc,'r',r,'v',v,'w',w,'t',take),
-          paste0('vs',vs[2],'vc',vc,'r',r,'v',v,'w',w,'t',take),
-          paste0('vs',vs[3],'vc',vc,'r',r,'v',v,'w',w,'t',take))
+
 # separate job for each vac strategy
 job1 <- obj$enqueue(run_sim(sim = s,nindiv = n,vaccov = vc,version = v,
                             rho = r, wane = w, take = take, vac_strategy = vs[1],
