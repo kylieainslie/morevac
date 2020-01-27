@@ -24,7 +24,8 @@ create_params_file <- function(n_sim = 100, n_indiv = 30000, max_age = 80, vac_c
   mylhc <- randomLHS(lhc_size, 6)
   colnames(mylhc) <- c("Vac_Cov", "Waning", "Take", "Epsilon", "Rho", "VE")
   # output
-  rtn <- tibble(n_sim = c(rep(n_sim, lhc_size)),
+  rtn <- tibble(id = seq(1:lhc_size),
+                n_sim = c(rep(n_sim, lhc_size)),
                 n_indiv = c(rep(n_indiv, lhc_size)),
                 max_age = c(rep(max_age, lhc_size)),
                 start_year = c(rep(start_year, lhc_size)),
