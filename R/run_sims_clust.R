@@ -58,4 +58,5 @@ run_sims_clust <- function(params, out_file = "test"){
   try(data.table::fwrite(vac_histories, file = paste0(out_file,params$ID[1],"_vac_hist.csv"), col.names = TRUE,
                          row.names = FALSE, sep = ","))
   #}
+  return(NULL)
 }
