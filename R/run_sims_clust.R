@@ -12,8 +12,9 @@
 #' @param epidemic_beta force of infection in epidemic year
 #' @param wane amount of waning
 #' @param take amount of take
-#' @param epsilon exposure penalty value
+#' @param exposure_penalty exposure penalty value
 #' @param vac_protect vaccine related protection
+#' @param vac_cov vaccine coverage
 #' @param rho amount of correlation of individuals repeatedly vaccinated
 #' @param vac_cutoff age at which vaccination ends
 #' @param id simulation number identifier
@@ -21,10 +22,10 @@
 #' @return writes csv files to the working directory with infection and vaccination histories for every row of params_file
 #' @keywords morevac
 #' @export
-run_sims_clust <- function(n_sim = 20, n_indiv = 10000, max_age = 80,
-                           start_year = 1820, end_year = 2028, pandemic_beta = 0.4,
-                           epidemic_beta = 0.2,wane = 1, take = 1, epsilon = 0,
-                           vac_protect = 0.7, rho = 0.9, vac_cutoff = 10, id, out_file = "test"){
+run_sims_clust <- function(n_sim = 20, n_indiv = 10000, max_age = 80, start_year = 1820,
+                           end_year = 2028, pandemic_beta = 0.4, epidemic_beta = 0.2,
+                           wane = 1, take = 1, exposure_penalty = 0, vac_protect = 0.7,
+                           vac_cov = 0.5, rho = 0.9, vac_cutoff = 10, id, out_file = "test"){
 
   ### parameter values
   years = start_year:end_year
