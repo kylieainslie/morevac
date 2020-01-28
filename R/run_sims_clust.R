@@ -16,6 +16,7 @@
 #' @param vac_protect vaccine related protection
 #' @param rho amount of correlation of individuals repeatedly vaccinated
 #' @param vac_cutoff age at which vaccination ends
+#' @param id simulation number identifier
 #' @param out_file character string indicating name of output file
 #' @return writes csv files to the working directory with infection and vaccination histories for every row of params_file
 #' @keywords morevac
@@ -23,7 +24,7 @@
 run_sims_clust <- function(n_sim = 20, n_indiv = 10000, max_age = 80,
                            start_year = 1820, end_year = 2028, pandemic_beta = 0.4,
                            epidemic_beta = 0.2,wane = 1, take = 1, epsilon = 0,
-                           vac_protect = 0.7, rho = 0.9, vac_cutoff = 10, out_file = "test"){
+                           vac_protect = 0.7, rho = 0.9, vac_cutoff = 10, id, out_file = "test"){
 
   ### parameter values
   years = start_year:end_year
@@ -54,9 +55,9 @@ run_sims_clust <- function(n_sim = 20, n_indiv = 10000, max_age = 80,
   vac_histories <- rbindlist(list(No_Vac = sim0_results$vac_history, Annual = sim1_results$vac_history, Biennial = sim2_results$vac_history), idcol = 'Vac_Strategy')
 
   # write raw output to file
-  try(data.table::fwrite(inf_histories, file = paste0(out_file,params$ID[1],"_inf_hist.csv"), col.names = TRUE,
+  try(data.table::fwrite(inf_histories, file = paste0(out_file,id,"_inf_hist.csv"), col.names = TRUE,
                          row.names = FALSE, sep = ","))
-  try(data.table::fwrite(vac_histories, file = paste0(out_file,params$ID[1],"_vac_hist.csv"), col.names = TRUE,
+  try(data.table::fwrite(vac_histories, file = paste0(out_file,id,"_vac_hist.csv"), col.names = TRUE,
                          row.names = FALSE, sep = ","))
   #}
   return(NULL)
