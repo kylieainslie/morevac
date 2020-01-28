@@ -8,29 +8,18 @@
 #' @return writes csv files to the working directory with infection and vaccination histories for every row of params_file
 #' @keywords morevac
 #' @export
-run_sims_clust <- function(params, out_file = "test"){
+run_sims_clust <- function(n_sim = 20, n_indiv = 10000, max_age = 80,
+                           start_year = 1820, end_year = 2028, pandemic_beta = 0.4,
+                           epidemic_beta = 0.2,wane = 1, take = 1, epsilon = 0,
+                           vac_protect = 0.7, rho = 0.9, vac_cutoff = 10, out_file = "test"){
 
-  ### read in parameter file
-  if(is.character(params)){params <- fread(params)}
-
-  #for (i in 1:nrow(params)){
-  #cat("\n Simulation ",i," of",nrow(params),"\n")
   ### parameter values
-  n_sim = params$n_sim[1]
-  n_indiv = params$n_indiv[1]
-  max_age = params$max_age[1]
-  years = params$start_year[1]:params$end_year[1]
-  betas = c(params$pandemic_beta[1], rep(params$epidemic_beta[1],length(years)-1))
-  wane = params$wane[1]
-  take = params$take[1]
-  epsilon = params$exposure_penalty[1]
-  vac_protect = params$vac_protect[1]
-  rho = params$rho[1]
-  vac_cutoff = params$vac_cutoff[1]
+  years = start_year:end_year
+  betas = c(pandemic_beta, rep(epidemic_beta,length(years)-1))
 
   vac_cov_dat <- data.frame(Age = 0:(max_age-1), No_Vac = numeric(max_age), Annual = numeric(max_age), Biennial = numeric(max_age))
-  vac_cov_dat$Annual[3:(vac_cutoff + 1)] <- params$vac_cov[1]
-  vac_cov_dat$Biennial[seq(3,vac_cutoff+1,2)] <- params$vac_cov[1]
+  vac_cov_dat$Annual[3:(vac_cutoff + 1)] <- vac_cov
+  vac_cov_dat$Biennial[seq(3,vac_cutoff+1,2)] <- vac_cov
   ### run simulations
   # cat("\n No vaccination simulation running... \n")
   # returns 3 arrays with inf_hist_mat, vac_hist_mat, and ages_mat from each sim
