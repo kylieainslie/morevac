@@ -88,9 +88,9 @@ foo1 <- function(data, indices){
 }
 my_bootstrap <- plyr::dlply(banana_boat, "Vac_Strategy", function(dat) boot(dat, foo1, R=100)) # boostrap for each set of param values
 my_ci <- sapply(my_bootstrap, function(x) boot.ci(x, index = 1, type='perc')$percent[c(4,5)]) # get confidence intervals
-banana_boat2a <- banana_boat %>% group_by(Vac_Strategy) %>% summarise(Mean_Infs = mean(Mean_Infs))
-banana_boat2a$Lower <- my_ci[1,]
-banana_boat2a$Upper <- my_ci[2,]
+banana_boat2 <- banana_boat %>% group_by(Vac_Strategy) %>% summarise(Mean_Infs = mean(Mean_Infs))
+banana_boat2$Lower <- my_ci[1,]
+banana_boat2$Upper <- my_ci[2,]
 
 # Difference in Lifetime Infs
 banana_split <- banana_boat %>% spread(Vac_Strategy, Mean_Infs) %>%
