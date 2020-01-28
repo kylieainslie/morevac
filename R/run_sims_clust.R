@@ -3,7 +3,19 @@
 # last modified: 27/01/2020
 
 #' This function runs sims for each combination of parameter value from parameter input file creates
-#' @param params either a dataframe with parameter sets or a character string indicating the name of the file with input parameter values
+#' @param n_sim number of simulations
+#' @param n_indiv number of individuals in population
+#' @param max_age maximum age on individuals before they are removed from the population
+#' @param start_year start year of simulation (YYYY format)
+#' @param end_year end year of simulation (YYYY format)
+#' @param pandemic_beta force of infection in pandemic year
+#' @param epidemic_beta force of infection in epidemic year
+#' @param wane amount of waning
+#' @param take amount of take
+#' @param epsilon exposure penalty value
+#' @param vac_protect vaccine related protection
+#' @param rho amount of correlation of individuals repeatedly vaccinated
+#' @param vac_cutoff age at which vaccination ends
 #' @param out_file character string indicating name of output file
 #' @return writes csv files to the working directory with infection and vaccination histories for every row of params_file
 #' @keywords morevac
