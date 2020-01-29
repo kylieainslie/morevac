@@ -35,19 +35,13 @@ run_sims_clust <- function(n_sim = 20, n_indiv = 10000, max_age = 80, start_year
   vac_cov_dat$Annual[3:(vac_cutoff + 1)] <- vac_cov
   vac_cov_dat$Biennial[seq(3,vac_cutoff+1,2)] <- vac_cov
   ### run simulations
-  # cat("\n No vaccination simulation running... \n")
   # returns 3 arrays with inf_hist_mat, vac_hist_mat, and ages_mat from each sim
   sim_test0 <- run_sim_2(sim = n_sim, n = n_indiv, years = years, betas = betas, vac_cov = vac_cov_dat$No_vac, vac_strategy = 0,
                          wane = wane, take = take, epsilon = exposure_penalty, vac_protect = vac_protect, rho = rho)
-  print(object.size(sim_test0))
-  # cat("\n Annual vaccination simulation running... \n")
   sim_test1 <- run_sim_2(sim = n_sim, n = n_indiv, years = years, betas = betas, vac_cov = vac_cov_dat$Annual, vac_strategy = 1,
                          wane = wane, take = take, epsilon = exposure_penalty, vac_protect = vac_protect, rho = rho)
-  print(object.size(sim_test1))
-  # cat("\n Every other year vaccination simulation running... \n")
   sim_test2 <- run_sim_2(sim = n_sim, n = n_indiv, years = years, betas = betas, vac_cov = vac_cov_dat$Biennial, vac_strategy = 2,
                          wane = wane, take = take, epsilon = exposure_penalty, vac_protect = vac_protect, rho = rho)
-  print(object.size(sim_test2))
   # extract cohorts from each sim and combine raw inf and vac histories for every simulation
   sim0_results <- postprocess_sim_results_for_rolling_cohort(simdat = sim_test0, total_year_range = years, nsim = n_sim)
   sim1_results <- postprocess_sim_results_for_rolling_cohort(simdat = sim_test1, total_year_range = years, nsim = n_sim)

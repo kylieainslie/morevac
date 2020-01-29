@@ -25,7 +25,7 @@ file <- "baseline10"
 n_sim = 50
 nindiv <- 30000
 max_age = 80
-myyears <- 1820:2028
+myyears <- 1920:2028
 mybetas <- c(0.4,rep(0.2,length(myyears)-1))
 vac_cut_off <- 16
 vac_cov_dat <- data.frame(Age = 0:(max_age-1), No_Vac = numeric(max_age), Annual = numeric(max_age), Biennial = numeric(max_age))
