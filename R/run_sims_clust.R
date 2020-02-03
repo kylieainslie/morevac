@@ -43,9 +43,9 @@ run_sims_clust <- function(n_sim = 20, n_indiv = 10000, max_age = 80, start_year
   sim_test2 <- run_sim_2(sim = n_sim, n = n_indiv, years = years, betas = betas, vac_cov = vac_cov_dat$Biennial, vac_strategy = 2,
                          wane = wane, take = take, epsilon = exposure_penalty, vac_protect = vac_protect, rho = rho)
   # extract cohorts from each sim and combine raw inf and vac histories for every simulation
-  sim0_results <- postprocess_sim_results_for_rolling_cohort(simdat = sim_test0, total_year_range = years, nsim = n_sim)
-  sim1_results <- postprocess_sim_results_for_rolling_cohort(simdat = sim_test1, total_year_range = years, nsim = n_sim)
-  sim2_results <- postprocess_sim_results_for_rolling_cohort(simdat = sim_test2, total_year_range = years, nsim = n_sim)
+  sim0_results <- postprocess_sim_results_for_rolling_cohort(sim_dat = sim_test0, total_year_range = years, n_sim = n_sim)
+  sim1_results <- postprocess_sim_results_for_rolling_cohort(sim_dat = sim_test1, total_year_range = years, n_sim = n_sim)
+  sim2_results <- postprocess_sim_results_for_rolling_cohort(sim_dat = sim_test2, total_year_range = years, n_sim = n_sim)
 
   # combine sim results into one data.table
   inf_histories <- rbindlist(list(No_Vac = sim0_results$inf_history, Annual = sim1_results$inf_history, Biennial = sim2_results$inf_history), idcol = 'Vac_Strategy')
