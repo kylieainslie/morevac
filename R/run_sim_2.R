@@ -2,16 +2,22 @@
 ### Agent-based model of repeat vaccination in birth cohort
 
 #' Run simulations of multiannual() model of infection and vaccination
-#'
-#' This function initializes the population before running the model.
 #' @param sim number of simulations to run
-#' @param nindiv number of individuals to be simulated
-#' @param year_range range of years to follow cohort
-#' @param age_range range of ages to follow cohort
-#' @param vaccov vaccination coverage, should be between 0 and 1 (inclusive)
-#' @param filename prefix of outputted figures
-#' @param version which vaccination version to use: 1 = either-or, 2 = multiplicative
-#' @return two plots 1) plot of annual attack rates for the cohort and 2) a plot of number of lifetime infections by age
+#' @param n number of individuals to be simulated
+#' @param years vector of years in YYYY format
+#' @param max_age maimum age of an individual before they are removed from the population
+#' @param vac_cov vector of vaccination coverages for each age group (should be of length max_age)
+#' @param betas vector of force of infetion for each year (should be same length as years)
+#' @param vac_protect vaccine efficacy
+#' @param vac_strategy integer indicating which vaccination strategy to use (0 = no vaccination, 1 = annual, 2 = biennial)
+#' @param rho correlation of repeat vaccination in individuals (between 0 and 1 (inclusive))
+#' @param wane amount of vaccine waning
+#' @param take proportion of individuals who receive the vaccine and are protected
+#' @param epsilon exposure penalty
+#' @param drift_off logical. if TRUE there will be no antigenic drift
+#' @param trim_age_mat year before which age matrix is subsetted. If the year 2000 is used, then age matrix will only contain ages for year 2000 and beyond.
+#' @param seed seed for simulations
+#' @return list of infection histories, vaccination histories, and age matrices for each simulation
 #' @keywords morevac
 #' @export
 run_sim_2 <- function(sim = 100,
@@ -28,8 +34,7 @@ run_sim_2 <- function(sim = 100,
                       take = 1,
                       epsilon = 0.03,
                       drift_off = FALSE,
-                      file.out = FALSE,
-                      tag = "",
+                      trim_age_mat = NULL,
                       seed = NULL){
 
   if (vac_strategy == 0){vac_cov <- c(rep(0,length(vac_cov)))}
@@ -57,7 +62,9 @@ run_sim_2 <- function(sim = 100,
 
       histories$inf_history[[s]] <- Matrix(run_model$inf_history$inf_hist_mat, sparse = TRUE)
       histories$vac_history[[s]] <- Matrix(run_model$vac_history$vac_hist_mat, sparse = TRUE)
-      histories$ages[[s]] <- run_model$ages
+      if(!is.null(trim_age_mat)){histories$ages[[s]] <- run_model$ages[,which(years == trim_age_mat):length(years)]
+      } else {histories$ages[[s]] <- run_model$ages}
+
    }
   close(pb)
 
