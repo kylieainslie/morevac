@@ -4,9 +4,16 @@
 \alias{plot_attack_rates}
 \title{Plot multi-annual attack rates}
 \usage{
-plot_attack_rates(dat, by_vac_strategy = FALSE, by_age_group = FALSE,
-  c_bands = FALSE, y_max = 0.5, no_legend = FALSE, legend_x = 0.95,
-  legend_y = 0.95)
+plot_attack_rates(
+  dat,
+  by_vac_strategy = FALSE,
+  by_age_group = FALSE,
+  c_bands = FALSE,
+  y_max = 0.5,
+  no_legend = FALSE,
+  legend_x = 0.95,
+  legend_y = 0.95
+)
 }
 \arguments{
 \item{dat}{data frame of annual attack rates. Should have two colums: Year and Attack_Rate.

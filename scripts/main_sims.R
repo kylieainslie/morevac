@@ -24,7 +24,8 @@ devtools::load_all()
 
 #######################################
 # specify save directory
-setwd("~/Dropbox/Kylie/Projects/Morevac/data/sim_data")
+# setwd("~/Dropbox/Kylie/Projects/Morevac/data/sim_data")
+setwd("C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/data/sim_data")
 ### run simulations
 params <- create_params_file(n_sim = 10, n_indiv = 5000, lhc_size = 10, out_file = "param_values_test",
                              vac_cutoff = 10, seed = 1234)

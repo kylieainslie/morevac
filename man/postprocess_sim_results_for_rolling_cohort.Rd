@@ -5,22 +5,27 @@
 \alias{postprocess_sim_results_for_rolling_cohort}
 \title{Multi-annual model of infection and vaccination (version 2)}
 \usage{
-postprocess_sim_results_for_rolling_cohort(simdat, nsim = 100,
-  total_year_range = 1820:2028, length_study = 19,
-  write.file = FALSE, file = "test")
+postprocess_sim_results_for_rolling_cohort(
+  sim_dat,
+  n_sim = 100,
+  total_year_range = 1918:2028,
+  length_study = 19,
+  write_file = FALSE,
+  file = "test"
+)
 }
 \arguments{
-\item{nsim}{number of simulations performed (must be the same for each sim case)}
+\item{sim_dat}{list of sparse matrices of simulations results (no vac)}
+
+\item{n_sim}{number of simulations performed (must be the same for each sim case)}
 
 \item{total_year_range}{vector of years simulations were run over (YYYY format)}
 
-\item{sim0}{array of simulations results (no vac)}
+\item{length_study}{number of years to get cohorts from}
 
-\item{sim1}{array of simulations results (annual vac)}
+\item{write_file}{logical. If TRUE, writes infection and vaccination histories for cohorts to csv file}
 
-\item{sim2}{array of simulation results (biannual vac)}
-
-\item{cohort_year_index}{vector of index of years to get attack rates for}
+\item{file}{character string indicating the name of the output file. Only used when write.file = TRUE.}
 }
 \value{
 data frame of attack rates within the cohort by year

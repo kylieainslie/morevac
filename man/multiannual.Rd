@@ -4,11 +4,23 @@
 \alias{multiannual}
 \title{Multi-annual model of infection and vaccination (version 2)}
 \usage{
-multiannual(n = 10000, years = 1820:2019, max_age = 80,
-  start_vac_year = 2000, vac_coverage = c(rep(0.5, 80)),
-  betas = c(0.4, rep(0.2, 199)), vac_protect = 0.7, vac_strategy = 1,
-  rho = 0.9, wane = 0, take = 1, drift_rate = 1,
-  drift_off = FALSE, epsilon = 0, seed = NULL)
+multiannual(
+  n = 10000,
+  years = 1918:2028,
+  max_age = 80,
+  start_vac_year = 2000,
+  vac_coverage = c(rep(0.5, 80)),
+  betas = c(0.4, rep(0.2, 110)),
+  vac_protect = 0.7,
+  vac_strategy = 1,
+  rho = 0.9,
+  wane = 0,
+  take = 1,
+  drift_rate = 1,
+  drift_off = FALSE,
+  epsilon = 0,
+  seed = NULL
+)
 }
 \arguments{
 \item{n}{number of individuals to be simulated}

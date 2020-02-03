@@ -4,10 +4,19 @@
 \alias{create_params_file}
 \title{This function creates parameter input file}
 \usage{
-create_params_file(n_sim = 100, n_indiv = 30000, max_age = 80,
-  vac_cutoff = 10, start_year = 1820, end_year = 2028,
-  pandemic_beta = 0.4, epidemic_beta = 0.2, lhc_size = 1000,
-  out_file = "parameter_values", seed = NULL)
+create_params_file(
+  n_sim = 100,
+  n_indiv = 30000,
+  max_age = 80,
+  vac_cutoff = 10,
+  start_year = 1820,
+  end_year = 2028,
+  pandemic_beta = 0.4,
+  epidemic_beta = 0.2,
+  lhc_size = 1000,
+  out_file = "parameter_values",
+  seed = NULL
+)
 }
 \arguments{
 \item{n_sim}{number of simulations}
