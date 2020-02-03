@@ -16,11 +16,11 @@
 #' @export
 run_sim_2 <- function(sim = 100,
                       n = 10000,
-                      years = 1820:2019,
+                      years = 1918:2028,
                       max_age = 80,
                       start_vac_year = 2000,
                       vac_cov = c(rep(0.5,80)),
-                      betas = c(0.4,rep(0.2,199)),
+                      betas = c(0.4,rep(0.2,110)),
                       vac_protect = 0.7,
                       vac_strategy = 1,
                       rho = 0.9,
@@ -35,9 +35,9 @@ run_sim_2 <- function(sim = 100,
   if (vac_strategy == 0){vac_cov <- c(rep(0,length(vac_cov)))}
   nyears <- length(years)
   ### create empty matrix to store sim results
-  sim_inf_hist <- array(numeric(n*nyears*sim),dim = c(n,nyears,sim))
-  sim_vac_hist <- sim_inf_hist
-  sim_ages <- sim_inf_hist
+  histories <- list(inf_history = list(),
+                       vac_history = list(),
+                       ages = list())
 
   ### create progress bar
   pb <- txtProgressBar(min = 0, max = sim, style = 3)
@@ -55,16 +55,12 @@ run_sim_2 <- function(sim = 100,
                                wane = wane, take = take, epsilon = epsilon,
                                drift_off = drift_off)
 
-      sim_inf_hist[,,s] <- run_model$inf_history$inf_hist_mat
-      sim_vac_hist[,,s] <- run_model$vac_history$vac_hist_mat
-      sim_ages[,,s] <- run_model$ages
-  }
+      histories$inf_history[[s]] <- Matrix(run_model$inf_history$inf_hist_mat, sparse = TRUE)
+      histories$vac_history[[s]] <- Matrix(run_model$vac_history$vac_hist_mat, sparse = TRUE)
+      histories$ages[[s]] <- run_model$ages
+   }
   close(pb)
 
-  return(list(inf_history = sim_inf_hist,
-              vac_history = sim_vac_hist,
-              ages = sim_ages
-              )
-         )
+  return(histories)
 
 }
