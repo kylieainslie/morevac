@@ -15,8 +15,10 @@ library(lhs)
 library(boot)
 library(data.table)
 library(rdist)
+library(Matrix)
 # load morevac package
-setwd("~/Documents/morevac")
+# setwd("~/Documents/morevac") # Mac path
+setwd("~/morevac") # PC path
 devtools::load_all()
 ###
 

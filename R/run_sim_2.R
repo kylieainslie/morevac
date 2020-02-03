@@ -21,7 +21,7 @@
 #' @keywords morevac
 #' @export
 run_sim_2 <- function(sim = 100,
-                      n = 10000,
+                      n = 30000,
                       years = 1918:2028,
                       max_age = 80,
                       start_vac_year = 2000,
