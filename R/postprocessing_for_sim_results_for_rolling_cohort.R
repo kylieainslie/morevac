@@ -1,12 +1,12 @@
 #' Multi-annual model of infection and vaccination (version 2)
 #'
 #' This function post processes simulation results for a rolling cohort.
-#' @param sim0 list of sparse matrices of simulations results (no vac)
-#' @param sim1 list of sparse matrices of simulations results (annual vac)
-#' @param sim2 list of sparse matrices of simulation results (biannual vac)
-#' @param nsim number of simulations performed (must be the same for each sim case)
+#' @param sim_dat list of sparse matrices of simulations results (no vac)
+#' @param n_sim number of simulations performed (must be the same for each sim case)
 #' @param total_year_range vector of years simulations were run over (YYYY format)
-#' @param cohort_year_index vector of index of years to get attack rates for
+#' @param length_study number of years to get cohorts from
+#' @param write.file logical. If TRUE, writes infection and vaccination histories for cohorts to csv file
+#' @param file character string indicating the name of the output file. Only used when write.file = TRUE.
 #' @return data frame of attack rates within the cohort by year
 #' @keywords morevac
 #' @export
