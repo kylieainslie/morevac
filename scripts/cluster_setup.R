@@ -1,24 +1,24 @@
 ### For cluster
 # getting started
-# install.package("drat") # if you don't have it already
-# drat:::add("mrc-ide")
-# install.packages("provisionr")
-# install.packages("didehpc")
+ install.packages("drat") # if you don't have it already
+ drat:::add("mrc-ide")
+ install.packages("provisionr")
+ install.packages("didehpc")
 
-setwd('/Volumes/kainslie/cluster')
-# setwd('Q:/cluster')
+# setwd('/Volumes/kainslie/cluster')
+setwd('Q:/cluster')
 # set up your details and which cluster you want (big or small)
 options(didehpc.username = "kainslie",
         didehpc.cluster = "big")
 
 # dont really know what these lines do but you need them
 context::context_log_start()
-root <- "contexts2"
+root <- "contexts"
 
 # setting up the context: what files need to be sourced for your function to work, what packages you need
 # package sources only required here because the package I am using is not on CRAN
 ctx <- context::context_save(path = root,
-                             packages = c("morevac","Rcpp","dplyr","data.table","rdist"),
+                             packages = c("morevac","Rcpp","dplyr","data.table","rdist", "Matrix"),
                              package_sources = provisionr::package_sources(github = "kylieainslie/morevac@coudeville",
                                                                            cran = "https://cran.ma.imperial.ac.uk/")
                              )
