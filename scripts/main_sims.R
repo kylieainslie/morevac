@@ -32,39 +32,87 @@ params <- create_params_file(n_sim = 10, n_indiv = 5000, lhc_size = 10, out_file
 run_sims_all(params_file = "param_values_test.csv", out_file = "test")
 #######################################
 ### read in results (rather than re-run simulations)
-setwd("~/Dropbox/Kylie/Projects/Morevac/data/sim_data/off_at_10/infection_histories")
-files_inf <- list.files(pattern="*.csv")
-dt_inf = do.call(rbind, lapply(files_inf, fread))
-
-setwd("~/Dropbox/Kylie/Projects/Morevac/data/sim_data/off_at_10/vaccination_histories")
-files_vac <- list.files(pattern="*.csv")
-dt_vac = do.call(rbind, lapply(files_vac, fread))
-
-setwd("~/Dropbox/Kylie/Projects/Morevac/data")
-param_values <- read.csv("parameter_values.csv", header = TRUE)
+# setwd("~/Dropbox/Kylie/Projects/Morevac/data")
+param_values <- read.csv("C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/data/parameter_values.csv", header = TRUE)
 names(param_values)[1] <- "Param_Index"
 
+# setwd("~/Dropbox/Kylie/Projects/Morevac/data/sim_data/off_at_10/infection_histories")
+setwd("C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/data/sim_data/off_at_16")
+files_inf <- list.files(pattern="*inf_hist.csv")
+matches <- regmatches(files_inf, gregexpr("[[:digit:]]+", files_inf))
+param_indices <- as.numeric(unlist(matches))
+files_inf <- files_inf[order(param_indices)] # re-order in numerical order
+
+files_vac <- list.files(pattern="*vac_hist.csv")
+matches2 <- regmatches(files_vac, gregexpr("[[:digit:]]+", files_vac))
+param_indices2 <- as.numeric(unlist(matches2))
+files_vac <- files_vac[order(param_indices2)] # re-order in numerical order
+
+n_files <- length(files_inf)
+### create progress bar
+pb <- txtProgressBar(min = 0, max = n_files, style = 3)
+
+for (i in 1:n_files){
+  Sys.sleep(0.1)
+  # update progress bar
+  setTxtProgressBar(pb, i)
+
+  # check if files are for the same set of simulation parameters
+  if(gsub("_inf_hist.csv","",files_inf[i]) != gsub("_vac_hist.csv","",files_vac[i]) |
+     is.na(gsub("_inf_hist.csv","",files_inf[i]) != gsub("_vac_hist.csv","",files_vac[i]))){
+      warning(paste("Input files do not match for i=",i))
+      next
+  }
+### read in data from list of files
+  dt_inf = fread(files_inf[i]) # do.call(rbind, lapply(files_inf[1:75], fread, fill = TRUE))
+  dt_vac = fread(files_vac[i]) # do.call(rbind, lapply(files_vac, fread, fill = TRUE))
+
 ### summarise raw data
-dt_inf1 <- dt_inf %>% mutate(Num_Infs = rowSums(select(.,Age0:Age18)))
-dt_vac1 <- dt_vac %>% mutate(Num_Vacs = rowSums(select(.,Age0:Age18)))
+  dt_inf <- dt_inf %>% mutate(Num_Infs = rowSums(select(.,Age0:Age18)),
+                              Param_Index = param_indices[i])
+  dt_vac <- dt_vac %>% mutate(Num_Vacs = rowSums(select(.,Age0:Age18)),
+                              Param_Index = param_indices2[i])
 
-banana <- cbind(dt_inf1[,c("Vac_Strategy", "Sim", "Cohort", "ID", "Param_Index", "Num_Infs")], Num_Vacs = dt_vac1[,c("Num_Vacs")])
-banana_boat <- banana %>% group_by(Vac_Strategy, Param_Index, Sim) %>% summarise(Mean_Infs = mean(Num_Infs))
-banana_split <- banana_boat %>% spread(Vac_Strategy, Mean_Infs)
-banana_split$Difference <- banana_split$Annual - banana_split$Biennial
+  banana <- cbind(dt_inf[,c("Vac_Strategy", "Sim", "Cohort","Param_Index", "ID", "Num_Infs")], Num_Vacs = dt_vac[,c("Num_Vacs")])
+  banana_boat <- banana %>% group_by(Vac_Strategy, Sim) %>% summarise(Mean_Infs = mean(Num_Infs))
 
-# bootstrap to get CI for Difference
-foo <- function(data, indices){
-  dt<-data[indices,]
-  mean(dt$Difference)
+### bootstrap to get CI for Lifetime Infs
+  foo1 <- function(data, indices){
+    dt<-data[indices,]
+    mean(dt$Mean_Infs)
+  }
+  my_bootstrap <- plyr::dlply(banana_boat, "Vac_Strategy", function(dat) boot(dat, foo1, R=100)) # boostrap for each set of param values
+  my_ci <- sapply(my_bootstrap, function(x) boot.ci(x, index = 1, type='perc')$percent[c(4,5)]) # get confidence intervals
+  banana_boat2 <- banana_boat %>% group_by(Vac_Strategy) %>% summarise(Mean_Infs = mean(Mean_Infs)) %>%
+                  mutate(Lower = my_ci[1,], Upper = my_ci[2,], Param_Index = i)
+
+### Difference in Lifetime Infs
+  banana_split <- banana_boat %>% spread(Vac_Strategy, Mean_Infs) %>%
+                    mutate(Diff_AB = Annual - Biennial, Diff_AN = Annual - No_Vac, Diff_BN = Biennial - No_Vac) %>%
+                    select(Sim, Diff_AB, Diff_AN, Diff_BN) %>%
+                    gather(Type, Difference, Diff_AB:Diff_BN)
+
+### bootstrap to get CI for Difference
+  foo2 <- function(data, indices){
+    dt<-data[indices,]
+    mean(dt$Difference)
+  }
+  my_bootstrap <- plyr::dlply(banana_split, "Type", function(dat) boot(dat, foo2, R=100)) # boostrap for each set of param values
+  my_ci <- sapply(my_bootstrap, function(x) boot.ci(x, index = 1, type='perc')$percent[c(4,5)]) # get confidence intervals
+
+  banana_split2 <- banana_split %>% group_by(Type) %>% summarise(Mean_Diff = mean(Difference)) %>%
+                      mutate(Lower = my_ci[1,], Upper = my_ci[2,], Param_Index = i)
+
+  if(i > 1) {
+    banana_cream_pie <- bind_rows(banana_cream_pie,banana_split2)
+    banana_bread <- bind_rows(banana_bread,banana_boat2)
+  } else {banana_cream_pie <- banana_split2
+        banana_bread <- banana_boat2
+  }
+
 }
-my_bootstrap <- plyr::dlply(banana_split, "Param_Index", function(dat) boot(dat, foo, R=100)) # boostrap for each set of param values
-my_ci <- sapply(my_bootstrap, function(x) boot.ci(x, index = 1, type='perc')$percent[c(4,5)]) # get confidence intervals
+close(pb)
 
-banana_split2 <- banana_split %>% group_by(Param_Index) %>% summarise(Mean_Diff = mean(Difference))
-banana_split2$Lower <- my_ci[1,]
-banana_split2$Upper <- my_ci[2,]
-banana_split2 <- left_join(banana_split2, param_values, by = c("Param_Index"))
 # add Diff_Color column for plotting
 banana_split2$Diff_Color <- ifelse(banana_split2$Upper < 0, '<0',
                                    ifelse(banana_split2$Lower <=0 & banana_split2$Upper >=0, 'zero',
