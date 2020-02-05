@@ -33,7 +33,7 @@ run_sims_all(params_file = "param_values_test.csv", out_file = "test")
 #######################################
 ### read in results (rather than re-run simulations)
 # setwd("~/Dropbox/Kylie/Projects/Morevac/data")
-param_values <- read.csv("C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/data/parameter_values.csv", header = TRUE)
+param_values <- read.csv("C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/data/sim_data/param_values_16.csv", header = TRUE)
 names(param_values)[1] <- "Param_Index"
 
 # setwd("~/Dropbox/Kylie/Projects/Morevac/data/sim_data/off_at_10/infection_histories")
@@ -48,31 +48,28 @@ matches2 <- regmatches(files_vac, gregexpr("[[:digit:]]+", files_vac))
 param_indices2 <- as.numeric(unlist(matches2))
 files_vac <- files_vac[order(param_indices2)] # re-order in numerical order
 
+matching_elements <- which(gsub("_inf_hist.csv","",files_inf) %in% gsub("_vac_hist.csv","",files_vac))
+files_inf <- files_inf[matching_elements]
+
 n_files <- length(files_inf)
+
 ### create progress bar
 pb <- txtProgressBar(min = 0, max = n_files, style = 3)
-
 for (i in 1:n_files){
   Sys.sleep(0.1)
   # update progress bar
   setTxtProgressBar(pb, i)
 
-  # check if files are for the same set of simulation parameters
-  if(gsub("_inf_hist.csv","",files_inf[i]) != gsub("_vac_hist.csv","",files_vac[i]) |
-     is.na(gsub("_inf_hist.csv","",files_inf[i]) != gsub("_vac_hist.csv","",files_vac[i]))){
-      warning(paste("Input files do not match for i=",i))
-      next
-  }
 ### read in data from list of files
   dt_inf = fread(files_inf[i]) # do.call(rbind, lapply(files_inf[1:75], fread, fill = TRUE))
   dt_vac = fread(files_vac[i]) # do.call(rbind, lapply(files_vac, fread, fill = TRUE))
 
 ### summarise raw data
   dt_inf <- dt_inf %>% mutate(Num_Infs = rowSums(select(.,Age0:Age18)),
-                              Param_Index = param_indices[i])
+                              Param_Index = i)
   dt_vac <- dt_vac %>% mutate(Num_Vacs = rowSums(select(.,Age0:Age18)),
-                              Param_Index = param_indices2[i])
-
+                              Param_Index = i)
+  if(length(unique(dt_vac$Vac_Strategy))<3){next}
   banana <- cbind(dt_inf[,c("Vac_Strategy", "Sim", "Cohort","Param_Index", "ID", "Num_Infs")], Num_Vacs = dt_vac[,c("Num_Vacs")])
   banana_boat <- banana %>% group_by(Vac_Strategy, Sim) %>% summarise(Mean_Infs = mean(Num_Infs))
 
