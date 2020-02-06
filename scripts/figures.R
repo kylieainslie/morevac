@@ -166,6 +166,8 @@ dev.off()
 ################################
 ### read in summarised and bootstrapped data
 setwd("C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/data/sim_data/")
+#setwd("~/Dropbox/Kylie/Projects/Morevac/data/sim_data/")
+
 # cutoff = 10
 banana_cream_pie <- vroom(file = "off_at_10/banana_cream_pie.csv", delim = ",", col_names = TRUE) %>%
                       mutate(Diff_Color = ifelse(Upper < 0, '<0',ifelse(Lower <=0 & Upper >=0, 'zero',ifelse(Lower >0, '>0', 'something else'))))
@@ -176,8 +178,8 @@ banana_cream_pie_16 <- vroom(file = "off_at_16/banana_cream_pie.csv", delim = ",
 banana_bread_16 <- vroom(file = "off_at_16/banana_bread.csv", delim = ",", col_names = TRUE)
 
 # a) cutoff = 10: scatter plots of all mean diff by exposure_penalty & vac_protect
-banana_hammock_zero <- banana_cream_pie %>% filter(Diff_Color == 'zero')
-banana_hammock <- banana_cream_pie %>% filter(Diff_Color != 'zero') %>% mutate(Abs_Val = abs(Mean_Diff))
+banana_hammock_zero <- banana_cream_pie %>% filter(Type == "Diff_AB", Diff_Color == 'zero')
+banana_hammock <- banana_cream_pie %>% filter(Type == "Diff_AB", Diff_Color != 'zero') %>% mutate(Abs_Val = abs(Mean_Diff))
 
 p3a1 <- ggplot(banana_hammock, aes(x = exposure_penalty, y = Mean_Diff, color = Diff_Color)) +
   geom_point() +
@@ -230,8 +232,8 @@ p3b <- ggplot(data = banana_hammock, aes(x = exposure_penalty, y = vac_protect, 
         legend.title = element_text(size=12))
 
 # c) cutoff = 16: scatter plots of all mean diff by exposure_penalty & vac_protect
-banana_hammock_zero_16 <- banana_cream_pie_16 %>% filter(Diff_Color == 'zero')
-banana_hammock_16 <- banana_cream_pie_16 %>% filter(Diff_Color != 'zero') %>% mutate(Abs_Val = abs(Mean_Diff))
+banana_hammock_zero_16 <- banana_cream_pie_16 %>% filter(Type == "Diff_AB", Diff_Color == 'zero')
+banana_hammock_16 <- banana_cream_pie_16 %>% filter(Type == "Diff_AB",Diff_Color != 'zero') %>% mutate(Abs_Val = abs(Mean_Diff))
 
 p3c1 <- ggplot(banana_hammock_16, aes(x = exposure_penalty, y = Mean_Diff, color = Diff_Color)) +
   geom_point() +
