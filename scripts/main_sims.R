@@ -16,6 +16,7 @@ library(boot)
 library(data.table)
 library(rdist)
 library(Matrix)
+library(vroom)
 # load morevac package
 # setwd("~/Documents/morevac") # Mac path
 setwd("~/morevac") # PC path
@@ -54,37 +55,30 @@ files_inf <- files_inf[matching_elements]
 n_files <- length(files_inf)
 
 ### create progress bar
-pb <- txtProgressBar(min = 0, max = n_files, style = 3)
 for (i in 1:n_files){
-  Sys.sleep(0.1)
-  # update progress bar
-  setTxtProgressBar(pb, i)
-
 ### read in data from list of files
-  dt_inf = fread(files_inf[i]) # do.call(rbind, lapply(files_inf[1:75], fread, fill = TRUE))
-  dt_vac = fread(files_vac[i]) # do.call(rbind, lapply(files_vac, fread, fill = TRUE))
+  dt_inf = vroom(file = files_inf[i], delim = ",", col_names = TRUE)  %>%
+              mutate(Num_Infs = rowSums(select(.,Age0:Age18)), Param_Index = i)
+  dt_vac = vroom(file = files_vac[i], delim = ",", col_names = TRUE) %>%
+              mutate(Num_Vacs = rowSums(select(.,Age0:Age18)), Param_Index = i)
+  if(length(unique(dt_vac$Vac_Strategy))<3){next} # make sure vac data contains all three vac strategies
 
 ### summarise raw data
-  dt_inf <- dt_inf %>% mutate(Num_Infs = rowSums(select(.,Age0:Age18)),
-                              Param_Index = i)
-  dt_vac <- dt_vac %>% mutate(Num_Vacs = rowSums(select(.,Age0:Age18)),
-                              Param_Index = i)
-  if(length(unique(dt_vac$Vac_Strategy))<3){next}
-  banana <- cbind(dt_inf[,c("Vac_Strategy", "Sim", "Cohort","Param_Index", "ID", "Num_Infs")], Num_Vacs = dt_vac[,c("Num_Vacs")])
-  banana_boat <- banana %>% group_by(Vac_Strategy, Sim) %>% summarise(Mean_Infs = mean(Num_Infs))
+  banana <- bind_cols(dt_inf[,c("Vac_Strategy", "Sim", "Cohort","Param_Index", "ID", "Num_Infs")], Num_Vacs = dt_vac[,c("Num_Vacs")]) %>%
+                group_by(Vac_Strategy, Sim) %>% summarise(Mean_Infs = mean(Num_Infs))
 
 ### bootstrap to get CI for Lifetime Infs
   foo1 <- function(data, indices){
     dt<-data[indices,]
     mean(dt$Mean_Infs)
   }
-  my_bootstrap <- plyr::dlply(banana_boat, "Vac_Strategy", function(dat) boot(dat, foo1, R=100)) # boostrap for each set of param values
+  my_bootstrap <- plyr::dlply(banana, "Vac_Strategy", function(dat) boot(dat, foo1, R=100)) # boostrap for each set of param values
   my_ci <- sapply(my_bootstrap, function(x) boot.ci(x, index = 1, type='perc')$percent[c(4,5)]) # get confidence intervals
-  banana_boat2 <- banana_boat %>% group_by(Vac_Strategy) %>% summarise(Mean_Infs = mean(Mean_Infs)) %>%
+  banana_boat <- banana %>% group_by(Vac_Strategy) %>% summarise(Mean_Infs = mean(Mean_Infs)) %>%
                   mutate(Lower = my_ci[1,], Upper = my_ci[2,], Param_Index = i)
 
 ### Difference in Lifetime Infs
-  banana_split <- banana_boat %>% spread(Vac_Strategy, Mean_Infs) %>%
+  banana_split <- banana %>% spread(Vac_Strategy, Mean_Infs) %>%
                     mutate(Diff_AB = Annual - Biennial, Diff_AN = Annual - No_Vac, Diff_BN = Biennial - No_Vac) %>%
                     select(Sim, Diff_AB, Diff_AN, Diff_BN) %>%
                     gather(Type, Difference, Diff_AB:Diff_BN)
@@ -102,13 +96,20 @@ for (i in 1:n_files){
 
   if(i > 1) {
     banana_cream_pie <- bind_rows(banana_cream_pie,banana_split2)
-    banana_bread <- bind_rows(banana_bread,banana_boat2)
+    banana_bread <- bind_rows(banana_bread,banana_boat)
   } else {banana_cream_pie <- banana_split2
-        banana_bread <- banana_boat2
+        banana_bread <- banana_boat
   }
-
 }
-close(pb)
+
+### bind columns with parameter values
+banana_cream_pie <- left_join(banana_cream_pie, param_values, by = c("Param_Index"))
+banana_bread <- left_join(banana_bread, param_values, by = c("Param_Index"))
+### write files to avoid having to read in raw data again
+data.table::fwrite(banana_cream_pie, file = "banana_cream_pie.csv", col.names = TRUE,
+                   row.names = FALSE, sep = ",")
+data.table::fwrite(banana_bread, file = "banana_bread.csv", col.names = TRUE,
+                   row.names = FALSE, sep = ",")
 
 # add Diff_Color column for plotting
 banana_split2$Diff_Color <- ifelse(banana_split2$Upper < 0, '<0',
