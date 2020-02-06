@@ -111,6 +111,7 @@ data.table::fwrite(banana_cream_pie, file = "banana_cream_pie.csv", col.names = 
 data.table::fwrite(banana_bread, file = "banana_bread.csv", col.names = TRUE,
                    row.names = FALSE, sep = ",")
 
+### plotting
 # add Diff_Color column for plotting
 banana_split2$Diff_Color <- ifelse(banana_split2$Upper < 0, '<0',
                                    ifelse(banana_split2$Lower <=0 & banana_split2$Upper >=0, 'zero',
