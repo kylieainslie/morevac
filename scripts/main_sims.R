@@ -34,11 +34,11 @@ run_sims_all(params_file = "param_values_test.csv", out_file = "test")
 #######################################
 ### read in results (rather than re-run simulations)
 # setwd("~/Dropbox/Kylie/Projects/Morevac/data")
-param_values <- read.csv("C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/data/sim_data/param_values_16.csv", header = TRUE)
+param_values <- read.csv("C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/data/sim_data/param_values.csv", header = TRUE)
 names(param_values)[1] <- "Param_Index"
 
-# setwd("~/Dropbox/Kylie/Projects/Morevac/data/sim_data/off_at_10/infection_histories")
-setwd("C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/data/sim_data/off_at_16")
+# setwd("~/Dropbox/Kylie/Projects/Morevac/data/sim_data/cutoff10/infection_histories")
+setwd("C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/data/sim_data/cutoff10")
 files_inf <- list.files(pattern="*inf_hist.csv")
 matches <- regmatches(files_inf, gregexpr("[[:digit:]]+", files_inf))
 param_indices <- as.numeric(unlist(matches))
@@ -111,11 +111,6 @@ data.table::fwrite(banana_cream_pie, file = "banana_cream_pie.csv", col.names = 
 data.table::fwrite(banana_bread, file = "banana_bread.csv", col.names = TRUE,
                    row.names = FALSE, sep = ",")
 
-### plotting
-# add Diff_Color column for plotting
-banana_split2$Diff_Color <- ifelse(banana_split2$Upper < 0, '<0',
-                                   ifelse(banana_split2$Lower <=0 & banana_split2$Upper >=0, 'zero',
-                                          ifelse(banana_split2$Lower >0, '>0', 'something else')))
 
 ### Fully vaccinated individuals (Figure 3)
 vac_max <- c(max(banana[banana$Vac_Strategy == "Annual",]$Num_Vacs), max(banana[banana$Vac_Strategy == "Biennial",]$Num_Vacs))
