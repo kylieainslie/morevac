@@ -296,37 +296,61 @@ dev.off()
 ################################
 ### Histogram of differences ###
 ################################
-hist_cutoff_10 <- ggplot(data = banana_cream_pie, aes(Mean_Diff, fill = Diff_Color)) +
+
+### cutoff = 10
+banana_cream_pie_ab <- banana_cream_pie %>% filter(Type == "Diff_AB")
+banana_cream_pie_an <- banana_cream_pie %>% filter(Type == "Diff_AN")
+banana_cream_pie_bn <- banana_cream_pie %>% filter(Type == "Diff_BN")
+
+
+hist_ab <- ggplot(data = banana_cream_pie_ab, aes(Mean_Diff, fill = Diff_Color)) +
   geom_histogram() +
   scale_fill_manual(name = 'Difference', values = c("#F8766D","#00BA38", "#619CFF"), labels = c('<0', '>0', '0')) +
-  labs(x = "Difference", y = "Frequency", title = "Vaccination from Ages 2-10") +
-  theme(legend.position = c(0.1, 0.8),
+  labs(x = "Difference", y = "Frequency", title = "Annual vs Biennial") +
+  theme(legend.position = "none",
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
         panel.background = element_blank(),
         axis.line = element_line(colour = "black"),
         axis.text=element_text(size=12),
         axis.title=element_text(size=14),
-        legend.text = element_text(size=12),
-        legend.title = element_text(size=12),
         plot.title = element_text(size = 14, face = 'bold'))
 
-hist_cutoff_16 <- ggplot(data = banana_cream_pie_16, aes(Mean_Diff, fill = Diff_Color)) +
+hist_an <- ggplot(data = banana_cream_pie_an, aes(Mean_Diff, fill = Diff_Color)) +
   geom_histogram() +
-  scale_fill_manual(name = 'Difference', values = c("#F8766D","#00BA38", "#619CFF"), labels = c('<0', '>0', '0')) +
-  labs(x = "Difference", y = "Frequency", title = "Vaccination from Ages 2-16") +
-  theme(legend.position = 'none',
+  scale_fill_manual(name = 'Difference', values = c("#F8766D", "#619CFF","#00BA38"), labels = c('<0', '0', '>0')) +
+  labs(x = "Difference", y = "Frequency", title = "Annual vs No Vaccination") +
+  theme(legend.position = "none",
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
         panel.background = element_blank(),
         axis.line = element_line(colour = "black"),
         axis.text=element_text(size=12),
         axis.title=element_text(size=14),
-        legend.text = element_text(size=12),
-        legend.title = element_text(size=12),
         plot.title = element_text(size = 14, face = 'bold'))
 
-hists <- plot_grid(hist_cutoff_10, hist_cutoff_16, labels = "AUTO", ncol = 1, align = 'v', axis = 'l')
+hist_bn <- ggplot(data = banana_cream_pie_bn, aes(Mean_Diff, fill = Diff_Color)) +
+  geom_histogram() +
+  scale_fill_manual(name = 'Difference', values = c("#F8766D","#00BA38", "#619CFF"), labels = c('<0', '>0', '0')) +
+  labs(x = "Difference", y = "Frequency", title = "Biennial vs No Vaccination") +
+  theme(legend.position = "none",
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(colour = "black"),
+        axis.text=element_text(size=12),
+        axis.title=element_text(size=14),
+        plot.title = element_text(size = 14, face = 'bold'))
+
+
+hists <- plot_grid(hist_ab, hist_an, hist_bn, labels = "AUTO", ncol = 1, align = 'v', axis = 'l')
+
+legend_b <- get_legend(
+  hist_ab +
+    guides(color = guide_legend(nrow = 1)) +
+    theme(legend.position = "bottom")
+)
+hists <- plot_grid(hists, legend_b, ncol = 1, rel_heights = c(1, .1))
 
 filename <- "~/Dropbox/Kylie/Projects/Morevac/figures/"
 png(file = paste0(filename,"histograms.png"), width = 12, height = 8,
@@ -334,6 +358,66 @@ png(file = paste0(filename,"histograms.png"), width = 12, height = 8,
 hists
 dev.off()
 
+### cutoff = 10
+banana_cream_pie_ab <- banana_cream_pie %>% filter(Type == "Diff_AB")
+banana_cream_pie_an <- banana_cream_pie %>% filter(Type == "Diff_AN")
+banana_cream_pie_bn <- banana_cream_pie %>% filter(Type == "Diff_BN")
+
+
+hist_ab <- ggplot(data = banana_cream_pie_ab, aes(Mean_Diff, fill = Diff_Color)) +
+  geom_histogram() +
+  scale_fill_manual(name = 'Difference', values = c("#F8766D","#00BA38", "#619CFF"), labels = c('<0', '>0', '0')) +
+  labs(x = "Difference", y = "Frequency", title = "Annual vs Biennial") +
+  theme(legend.position = "none",
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(colour = "black"),
+        axis.text=element_text(size=12),
+        axis.title=element_text(size=14),
+        plot.title = element_text(size = 14, face = 'bold'))
+
+hist_an <- ggplot(data = banana_cream_pie_an, aes(Mean_Diff, fill = Diff_Color)) +
+  geom_histogram() +
+  scale_fill_manual(name = 'Difference', values = c("#F8766D", "#619CFF","#00BA38"), labels = c('<0', '0', '>0')) +
+  labs(x = "Difference", y = "Frequency", title = "Annual vs No Vaccination") +
+  theme(legend.position = "none",
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(colour = "black"),
+        axis.text=element_text(size=12),
+        axis.title=element_text(size=14),
+        plot.title = element_text(size = 14, face = 'bold'))
+
+hist_bn <- ggplot(data = banana_cream_pie_bn, aes(Mean_Diff, fill = Diff_Color)) +
+  geom_histogram() +
+  scale_fill_manual(name = 'Difference', values = c("#F8766D","#00BA38", "#619CFF"), labels = c('<0', '>0', '0')) +
+  labs(x = "Difference", y = "Frequency", title = "Biennial vs No Vaccination") +
+  theme(legend.position = "none",
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(colour = "black"),
+        axis.text=element_text(size=12),
+        axis.title=element_text(size=14),
+        plot.title = element_text(size = 14, face = 'bold'))
+
+
+hists <- plot_grid(hist_ab, hist_an, hist_bn, labels = "AUTO", ncol = 1, align = 'v', axis = 'l')
+
+legend_b <- get_legend(
+  hist_ab +
+    guides(color = guide_legend(nrow = 1)) +
+    theme(legend.position = "bottom")
+)
+hists <- plot_grid(hists, legend_b, ncol = 1, rel_heights = c(1, .1))
+
+filename <- "~/Dropbox/Kylie/Projects/Morevac/figures/"
+png(file = paste0(filename,"histograms.png"), width = 12, height = 8,
+    units = "in", pointsize = 8, res = 300)
+hists
+dev.off()
 
 ###########################################################
 ### Supplemental Figure 1 - all pairwaise scatter plots ###
@@ -341,75 +425,110 @@ dev.off()
 # cutoff = 10
 ###########################################################
 p_epsilon_ve <- ggplot(data = banana_hammock, aes(x = exposure_penalty, y = vac_protect, color = Diff_Color)) +
-  geom_point() + # aes(size = Diff)
-  scale_color_manual(values = c("#F8766D","#00BA38")) +
-  #scale_size_continuous(range = point_range) +
-  xlab('Exposure Penalty')
+  geom_point(aes(size = Abs_Val), alpha = 0.7) +
+  scale_size_continuous(name = "|Difference|") +
+  scale_color_manual(values = c("#F8766D","#00BA38"), name = 'Difference in Childhood Infections') +
+  xlab('Exposure Penalty') + ylab('Vaccine Effectiveness') +
+  theme(legend.position = 'none')
 p_epsilon_waning <- ggplot(data = banana_hammock, aes(x = exposure_penalty, y = wane, color = Diff_Color)) +
-  geom_point() +
+  geom_point(aes(size = Abs_Val), alpha = 0.7) +
+  scale_size_continuous(name = "|Difference|") +
   scale_color_manual(values = c("#F8766D","#00BA38")) +
-  xlab('Exposure Penalty')
+  xlab('Exposure Penalty') + ylab('Waning') +
+  theme(legend.position = 'none')
 p_epsilon_take <- ggplot(data = banana_hammock, aes(x = exposure_penalty, y = take, color = Diff_Color)) +
-  geom_point() +
+  geom_point(aes(size = Abs_Val), alpha = 0.7) +
+  scale_size_continuous(name = "|Difference|") +
   scale_color_manual(values = c("#F8766D","#00BA38")) +
-  xlab('Exposure Penalty')
+  xlab('Exposure Penalty') + ylab('Take') +
+  theme(legend.position = 'none')
 p_epsilon_rho <- ggplot(data = banana_hammock, aes(x = exposure_penalty, y = rho, color = Diff_Color)) +
-  geom_point() +
+  geom_point(aes(size = Abs_Val), alpha = 0.7) +
+  scale_size_continuous(name = "|Difference|") +
   scale_color_manual(values = c("#F8766D","#00BA38")) +
-  xlab('Exposure Penalty') +
-  ylab("Correlation of Vaccination")
+  xlab('Exposure Penalty') + ylab("Correlation of Vaccination") +
+  theme(legend.position = 'none')
 p_epsilon_vaccov <- ggplot(data = banana_hammock, aes(x = exposure_penalty, y = vac_cov, color = Diff_Color)) +
-  geom_point() +
+  geom_point(aes(size = Abs_Val), alpha = 0.7) +
+  scale_size_continuous(name = "|Difference|") +
   scale_color_manual(values = c("#F8766D","#00BA38")) +
-  xlab('Exposure Penalty') +
-  ylab("Vaccination Coverage")
+  xlab('Exposure Penalty') + ylab("Vaccination Coverage") +
+  theme(legend.position = 'none')
 p_ve_waning <- ggplot(data = banana_hammock, aes(x = vac_protect, y = wane, color = Diff_Color)) +
-  geom_point() +
-  scale_color_manual(values = c("#F8766D","#00BA38"))
+  geom_point(aes(size = Abs_Val), alpha = 0.7) +
+  scale_size_continuous(name = "|Difference|") +
+  scale_color_manual(values = c("#F8766D","#00BA38")) +
+  xlab('Vaccine Effectiveness') + ylab('Waning') +
+  theme(legend.position = 'none')
 p_ve_take <- ggplot(data = banana_hammock, aes(x = vac_protect, y = take, color = Diff_Color)) +
-  geom_point() +
-  scale_color_manual(values = c("#F8766D","#00BA38"))
-#scale_size_continuous(range = point_range)
+  geom_point(aes(size = Abs_Val), alpha = 0.7) +
+  scale_size_continuous(name = "|Difference|") +
+  scale_color_manual(values = c("#F8766D","#00BA38")) +
+  xlab('Vaccine Effectiveness') + ylab('Take') +
+  theme(legend.position = 'none')
 p_ve_rho <- ggplot(data = banana_hammock, aes(x = vac_protect, y = rho, color = Diff_Color)) +
-  geom_point() +
+  geom_point(aes(size = Abs_Val), alpha = 0.7) +
+  scale_size_continuous(name = "|Difference|") +
   scale_color_manual(values = c("#F8766D","#00BA38")) +
-  ylab('Correlation of Vaccination')
+  xlab('Vaccine Effectiveness') + ylab('Correlation of Vaccination') +
+  theme(legend.position = 'none')
 p_ve_vaccov <- ggplot(data = banana_hammock, aes(x = vac_protect, y = vac_cov, color = Diff_Color)) +
-  geom_point() +
+  geom_point(aes(size = Abs_Val), alpha = 0.7) +
+  scale_size_continuous(name = "|Difference|") +
   scale_color_manual(values = c("#F8766D","#00BA38")) +
-  ylab('Vaccination Coverage')
+  xlab('Vaccine Effectiveness') + ylab('Vaccination Coverage') +
+  theme(legend.position = 'none')
 p_waning_take <- ggplot(data = banana_hammock, aes(x = wane, y = take, color = Diff_Color)) +
-  geom_point() +
-  scale_color_manual(values = c("#F8766D","#00BA38"))
+  geom_point(aes(size = Abs_Val), alpha = 0.7) +
+  scale_size_continuous(name = "|Difference|") +
+  scale_color_manual(values = c("#F8766D","#00BA38")) +
+  xlab('Waning') + ylab('Vaccination Coverage') +
+  theme(legend.position = 'none')
 p_waning_rho <- ggplot(data = banana_hammock, aes(x = wane, y = rho, color = Diff_Color)) +
-  geom_point() +
+  geom_point(aes(size = Abs_Val), alpha = 0.7) +
+  scale_size_continuous(name = "|Difference|") +
   scale_color_manual(values = c("#F8766D","#00BA38")) +
-  ylab("Correlation of Vaccination")
+  xlab('Waning') + ylab("Correlation of Vaccination") +
+  theme(legend.position = 'none')
 p_waning_vaccov <- ggplot(data = banana_hammock, aes(x = wane, y = vac_cov, color = Diff_Color)) +
-  geom_point() +
+  geom_point(aes(size = Abs_Val), alpha = 0.7) +
+  scale_size_continuous(name = "|Difference|") +
   scale_color_manual(values = c("#F8766D","#00BA38")) +
-  ylab("Vaccination Coverage")
+  xlab('Waning') + ylab("Vaccination Coverage") +
+  theme(legend.position = 'none')
 p_take_rho <- ggplot(data = banana_hammock, aes(x = take, y = rho, color = Diff_Color)) +
-  geom_point() +
+  geom_point(aes(size = Abs_Val), alpha = 0.7) +
+  scale_size_continuous(name = "|Difference|") +
   scale_color_manual(values = c("#F8766D","#00BA38")) +
-  ylab("Correlation of Vaccination")
+  xlab('Take') + ylab("Correlation of Vaccination") +
+  theme(legend.position = 'none')
 p_take_vaccov <- ggplot(data = banana_hammock, aes(x = take, y = vac_cov, color = Diff_Color)) +
-  geom_point() +
+  geom_point(aes(size = Abs_Val), alpha = 0.7) +
+  scale_size_continuous(name = "|Difference|") +
   scale_color_manual(values = c("#F8766D","#00BA38")) +
-  ylab("Vaccination Coverage")
+  xlab('Take') + ylab("Vaccination Coverage") +
+  theme(legend.position = 'none')
 p_rho_vaccov <- ggplot(data = banana_hammock, aes(x = rho, y = vac_cov, color = Diff_Color)) +
-  geom_point() +
+  geom_point(aes(size = Abs_Val), alpha = 0.7) +
+  scale_size_continuous(name = "|Difference|") +
   scale_color_manual(values = c("#F8766D","#00BA38")) +
-  xlab("Correlation of Vaccination") +
-  ylab("Vaccination Coverage")
+  xlab("Correlation of Vaccination") + ylab("Vaccination Coverage") +
+  theme(legend.position = 'none')
 sm_figure1 <- plot_grid(p_epsilon_ve, p_epsilon_waning, p_epsilon_take,p_epsilon_vaccov, p_epsilon_rho,
                          p_ve_waning, p_ve_take, p_ve_rho, p_ve_vaccov, p_waning_take, p_waning_rho,
                          p_waning_vaccov, p_take_rho, p_take_vaccov, p_rho_vaccov,
                          labels = "AUTO", ncol = 3, align = 'v', axis = 'l')
 
-#filename <- "~/Dropbox/Kylie/Projects/Morevac/figures/"
-filename <- "C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/figures/"
-png(file = paste0(filename,"SuppMatFig1.png"), width = 8, height = 16,
+legend_b <- get_legend(
+              p_epsilon_ve +
+              guides(color = guide_legend(nrow = 1)) +
+              theme(legend.position = "bottom")
+            )
+sm_figure1 <- plot_grid(sm_figure1, legend_b, ncol = 1, rel_heights = c(1, .1))
+
+filename <- "~/Dropbox/Kylie/Projects/Morevac/figures/"
+#filename <- "C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/figures/"
+png(file = paste0(filename,"SuppMatFig1.png"), width = 12, height = 16,
     units = "in", pointsize = 8, res = 300)
 sm_figure1
 dev.off()
@@ -419,73 +538,109 @@ dev.off()
 # cutoff = 16
 ###########################################################
 p_epsilon_ve2 <- ggplot(data = banana_hammock_16, aes(x = exposure_penalty, y = vac_protect, color = Diff_Color)) +
-  geom_point() + # aes(size = Diff)
-  scale_color_manual(values = c("#F8766D","#00BA38")) +
-  #scale_size_continuous(range = point_range) +
-  xlab('Exposure Penalty')
+  geom_point(aes(size = Abs_Val), alpha = 0.7) +
+  scale_size_continuous(name = "|Difference|") +
+  scale_color_manual(values = c("#F8766D","#00BA38"), name = 'Difference in Childhood Infections') +
+  xlab('Exposure Penalty') + ylab('Vaccine Effectiveness') +
+  theme(legend.position = 'none')
 p_epsilon_waning2 <- ggplot(data = banana_hammock_16, aes(x = exposure_penalty, y = wane, color = Diff_Color)) +
-  geom_point() +
+  geom_point(aes(size = Abs_Val), alpha = 0.7) +
+  scale_size_continuous(name = "|Difference|") +
   scale_color_manual(values = c("#F8766D","#00BA38")) +
-  xlab('Exposure Penalty')
+  xlab('Exposure Penalty') + ylab('Waning') +
+  theme(legend.position = 'none')
 p_epsilon_take2 <- ggplot(data = banana_hammock_16, aes(x = exposure_penalty, y = take, color = Diff_Color)) +
-  geom_point() +
+  geom_point(aes(size = Abs_Val), alpha = 0.7) +
+  scale_size_continuous(name = "|Difference|") +
   scale_color_manual(values = c("#F8766D","#00BA38")) +
-  xlab('Exposure Penalty')
+  xlab('Exposure Penalty') + ylab('Take') +
+  theme(legend.position = 'none')
 p_epsilon_rho2 <- ggplot(data = banana_hammock_16, aes(x = exposure_penalty, y = rho, color = Diff_Color)) +
-  geom_point() +
+  geom_point(aes(size = Abs_Val), alpha = 0.7) +
+  scale_size_continuous(name = "|Difference|") +
   scale_color_manual(values = c("#F8766D","#00BA38")) +
-  xlab('Exposure Penalty') +
-  ylab("Correlation of Vaccination")
+  xlab('Exposure Penalty') + ylab("Correlation of Vaccination") +
+  theme(legend.position = 'none')
 p_epsilon_vaccov2 <- ggplot(data = banana_hammock_16, aes(x = exposure_penalty, y = vac_cov, color = Diff_Color)) +
-  geom_point() +
+  geom_point(aes(size = Abs_Val), alpha = 0.7) +
+  scale_size_continuous(name = "|Difference|") +
   scale_color_manual(values = c("#F8766D","#00BA38")) +
-  xlab('Exposure Penalty') +
-  ylab("Vaccination Coverage")
+  xlab('Exposure Penalty') + ylab("Vaccination Coverage") +
+  theme(legend.position = 'none')
 p_ve_waning2 <- ggplot(data = banana_hammock_16, aes(x = vac_protect, y = wane, color = Diff_Color)) +
-  geom_point() +
-  scale_color_manual(values = c("#F8766D","#00BA38"))
+  geom_point(aes(size = Abs_Val), alpha = 0.7) +
+  scale_size_continuous(name = "|Difference|") +
+  scale_color_manual(values = c("#F8766D","#00BA38")) +
+  xlab('Vaccine Effectiveness') + ylab('Waning') +
+  theme(legend.position = 'none')
 p_ve_take2 <- ggplot(data = banana_hammock_16, aes(x = vac_protect, y = take, color = Diff_Color)) +
-  geom_point() +
-  scale_color_manual(values = c("#F8766D","#00BA38"))
+  geom_point(aes(size = Abs_Val), alpha = 0.7) +
+  scale_size_continuous(name = "|Difference|") +
+  scale_color_manual(values = c("#F8766D","#00BA38")) +
+  xlab('Vaccine Effectiveness') + ylab('Take') +
+  theme(legend.position = 'none')
 p_ve_rho2 <- ggplot(data = banana_hammock_16, aes(x = vac_protect, y = rho, color = Diff_Color)) +
-  geom_point() +
+  geom_point(aes(size = Abs_Val), alpha = 0.7) +
+  scale_size_continuous(name = "|Difference|") +
   scale_color_manual(values = c("#F8766D","#00BA38")) +
-  ylab('Correlation of Vaccination')
+  xlab('Vaccine Effectiveness') + ylab('Correlation of Vaccination') +
+  theme(legend.position = 'none')
 p_ve_vaccov2 <- ggplot(data = banana_hammock_16, aes(x = vac_protect, y = vac_cov, color = Diff_Color)) +
-  geom_point() +
+  geom_point(aes(size = Abs_Val), alpha = 0.7) +
+  scale_size_continuous(name = "|Difference|") +
   scale_color_manual(values = c("#F8766D","#00BA38")) +
-  ylab('Vaccination Coverage')
+  xlab('Vaccine Effectiveness') + ylab('Vaccination Coverage') +
+  theme(legend.position = 'none')
 p_waning_take2 <- ggplot(data = banana_hammock_16, aes(x = wane, y = take, color = Diff_Color)) +
-  geom_point() +
-  scale_color_manual(values = c("#F8766D","#00BA38"))
+  geom_point(aes(size = Abs_Val), alpha = 0.7) +
+  scale_size_continuous(name = "|Difference|") +
+  scale_color_manual(values = c("#F8766D","#00BA38")) +
+  xlab('Waning') + ylab('Vaccination Coverage') +
+  theme(legend.position = 'none')
 p_waning_rho2 <- ggplot(data = banana_hammock_16, aes(x = wane, y = rho, color = Diff_Color)) +
-  geom_point() +
+  geom_point(aes(size = Abs_Val), alpha = 0.7) +
+  scale_size_continuous(name = "|Difference|") +
   scale_color_manual(values = c("#F8766D","#00BA38")) +
-  ylab("Correlation of Vaccination")
+  xlab('Waning') + ylab("Correlation of Vaccination") +
+  theme(legend.position = 'none')
 p_waning_vaccov2 <- ggplot(data = banana_hammock_16, aes(x = wane, y = vac_cov, color = Diff_Color)) +
-  geom_point() +
+  geom_point(aes(size = Abs_Val), alpha = 0.7) +
+  scale_size_continuous(name = "|Difference|") +
   scale_color_manual(values = c("#F8766D","#00BA38")) +
-  ylab("Vaccination Coverage")
+  xlab('Waning') + ylab("Vaccination Coverage") +
+  theme(legend.position = 'none')
 p_take_rho2 <- ggplot(data = banana_hammock_16, aes(x = take, y = rho, color = Diff_Color)) +
-  geom_point() +
+  geom_point(aes(size = Abs_Val), alpha = 0.7) +
+  scale_size_continuous(name = "|Difference|") +
   scale_color_manual(values = c("#F8766D","#00BA38")) +
-  ylab("Correlation of Vaccination")
+  xlab('Take') + ylab("Correlation of Vaccination") +
+  theme(legend.position = 'none')
 p_take_vaccov2 <- ggplot(data = banana_hammock_16, aes(x = take, y = vac_cov, color = Diff_Color)) +
-  geom_point() +
+  geom_point(aes(size = Abs_Val), alpha = 0.7) +
+  scale_size_continuous(name = "|Difference|") +
   scale_color_manual(values = c("#F8766D","#00BA38")) +
-  ylab("Vaccination Coverage")
+  xlab('Take') + ylab("Vaccination Coverage") +
+  theme(legend.position = 'none')
 p_rho_vaccov2 <- ggplot(data = banana_hammock_16, aes(x = rho, y = vac_cov, color = Diff_Color)) +
-  geom_point() +
+  geom_point(aes(size = Abs_Val), alpha = 0.7) +
+  scale_size_continuous(name = "|Difference|") +
   scale_color_manual(values = c("#F8766D","#00BA38")) +
-  xlab("Correlation of Vaccination") +
-  ylab("Vaccination Coverage")
-sm_figure2 <- plot_grid(p_epsilon_ve2, p_epsilon_waning2, p_epsilon_take2,p_epsilon_vaccov2, p_epsilon_rho2,
+  xlab("Correlation of Vaccination") + ylab("Vaccination Coverage") +
+  theme(legend.position = 'none')
+sm_figure2 <- plot_grid(p_epsilon_ve2, p_epsilon_waning2, p_epsilon_take2,p_epsilon_vaccov2, p_epsilon_rho,
                         p_ve_waning2, p_ve_take2, p_ve_rho2, p_ve_vaccov2, p_waning_take2, p_waning_rho2,
                         p_waning_vaccov2, p_take_rho2, p_take_vaccov2, p_rho_vaccov2,
                         labels = "AUTO", ncol = 3, align = 'v', axis = 'l')
 
+legend_b <- get_legend(
+  p_epsilon_ve2 +
+    guides(color = guide_legend(nrow = 1)) +
+    theme(legend.position = "bottom")
+)
+sm_figure2 <- plot_grid(sm_figure2, legend_b, ncol = 1, rel_heights = c(1, .1))
+
 filename <- "~/Dropbox/Kylie/Projects/Morevac/figures/"
-png(file = paste0(filename,"SuppMatFig2.png"), width = 12, height = 8,
+png(file = paste0(filename,"SuppMatFig2.png"), width = 12, height = 16,
     units = "in", pointsize = 8, res = 300)
 sm_figure2
 dev.off()
