@@ -16,18 +16,20 @@ library(boot)
 library(data.table)
 library(rdist)
 # load morevac package
-setwd("~/Documents/morevac")
+# setwd("~/Documents/morevac") # Mac path
+setwd("~/morevac") # PC path
 devtools::load_all()
 ###
 
 ### define input parameters
-file <- "baseline10"
-n_sim = 50
+file <- "C:/Users/Dropbox/Kylie/Projects/Morevac/data/sim_data/baseline/baseline"
+
+n_sim = 100
 nindiv <- 30000
 max_age = 80
 myyears <- 1920:2028
 mybetas <- c(0.4,rep(0.2,length(myyears)-1))
-vac_cut_off <- 16
+vac_cut_off <- 10
 vac_cov_dat <- data.frame(Age = 0:(max_age-1), No_Vac = numeric(max_age), Annual = numeric(max_age), Biennial = numeric(max_age))
 vac_cov_dat$Annual[3:(vac_cut_off + 1)] <- 0.44
 vac_cov_dat$Biennial[seq(3,vac_cut_off+1,2)] <- 0.44
@@ -45,17 +47,15 @@ sim_test2 <- run_sim_2(sim = n_sim, n = nindiv, years = myyears, betas = mybetas
                        wane = 1, take = 1, epsilon = 0, vac_protect = 0.7, rho = 0.9)
 
 # extract cohorts from each sim and combine raw inf and vac histories for every simulation
-sim0_results <- postprocess_sim_results_for_rolling_cohort(simdat = sim_test0, total_year_range = myyears, nsim = n_sim)
-sim1_results <- postprocess_sim_results_for_rolling_cohort(simdat = sim_test1, total_year_range = myyears, nsim = n_sim)
-sim2_results <- postprocess_sim_results_for_rolling_cohort(simdat = sim_test2, total_year_range = myyears, nsim = n_sim)
+sim0_results <- postprocess_sim_results_for_rolling_cohort(sim_dat = sim_test0, total_year_range = myyears, n_sim = n_sim)
+sim1_results <- postprocess_sim_results_for_rolling_cohort(sim_dat = sim_test1, total_year_range = myyears, n_sim = n_sim)
+sim2_results <- postprocess_sim_results_for_rolling_cohort(sim_dat = sim_test2, total_year_range = myyears, n_sim = n_sim)
 
 # combine sim results into one data.table
 inf_histories <- rbindlist(list(No_Vac = sim0_results$inf_history, Annual = sim1_results$inf_history, Biennial = sim2_results$inf_history), idcol = 'Vac_Strategy')
 vac_histories <- rbindlist(list(No_Vac = sim0_results$vac_history, Annual = sim1_results$vac_history, Biennial = sim2_results$vac_history), idcol = 'Vac_Strategy')
 
 # write raw output to file
-#file <- "~/Dropbox/Kylie/Projects/Morevac/data/sim_data/baseline/baseline_vacoff16"
-
 try(data.table::fwrite(inf_histories, file = paste0(file,"_inf_hist.csv"), col.names = TRUE,
                        row.names = FALSE, sep = ","))
 try(data.table::fwrite(vac_histories, file = paste0(file,"_vac_hist.csv"), col.names = TRUE,
@@ -63,34 +63,38 @@ try(data.table::fwrite(vac_histories, file = paste0(file,"_vac_hist.csv"), col.n
 
 #######################################
 ### read in results (rather than re-run simulations)
-inf_dat <- fread("~/Dropbox/Kylie/Projects/Morevac/data/sim_data/baseline/baseline_inf_hist.csv")
-vac_dat <- fread("~/Dropbox/Kylie/Projects/Morevac/data/sim_data/baseline/baseline_vac_hist.csv")
+setwd("C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/data/sim_data/")
+dt_inf <- vroom(file = "baseline/baseline_inf_hist.csv", delim = ",", col_names = TRUE) %>%
+               mutate(Num_Infs = rowSums(select(.,Age0:Age18)))
+dt_vac <- vroom(file = "baseline/baseline_vac_hist.csv", delim = ",", col_names = TRUE) %>%
+               mutate(Num_Vacs = rowSums(select(.,Age0:Age18)))
 
-inf_dat_16 <- fread("~/Dropbox/Kylie/Projects/Morevac/data/sim_data/baseline/baseline_vacoff16_inf_hist.csv")
-inf_dat_16 <- fread("~/Dropbox/Kylie/Projects/Morevac/data/sim_data/baseline/baseline_vacoff16_vac_hist.csv")
+dt_inf_16 <- vroom(file = "baseline/baseline_inf_hist_16.csv", delim = ",", col_names = TRUE) %>%
+                mutate(Num_Infs = rowSums(select(.,Age0:Age18)))
+dt_vac_16 <- vroom(file = "baseline/baseline_vac_hist_16.csv", delim = ",", col_names = TRUE) %>%
+                mutate(Num_Vacs = rowSums(select(.,Age0:Age18)))
 
-dt_inf <- inf_dat
-dt_vac <- vac_dat
-
-# dt_inf <- inf_dat_16
-# dt_vac <- vac_dat_16
 ### summarise raw data for lifetime infections
-dt_inf1 <- dt_inf %>% mutate(Num_Infs = rowSums(select(.,Age0:Age18)))
-dt_vac1 <- dt_vac %>% mutate(Num_Vacs = rowSums(select(.,Age0:Age18)))
+banana <- bind_cols(dt_inf[,c("Vac_Strategy", "Sim", "Cohort", "ID", "Num_Infs")], Num_Vacs = dt_vac[,c("Num_Vacs")]) %>%
+            group_by(Vac_Strategy, Sim) %>% summarise(Mean_Infs = mean(Num_Infs))
 
-banana <- cbind(dt_inf1[,c("Vac_Strategy", "Sim", "Cohort", "ID", "Num_Infs")], Num_Vacs = dt_vac1[,c("Num_Vacs")])
-banana_boat <- banana %>% group_by(Vac_Strategy, Sim) %>% summarise(Mean_Infs = mean(Num_Infs))
+banana2 <- bind_cols(dt_inf_16[,c("Vac_Strategy", "Sim", "Cohort", "ID", "Num_Infs")], Num_Vacs = dt_vac_16[,c("Num_Vacs")]) %>%
+            group_by(Vac_Strategy, Sim) %>% summarise(Mean_Infs = mean(Num_Infs))
 
 # bootstrap to get CI for Lifetime Infs
 foo1 <- function(data, indices){
   dt<-data[indices,]
   mean(dt$Mean_Infs)
 }
-my_bootstrap <- plyr::dlply(banana_boat, "Vac_Strategy", function(dat) boot(dat, foo1, R=100)) # boostrap for each set of param values
+my_bootstrap <- plyr::dlply(banana, "Vac_Strategy", function(dat) boot(dat, foo1, R=100)) # boostrap for each set of param values
 my_ci <- sapply(my_bootstrap, function(x) boot.ci(x, index = 1, type='perc')$percent[c(4,5)]) # get confidence intervals
-banana_boat2 <- banana_boat %>% group_by(Vac_Strategy) %>% summarise(Mean_Infs = mean(Mean_Infs))
-banana_boat2$Lower <- my_ci[1,]
-banana_boat2$Upper <- my_ci[2,]
+banana_boat <- banana_boat %>% group_by(Vac_Strategy) %>% summarise(Mean_Infs = mean(Mean_Infs)) %>%
+                mutate(Lower = my_ci[1,], Upper = my_ci[2,])
+
+my_bootstrap <- plyr::dlply(banana2, "Vac_Strategy", function(dat) boot(dat, foo1, R=100)) # boostrap for each set of param values
+my_ci <- sapply(my_bootstrap, function(x) boot.ci(x, index = 1, type='perc')$percent[c(4,5)]) # get confidence intervals
+banana_boat2 <- banana_boat2 %>% group_by(Vac_Strategy) %>% summarise(Mean_Infs = mean(Mean_Infs)) %>%
+                  mutate(Lower = my_ci[1,], Upper = my_ci[2,])
 
 # Difference in Lifetime Infs
 banana_split <- banana_boat %>% spread(Vac_Strategy, Mean_Infs) %>%
