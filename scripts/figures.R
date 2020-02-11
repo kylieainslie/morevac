@@ -4,15 +4,19 @@
 ### Figure 1 - Model schematic ###
 ##################################
 # run multi-annual model
-out <- multiannual(n=10000, vac_coverage = vac_cov_dat$Off_At_10, vac_strategy = 1)
-# isolate birth cohort in 2000
-birth_cohort <- which(out$ages[,181]==0)
-bc_inf_hist <- out$inf_history$inf_hist_mat[birth_cohort,181:200]
-bc_vac_hist <- out$vac_history$vac_hist_mat[birth_cohort,181:200]
-bc_suscept <- out$inf_history$suscept_mat[birth_cohort,181:200]
-bc_ages <- out$ages[birth_cohort,181:200]
-# pick one person to plot susceptibility
-i <- 29
+max_age = 80
+vac_cut_off <- 10
+my_years <- 1918:2028
+vac_cov_dat <- data.frame(Age = 0:(max_age-1), No_Vac = numeric(max_age), Annual = numeric(max_age), Biennial = numeric(max_age))
+vac_cov_dat$Annual[3:(vac_cut_off + 1)] <- 0.44
+vac_cov_dat$Biennial[seq(3,vac_cut_off+1,2)] <- 0.44
+
+out <- multiannual(n=30000, years = my_years, max_age = max_age, betas = c(0.4,rep(0.2,length(my_years)-1)),
+                   vac_coverage = vac_cov_dat$Annual, vac_strategy = 1)
+
+my_cohorts <- get_cohorts(inf_history = out$inf_history$inf_hist_mat, vac_history = out$vac_history$vac_hist_mat, ages = out$ages, total_year_range = my_years)
+# pick random subset of people susceptibility
+indivs <- sample(nrow(my_cohorts$inf_history), 9, replace = FALSE)
 person <- data.frame(Year = 2000:2019,
                      inf_hist = bc_inf_hist[i,],
                      vac_hist = bc_vac_hist[i,],

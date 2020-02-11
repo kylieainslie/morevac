@@ -63,6 +63,7 @@ try(data.table::fwrite(vac_histories, file = paste0(file,"_vac_hist.csv"), col.n
 
 #######################################
 ### read in results (rather than re-run simulations)
+setwd("~/Dropbox/Kylie/Projects/Morevac/data/sim_data/")
 setwd("C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/data/sim_data/")
 dt_inf <- vroom(file = "baseline/baseline_inf_hist.csv", delim = ",", col_names = TRUE) %>%
                mutate(Num_Infs = rowSums(select(.,Age0:Age18)))
@@ -116,13 +117,8 @@ banana_boat2 <- banana_boat2 %>% group_by(Vac_Strategy) %>% summarise(Mean_Infs 
 
 ### summarise raw data for attack rates
 # cutoff = 10
-chocolate <- dt_inf %>%
-              group_by(Vac_Strategy, Sim, Cohort) %>%
-              select(-ID) %>%
-              summarise_all(list(sum))
-chocolate_sprinkles <- dt_inf1 %>%
-                        group_by(Vac_Strategy, Sim, Cohort) %>%
-                        do(tail(.,1))
+chocolate <- dt_inf %>% group_by(Vac_Strategy, Sim, Cohort) %>% select(-ID) %>% summarise_all(list(sum))
+chocolate_sprinkles <- dt_inf %>% group_by(Vac_Strategy, Sim, Cohort) %>% do(tail(.,1))
 chocolate$ID <- chocolate_sprinkles$ID
 chocolate_sundae <- chocolate %>%
                       mutate_at(vars(Age0:Age18), funs(./ID)) %>%
@@ -142,7 +138,7 @@ my_bootstrap <- plyr::dlply(chocolate_sundae, c("Vac_Strategy","Age"), function(
 my_ci <- sapply(my_bootstrap, function(x) boot.ci(x, index = 1, type='perc')$percent[c(4,5)]) # get confidence intervals
 
 chocolate_sundae2 <- chocolate_sundae %>% group_by(Vac_Strategy, Age) %>%
-                        summarise(Mean_AR = mean(Attack_Rate)) %>%
+                        summarise(Mean_AR = mean(Attack_Rate)) %>% ungroup() %>%
                         mutate(Lower = my_ci[1,], Upper = my_ci[2,])
 #####################
 # cutoff = 16
