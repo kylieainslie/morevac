@@ -8,8 +8,6 @@ library(tidyr)
 library(reshape2)
 library(cowplot)
 library(stringr)
-library(foreach)
-library(doParallel)
 library(dplyr)
 library(lhs)
 library(boot)
@@ -17,6 +15,8 @@ library(data.table)
 library(rdist)
 library(Matrix)
 library(vroom)
+# library(foreach)
+# library(doParallel)
 # load morevac package
 # setwd("~/Documents/morevac") # Mac path
 setwd("~/morevac") # PC path
