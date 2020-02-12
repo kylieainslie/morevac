@@ -173,13 +173,13 @@ setwd("C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/data/sim_data/")
 #setwd("~/Dropbox/Kylie/Projects/Morevac/data/sim_data/")
 
 # cutoff = 10
-banana_cream_pie <- vroom(file = "off_at_10/banana_cream_pie.csv", delim = ",", col_names = TRUE) %>%
+banana_cream_pie <- vroom(file = "banana_cream_pie.csv", delim = ",", col_names = TRUE) %>%
                       mutate(Diff_Color = ifelse(Upper < 0, '<0',ifelse(Lower <=0 & Upper >=0, 'zero',ifelse(Lower >0, '>0', 'something else'))))
-banana_bread <- vroom(file = "off_at_10/banana_bread.csv", delim = ",", col_names = TRUE)
+banana_bread <- vroom(file = "banana_bread.csv", delim = ",", col_names = TRUE)
 # cutoff = 16
-banana_cream_pie_16 <- vroom(file = "off_at_16/banana_cream_pie.csv", delim = ",", col_names = TRUE) %>%
+banana_cream_pie_16 <- vroom(file = "banana_cream_pie_16.csv", delim = ",", col_names = TRUE) %>%
                           mutate(Diff_Color = ifelse(Upper < 0, '<0',ifelse(Lower <=0 & Upper >=0, 'zero',ifelse(Lower >0, '>0', 'something else'))))
-banana_bread_16 <- vroom(file = "off_at_16/banana_bread.csv", delim = ",", col_names = TRUE)
+banana_bread_16 <- vroom(file = "banana_bread_16.csv", delim = ",", col_names = TRUE)
 
 # a) cutoff = 10: scatter plots of all mean diff by exposure_penalty & vac_protect
 banana_hammock_zero <- banana_cream_pie %>% filter(Type == "Diff_AB", Diff_Color == 'zero')
@@ -292,7 +292,7 @@ p3d <- ggplot(data = banana_hammock_16, aes(x = exposure_penalty, y = vac_protec
 figure3 <- plot_grid(p3a, p3b, p3c, p3d, labels = "AUTO", ncol = 2, align = 'v', axis = 'l')
 
 filename <- "~/Dropbox/Kylie/Projects/Morevac/figures/"
-png(file = paste0(filename,"figure3.png"), width = 12, height = 8,
+png(file = paste0(filename,"figure3.png"), width = 14, height = 10,
     units = "in", pointsize = 8, res = 300)
 figure3
 dev.off()
@@ -428,6 +428,8 @@ dev.off()
 ###########################################################
 # cutoff = 10
 ###########################################################
+banana_cream <- banana_cream_pie %>% filter(Type == "Diff_AB") %>% mutate(Abs_Val = abs(Mean_Diff))
+
 p_epsilon_ve <- ggplot(data = banana_hammock, aes(x = exposure_penalty, y = vac_protect, color = Diff_Color)) +
   geom_point(aes(size = Abs_Val), alpha = 0.7) +
   scale_size_continuous(name = "|Difference|") +
@@ -532,6 +534,8 @@ sm_figure1 <- plot_grid(sm_figure1, legend_b, ncol = 1, rel_heights = c(1, .1))
 
 filename <- "~/Dropbox/Kylie/Projects/Morevac/figures/"
 #filename <- "C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/figures/"
+#filename <- "~/Dropbox/Kylie/Presentations/MRC Symposium/figures/"
+
 png(file = paste0(filename,"SuppMatFig1.png"), width = 12, height = 16,
     units = "in", pointsize = 8, res = 300)
 sm_figure1
@@ -541,6 +545,8 @@ dev.off()
 ###########################################################
 # cutoff = 16
 ###########################################################
+#banana_cream_16 <- banana_cream_pie_16 %>% filter(Type == "Diff_AB") %>% mutate(Abs_Val = abs(Mean_Diff))
+
 p_epsilon_ve2 <- ggplot(data = banana_hammock_16, aes(x = exposure_penalty, y = vac_protect, color = Diff_Color)) +
   geom_point(aes(size = Abs_Val), alpha = 0.7) +
   scale_size_continuous(name = "|Difference|") +
@@ -631,7 +637,7 @@ p_rho_vaccov2 <- ggplot(data = banana_hammock_16, aes(x = rho, y = vac_cov, colo
   scale_color_manual(values = c("#F8766D","#00BA38")) +
   xlab("Correlation of Vaccination") + ylab("Vaccination Coverage") +
   theme(legend.position = 'none')
-sm_figure2 <- plot_grid(p_epsilon_ve2, p_epsilon_waning2, p_epsilon_take2,p_epsilon_vaccov2, p_epsilon_rho,
+sm_figure2 <- plot_grid(p_epsilon_ve2, p_epsilon_waning2, p_epsilon_take2,p_epsilon_vaccov2, p_epsilon_rho2,
                         p_ve_waning2, p_ve_take2, p_ve_rho2, p_ve_vaccov2, p_waning_take2, p_waning_rho2,
                         p_waning_vaccov2, p_take_rho2, p_take_vaccov2, p_rho_vaccov2,
                         labels = "AUTO", ncol = 3, align = 'v', axis = 'l')
