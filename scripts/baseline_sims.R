@@ -63,8 +63,8 @@ try(data.table::fwrite(vac_histories, file = paste0(file,"_vac_hist.csv"), col.n
 
 #######################################
 ### read in results (rather than re-run simulations)
-setwd("~/Dropbox/Kylie/Projects/Morevac/data/sim_data/")
-setwd("C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/data/sim_data/")
+#setwd("~/Dropbox/Kylie/Projects/Morevac/data/sim_data/baseline/")
+setwd("C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/data/sim_data/baseline/")
 dt_inf <- vroom(file = "baseline/baseline_inf_hist.csv", delim = ",", col_names = TRUE) %>%
                mutate(Num_Infs = rowSums(select(.,Age0:Age18)))
 dt_vac <- vroom(file = "baseline/baseline_vac_hist.csv", delim = ",", col_names = TRUE) %>%
@@ -120,12 +120,8 @@ banana_boat2 <- banana_boat2 %>% group_by(Vac_Strategy) %>% summarise(Mean_Infs 
 chocolate <- dt_inf %>% group_by(Vac_Strategy, Sim, Cohort) %>% select(-ID) %>% summarise_all(list(sum))
 chocolate_sprinkles <- dt_inf %>% group_by(Vac_Strategy, Sim, Cohort) %>% do(tail(.,1))
 chocolate$ID <- chocolate_sprinkles$ID
-chocolate_sundae <- chocolate %>%
-                      mutate_at(vars(Age0:Age18), funs(./ID)) %>%
-                      select(Vac_Strategy, Sim, Cohort, Age0:Age18) %>%
-                      group_by(Vac_Strategy, Sim) %>%
-                      summarise_at(vars(Age0:Age18), mean) %>%
-                      gather(Age, Attack_Rate, Age0:Age18) %>%
+chocolate_sundae <- chocolate %>% mutate_at(vars(Age0:Age18), funs(./ID)) %>% select(Vac_Strategy, Sim, Cohort, Age0:Age18) %>%
+                      group_by(Vac_Strategy, Sim) %>% summarise_at(vars(Age0:Age18), mean) %>% gather(Age, Attack_Rate, Age0:Age18) %>%
                       mutate(Age = as.numeric(str_remove(Age, 'Age')))
 
 # bootstrap to get CI for ARs
@@ -142,22 +138,25 @@ chocolate_sundae2 <- chocolate_sundae %>% group_by(Vac_Strategy, Age) %>%
                         mutate(Lower = my_ci[1,], Upper = my_ci[2,])
 #####################
 # cutoff = 16
-chocolate <- dt_inf %>% group_by(Vac_Strategy, Sim, Cohort) %>% select(-ID) %>% summarise_all(list(sum))
-chocolate_sprinkles <- dt_inf1 %>% group_by(Vac_Strategy, Sim, Cohort) %>% do(tail(.,1))
-chocolate$ID <- chocolate_sprinkles$ID
-chocolate_sundae <- chocolate %>% mutate_at(vars(Age0:Age18), funs(./ID)) %>%
-                      select(Vac_Strategy, Sim, Cohort, Age0:Age18) %>%
-                      group_by(Vac_Strategy, Sim) %>% summarise_at(vars(Age0:Age18), mean) %>%
-                      gather(Age, Attack_Rate, Age0:Age18) %>% mutate(Age = as.numeric(str_remove(Age, 'Age')))
-
-my_bootstrap <- plyr::dlply(chocolate_sundae, c("Vac_Strategy","Age"), function(dat) boot(dat, foo3, R=100)) # boostrap for each set of param values
-my_ci <- sapply(my_bootstrap, function(x) boot.ci(x, index = 1, type='perc')$percent[c(4,5)]) # get confidence intervals
-
-chocolate_sundae2 <- chocolate_sundae %>% group_by(Vac_Strategy, Age) %>%
-  summarise(Mean_AR = mean(Attack_Rate)) %>%
-  mutate(Lower = my_ci[1,], Upper = my_ci[2,])
+# chocolate <- dt_inf %>% group_by(Vac_Strategy, Sim, Cohort) %>% select(-ID) %>% summarise_all(list(sum))
+# chocolate_sprinkles <- dt_inf1 %>% group_by(Vac_Strategy, Sim, Cohort) %>% do(tail(.,1))
+# chocolate$ID <- chocolate_sprinkles$ID
+# chocolate_sundae <- chocolate %>% mutate_at(vars(Age0:Age18), funs(./ID)) %>% select(Vac_Strategy, Sim, Cohort, Age0:Age18) %>%
+#                       group_by(Vac_Strategy, Sim) %>% summarise_at(vars(Age0:Age18), mean) %>% gather(Age, Attack_Rate, Age0:Age18) %>%
+#                       mutate(Age = as.numeric(str_remove(Age, 'Age')))
+#
+# my_bootstrap <- plyr::dlply(chocolate_sundae, c("Vac_Strategy","Age"), function(dat) boot(dat, foo3, R=100)) # boostrap for each set of param values
+# my_ci <- sapply(my_bootstrap, function(x) boot.ci(x, index = 1, type='perc')$percent[c(4,5)]) # get confidence intervals
+#
+# chocolate_sundae2 <- chocolate_sundae %>% group_by(Vac_Strategy, Age) %>% summarise(Mean_AR = mean(Attack_Rate)) %>%
+#                         mutate(Lower = my_ci[1,], Upper = my_ci[2,])
 
 #######################################
+### write files to avoid having to read in raw data again
+data.table::fwrite(banana_boat, file = "banana_boat.csv", col.names = TRUE,
+                   row.names = FALSE, sep = ",")
+data.table::fwrite(chocolate_sundae2, file = "chocolate_sundae.csv", col.names = TRUE,
+                   row.names = FALSE, sep = ",")
 
 
 
