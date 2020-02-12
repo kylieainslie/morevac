@@ -8,7 +8,7 @@ run_sims_clust(
   n_sim = 20,
   n_indiv = 10000,
   max_age = 80,
-  start_year = 1820,
+  start_year = 1918,
   end_year = 2028,
   pandemic_beta = 0.4,
   epidemic_beta = 0.2,
