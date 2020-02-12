@@ -105,16 +105,19 @@ dev.off()
 ### Figure 2 - baseline results ###
 ###################################
 # baseline figures: wane = 100%,
-#     take = 100%, vac_protect = 70%,
-#     exposure_penalty = 0%, rho = 90%
+# take = 100%, vac_protect = 70%,
+# exposure_penalty = 0%, rho = 90%
 ###################################
-# AR, vac off at 10
-p_ar_baseline <- ggplot(data = chocolate_sundae2, aes(x = Age, y = Mean_AR, colour= Vac_Strategy)) +
-  geom_line() +
-  geom_ribbon(aes(x=Age,ymin=Lower,ymax=Upper,linetype=NA, fill = Vac_Strategy),alpha=0.2) +
-  xlab("Age (years)") +
-  ylab("Attack Rate") +
-  #labs(fill = "Vaccination Strategy") +
+setwd("C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/data/sim_data/baseline/")
+#setwd("~/Dropbox/Kylie/Projects/Morevac/data/sim_data/")
+banana_boat <- vroom(file = "banana_boat.csv", delim = ",", col_names = TRUE) %>%
+                      mutate(Diff_Color = ifelse(Upper < 0, '<0',ifelse(Lower <=0 & Upper >=0, '0',ifelse(Lower >0, '>0', 'something else'))))
+chocolate_sundae <- vroom(file = "chocolate_sundae.csv", delim = ",", col_names = TRUE)
+
+### AR, vac off at 10
+p_ar_baseline <- ggplot(data = chocolate_sundae, aes(x = Age, y = Mean_AR, colour= Vac_Strategy)) +
+  geom_line() + geom_ribbon(aes(x=Age,ymin=Lower,ymax=Upper,linetype=NA, fill = Vac_Strategy),alpha=0.2) +
+  xlab("Age (years)") + ylab("Attack Rate") +
   theme(panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
         panel.background = element_blank(),
@@ -125,49 +128,46 @@ p_ar_baseline <- ggplot(data = chocolate_sundae2, aes(x = Age, y = Mean_AR, colo
         legend.margin = margin(6, 6, 6, 6),
         legend.key = element_rect(fill = "white"))
 # AR, vac off at 16
-p_ar_baseline16 <- ggplot(data = chocolate_sundae2, aes(x = Age, y = Mean_AR, colour = Vac_Strategy)) +
-  geom_line() +
-  geom_ribbon(aes(x=Age,ymin=Lower,ymax=Upper,linetype=NA, fill = Vac_Strategy),alpha=0.2) +
-  xlab("Age (years)") +
-  ylab("Attack Rate") +
-  #labs(x = "Age (years)", y = "Attack Rate", colour = "Vaccination Strategy") +
-  # scale_fill_discrete(name="Vaccination Strategy",
-  #                     labels=c("Annual", "Biennial", "No Vaccination")) +
-  theme(panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.background = element_blank(),
-        axis.line = element_line(colour = "black"),
-        legend.position = "none")
-        # legend.position = c(0.95, 0.95),
-        # legend.justification = c("right", "top"),
-        # legend.box.just = "right",
-        # legend.margin = margin(6, 6, 6, 6),
-        # legend.key = element_rect(fill = "white"))
+# p_ar_baseline16 <- ggplot(data = chocolate_sundae2, aes(x = Age, y = Mean_AR, colour = Vac_Strategy)) +
+#   geom_line() +
+#   geom_ribbon(aes(x=Age,ymin=Lower,ymax=Upper,linetype=NA, fill = Vac_Strategy),alpha=0.2) +
+#   xlab("Age (years)") +
+#   ylab("Attack Rate") +
+#   #labs(x = "Age (years)", y = "Attack Rate", colour = "Vaccination Strategy") +
+#   # scale_fill_discrete(name="Vaccination Strategy",
+#   #                     labels=c("Annual", "Biennial", "No Vaccination")) +
+#   theme(panel.grid.major = element_blank(),
+#         panel.grid.minor = element_blank(),
+#         panel.background = element_blank(),
+#         axis.line = element_line(colour = "black"),
+#         legend.position = "none")
+#         # legend.position = c(0.95, 0.95),
+#         # legend.justification = c("right", "top"),
+#         # legend.box.just = "right",
+#         # legend.margin = margin(6, 6, 6, 6),
+#         # legend.key = element_rect(fill = "white"))
 
-# lifetime infections
-banana_boat2$Vac_Off <- 10
-banana_boat2a$Vac_Off <- 16
-banana_peel <- rbind(banana_boat2,banana_boat2a)
-
-p_li_baseline <- ggplot(data=banana_peel, aes(x=Vac_Strategy, y=Mean_Infs, fill=as.factor(Vac_Off))) +
+### lifetime infections
+# banana_boat2a$Vac_Off <- 16
+# banana_peel <- rbind(banana_boat2,banana_boat2a)
+p_li_baseline <- ggplot(data=banana_boat, aes(x=Vac_Strategy, y=Mean_Infs, fill=Vac_Strategy)) +
   geom_bar(stat="identity", color = "black", position=position_dodge(), width = 0.65) +
   geom_errorbar(aes(ymin=Lower, ymax=Upper), width=.2, position=position_dodge(.65)) +
   labs(x = "Vaccination Strategy", y = "Number of Lifetime Infections", fill = "Vaccination \nAge Cutoff") +
-  #ylab('Number of Lifetime Infections') +
-  #xlab("Vaccination Strategy") +
   scale_x_discrete(labels=c("Annual", "Biennial", "No Vaccination")) +
   scale_y_continuous(limits = c(0,3)) +
-  theme(panel.grid.major = element_blank(),
+  theme(legend.position = "none",
+        panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
         panel.background = element_blank(),
         axis.line = element_line(colour = "black"))
-p_li_baseline
 
-ar_plots <- plot_grid(p_ar_baseline,p_ar_baseline16, labels = "AUTO", ncol = 1, align = 'v', axis = 'l')
-figure2 <- plot_grid(ar_plots,p_li_baseline, labels = c("","C"), ncol = 2, align = 'v', axis = 'l')
+#ar_plots <- plot_grid(p_ar_baseline,p_ar_baseline16, labels = "AUTO", ncol = 1, align = 'v', axis = 'l')
+figure2 <- plot_grid(p_ar_baseline,p_li_baseline, labels = "AUTO", ncol = 2, align = 'v', axis = 'l')
 
-filename <- "~/Dropbox/Kylie/Projects/Morevac/figures/"
-png(file = paste0(filename,"figure2_alt.png"), width = 12, height = 8,
+# filename <- "~/Dropbox/Kylie/Projects/Morevac/figures/"
+filename <- "C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/figures/"
+png(file = paste0(filename,"figure2.png"), width = 12, height = 8,
     units = "in", pointsize = 8, res = 300)
 figure2
 dev.off()
@@ -177,17 +177,15 @@ dev.off()
 # only vac cutoff 10
 ################################
 ### read in summarised and bootstrapped data
-setwd("C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/data/sim_data/")
+setwd("C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/data/sim_data/cutoff10/")
 #setwd("~/Dropbox/Kylie/Projects/Morevac/data/sim_data/")
-
-# cutoff = 10
 banana_cream_pie <- vroom(file = "banana_cream_pie.csv", delim = ",", col_names = TRUE) %>%
-                      mutate(Diff_Color = ifelse(Upper < 0, '<0',ifelse(Lower <=0 & Upper >=0, 'zero',ifelse(Lower >0, '>0', 'something else'))))
+                      mutate(Diff_Color = ifelse(Upper < 0, '<0',ifelse(Lower <=0 & Upper >=0, '0',ifelse(Lower >0, '>0', 'something else'))))
 banana_bread <- vroom(file = "banana_bread.csv", delim = ",", col_names = TRUE)
 
 # a) cutoff = 10: scatter plots of all mean diff by exposure_penalty & vac_protect
-banana_hammock_zero <- banana_cream_pie %>% filter(Type == "Diff_AB", Diff_Color == 'zero')
-banana_hammock <- banana_cream_pie %>% filter(Type == "Diff_AB", Diff_Color != 'zero') %>% mutate(Abs_Val = abs(Mean_Diff))
+banana_hammock_zero <- banana_cream_pie %>% filter(Type == "Diff_AB", Diff_Color == '0')
+banana_hammock <- banana_cream_pie %>% filter(Type == "Diff_AB", Diff_Color != '0') %>% mutate(Abs_Val = abs(Mean_Diff))
 
 p3a <- ggplot(banana_hammock, aes(x = exposure_penalty, y = Mean_Diff, color = Diff_Color)) +
   geom_point() +
@@ -221,7 +219,9 @@ p3b <- ggplot(banana_hammock, aes(x = vac_protect, y = Mean_Diff, color = Diff_C
   geom_point(data = banana_hammock_zero, aes(x = vac_protect, y = Mean_Diff), alpha = 0.4) +
   geom_errorbar(data = banana_hammock_zero, aes(ymin = Lower, ymax = Upper), alpha = 0.4)
 
-p3_left <- plot_grid(p3a, p3b, ncol = 1, align = 'v', axis = 'l')
+p3_left <- plot_grid(p3a, p3b, labels = "AUTO", ncol = 1, align = 'v', axis = 'l')
+legend_b <- get_legend(p3a + guides(color = guide_legend(nrow = 1)) + theme(legend.position = "bottom"))
+p3_left2 <- plot_grid(p3_left, legend_b, ncol = 1, rel_heights = c(1, .1))
 
 # b) cutoff = 10: scatter plot of vac_protect x exposure_penalty with only sig diff points
 p3c <- ggplot(data = banana_hammock, aes(x = exposure_penalty, y = vac_protect, color = Diff_Color)) +
@@ -240,9 +240,10 @@ p3c <- ggplot(data = banana_hammock, aes(x = exposure_penalty, y = vac_protect, 
         legend.title = element_text(size=12))
 
 
-figure3 <- plot_grid(p3_left, p3c, labels = "AUTO", ncol = 2, align = 'v', axis = 'l')
+figure3 <- plot_grid(p3_left2, p3c, labels = c("","C"), ncol = 2, align = 'v', axis = 'l')
 
-filename <- "~/Dropbox/Kylie/Projects/Morevac/figures/"
+# filename <- "~/Dropbox/Kylie/Projects/Morevac/figures/"
+filename <- "C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/figures/"
 png(file = paste0(filename,"figure3.png"), width = 14, height = 10,
     units = "in", pointsize = 8, res = 300)
 figure3
