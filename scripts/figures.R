@@ -1,7 +1,7 @@
 ### Manuscript figures ###
 
 ##################################
-### Figure 1 - Model schematic ###
+### Figure 0 - Model schematic ###
 ##################################
 # run multi-annual model
 max_age = 80
@@ -95,6 +95,12 @@ png(file = paste0(filename,"figure1.png"), width = 6, height = 8,
 plot(figure1)
 dev.off()
 
+######################################
+### Figure 1 - Annual vs No Vac AR ###
+######################################
+
+
+
 ###################################
 ### Figure 2 - baseline results ###
 ###################################
@@ -168,6 +174,8 @@ dev.off()
 ################################
 ### Figure 3 - scatter plots ###
 ################################
+# only vac cutoff 10
+################################
 ### read in summarised and bootstrapped data
 setwd("C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/data/sim_data/")
 #setwd("~/Dropbox/Kylie/Projects/Morevac/data/sim_data/")
@@ -176,16 +184,12 @@ setwd("C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/data/sim_data/")
 banana_cream_pie <- vroom(file = "banana_cream_pie.csv", delim = ",", col_names = TRUE) %>%
                       mutate(Diff_Color = ifelse(Upper < 0, '<0',ifelse(Lower <=0 & Upper >=0, 'zero',ifelse(Lower >0, '>0', 'something else'))))
 banana_bread <- vroom(file = "banana_bread.csv", delim = ",", col_names = TRUE)
-# cutoff = 16
-banana_cream_pie_16 <- vroom(file = "banana_cream_pie_16.csv", delim = ",", col_names = TRUE) %>%
-                          mutate(Diff_Color = ifelse(Upper < 0, '<0',ifelse(Lower <=0 & Upper >=0, 'zero',ifelse(Lower >0, '>0', 'something else'))))
-banana_bread_16 <- vroom(file = "banana_bread_16.csv", delim = ",", col_names = TRUE)
 
 # a) cutoff = 10: scatter plots of all mean diff by exposure_penalty & vac_protect
 banana_hammock_zero <- banana_cream_pie %>% filter(Type == "Diff_AB", Diff_Color == 'zero')
 banana_hammock <- banana_cream_pie %>% filter(Type == "Diff_AB", Diff_Color != 'zero') %>% mutate(Abs_Val = abs(Mean_Diff))
 
-p3a1 <- ggplot(banana_hammock, aes(x = exposure_penalty, y = Mean_Diff, color = Diff_Color)) +
+p3a <- ggplot(banana_hammock, aes(x = exposure_penalty, y = Mean_Diff, color = Diff_Color)) +
   geom_point() +
   geom_errorbar(aes(ymin = Lower, ymax = Upper)) +
   geom_hline(yintercept = 0, color = "black") +
@@ -201,7 +205,7 @@ p3a1 <- ggplot(banana_hammock, aes(x = exposure_penalty, y = Mean_Diff, color = 
   geom_point(data = banana_hammock_zero, aes(x = exposure_penalty, y = Mean_Diff), alpha = 0.4) +
   geom_errorbar(data = banana_hammock_zero, aes(ymin = Lower, ymax = Upper), alpha = 0.4)
 
-p3a2 <- ggplot(banana_hammock, aes(x = vac_protect, y = Mean_Diff, color = Diff_Color)) +
+p3b <- ggplot(banana_hammock, aes(x = vac_protect, y = Mean_Diff, color = Diff_Color)) +
   geom_point() +
   geom_errorbar(aes(ymin = Lower, ymax = Upper)) +
   geom_hline(yintercept = 0, color = "black") +
@@ -217,10 +221,10 @@ p3a2 <- ggplot(banana_hammock, aes(x = vac_protect, y = Mean_Diff, color = Diff_
   geom_point(data = banana_hammock_zero, aes(x = vac_protect, y = Mean_Diff), alpha = 0.4) +
   geom_errorbar(data = banana_hammock_zero, aes(ymin = Lower, ymax = Upper), alpha = 0.4)
 
-p3a <- plot_grid(p3a1, p3a2, ncol = 1, align = 'v', axis = 'l')
+p3_left <- plot_grid(p3a, p3b, ncol = 1, align = 'v', axis = 'l')
 
 # b) cutoff = 10: scatter plot of vac_protect x exposure_penalty with only sig diff points
-p3b <- ggplot(data = banana_hammock, aes(x = exposure_penalty, y = vac_protect, color = Diff_Color)) +
+p3c <- ggplot(data = banana_hammock, aes(x = exposure_penalty, y = vac_protect, color = Diff_Color)) +
   geom_point(aes(size = Abs_Val), alpha = 0.7) +
   scale_size_continuous(name = "|Difference|") +
   scale_color_manual(name = "Difference", values = c("#F8766D","#00BA38")) +
@@ -235,192 +239,13 @@ p3b <- ggplot(data = banana_hammock, aes(x = exposure_penalty, y = vac_protect, 
         legend.text = element_text(size=12),
         legend.title = element_text(size=12))
 
-# c) cutoff = 16: scatter plots of all mean diff by exposure_penalty & vac_protect
-banana_hammock_zero_16 <- banana_cream_pie_16 %>% filter(Type == "Diff_AB", Diff_Color == 'zero')
-banana_hammock_16 <- banana_cream_pie_16 %>% filter(Type == "Diff_AB",Diff_Color != 'zero') %>% mutate(Abs_Val = abs(Mean_Diff))
 
-p3c1 <- ggplot(banana_hammock_16, aes(x = exposure_penalty, y = Mean_Diff, color = Diff_Color)) +
-  geom_point() +
-  geom_errorbar(aes(ymin = Lower, ymax = Upper)) +
-  geom_hline(yintercept = 0, color = "black") +
-  scale_color_manual(name = 'Difference', values = c("#F8766D","#00BA38", "#619CFF")) +
-  xlab("Exposure Penalty") +
-  ylab('Difference') +
-  theme(legend.position = "none",
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.background = element_blank(),
-        axis.text=element_text(size=12),
-        axis.title=element_text(size=14)) +
-  geom_point(data = banana_hammock_zero_16, aes(x = exposure_penalty, y = Mean_Diff), alpha = 0.4) +
-  geom_errorbar(data = banana_hammock_zero_16, aes(ymin = Lower, ymax = Upper), alpha = 0.4)
-
-p3c2 <- ggplot(banana_hammock_16, aes(x = vac_protect, y = Mean_Diff, color = Diff_Color)) +
-  geom_point() +
-  geom_errorbar(aes(ymin = Lower, ymax = Upper)) +
-  geom_hline(yintercept = 0, color = "black") +
-  scale_color_manual(name = 'Difference', values = c("#F8766D","#00BA38", "#619CFF")) +
-  xlab("Vaccine Effectiveness") +
-  ylab('Difference') +
-  theme(legend.position = "none",
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.background = element_blank(),
-        axis.text=element_text(size=12),
-        axis.title=element_text(size=14)) +
-  geom_point(data = banana_hammock_zero_16, aes(x = vac_protect, y = Mean_Diff), alpha = 0.4) +
-  geom_errorbar(data = banana_hammock_zero_16, aes(ymin = Lower, ymax = Upper), alpha = 0.4)
-
-p3c <- plot_grid(p3c1, p3c2, ncol = 1, align = 'v', axis = 'l')
-
-# d) cutoff = 16: scatter plot of vac_protect x exposure_penalty with only sig diff points
-p3d <- ggplot(data = banana_hammock_16, aes(x = exposure_penalty, y = vac_protect, color = Diff_Color)) +
-  geom_point(aes(size = Abs_Val), alpha = 0.7) +
-  scale_size_continuous(name = "|Difference|") +
-  scale_color_manual(name = "Difference", values = c("#F8766D","#00BA38")) +
-  xlab('Exposure Penalty') +
-  ylab('VaccineEffectiveness') +
-  theme(legend.position = "bottom",
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.background = element_blank(),
-        axis.text=element_text(size=12),
-        axis.title=element_text(size=14),
-        legend.text = element_text(size=12),
-        legend.title = element_text(size=12))
-
-figure3 <- plot_grid(p3a, p3b, p3c, p3d, labels = "AUTO", ncol = 2, align = 'v', axis = 'l')
+figure3 <- plot_grid(p3_left, p3c, labels = "AUTO", ncol = 2, align = 'v', axis = 'l')
 
 filename <- "~/Dropbox/Kylie/Projects/Morevac/figures/"
 png(file = paste0(filename,"figure3.png"), width = 14, height = 10,
     units = "in", pointsize = 8, res = 300)
 figure3
-dev.off()
-
-################################
-### Histogram of differences ###
-################################
-
-### cutoff = 10
-banana_cream_pie_ab <- banana_cream_pie %>% filter(Type == "Diff_AB")
-banana_cream_pie_an <- banana_cream_pie %>% filter(Type == "Diff_AN")
-banana_cream_pie_bn <- banana_cream_pie %>% filter(Type == "Diff_BN")
-
-
-hist_ab <- ggplot(data = banana_cream_pie_ab, aes(Mean_Diff, fill = Diff_Color)) +
-  geom_histogram() +
-  scale_fill_manual(name = 'Difference', values = c("#F8766D","#00BA38", "#619CFF"), labels = c('<0', '>0', '0')) +
-  labs(x = "Difference", y = "Frequency", title = "Annual vs Biennial") +
-  theme(legend.position = "none",
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.background = element_blank(),
-        axis.line = element_line(colour = "black"),
-        axis.text=element_text(size=12),
-        axis.title=element_text(size=14),
-        plot.title = element_text(size = 14, face = 'bold'))
-
-hist_an <- ggplot(data = banana_cream_pie_an, aes(Mean_Diff, fill = Diff_Color)) +
-  geom_histogram() +
-  scale_fill_manual(name = 'Difference', values = c("#F8766D", "#619CFF","#00BA38"), labels = c('<0', '0', '>0')) +
-  labs(x = "Difference", y = "Frequency", title = "Annual vs No Vaccination") +
-  theme(legend.position = "none",
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.background = element_blank(),
-        axis.line = element_line(colour = "black"),
-        axis.text=element_text(size=12),
-        axis.title=element_text(size=14),
-        plot.title = element_text(size = 14, face = 'bold'))
-
-hist_bn <- ggplot(data = banana_cream_pie_bn, aes(Mean_Diff, fill = Diff_Color)) +
-  geom_histogram() +
-  scale_fill_manual(name = 'Difference', values = c("#F8766D","#00BA38", "#619CFF"), labels = c('<0', '>0', '0')) +
-  labs(x = "Difference", y = "Frequency", title = "Biennial vs No Vaccination") +
-  theme(legend.position = "none",
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.background = element_blank(),
-        axis.line = element_line(colour = "black"),
-        axis.text=element_text(size=12),
-        axis.title=element_text(size=14),
-        plot.title = element_text(size = 14, face = 'bold'))
-
-
-hists <- plot_grid(hist_ab, hist_an, hist_bn, labels = "AUTO", ncol = 1, align = 'v', axis = 'l')
-
-legend_b <- get_legend(
-  hist_ab +
-    guides(color = guide_legend(nrow = 1)) +
-    theme(legend.position = "bottom")
-)
-hists <- plot_grid(hists, legend_b, ncol = 1, rel_heights = c(1, .1))
-
-filename <- "~/Dropbox/Kylie/Projects/Morevac/figures/"
-png(file = paste0(filename,"histograms.png"), width = 12, height = 8,
-    units = "in", pointsize = 8, res = 300)
-hists
-dev.off()
-
-### cutoff = 10
-banana_cream_pie_ab <- banana_cream_pie %>% filter(Type == "Diff_AB")
-banana_cream_pie_an <- banana_cream_pie %>% filter(Type == "Diff_AN")
-banana_cream_pie_bn <- banana_cream_pie %>% filter(Type == "Diff_BN")
-
-
-hist_ab <- ggplot(data = banana_cream_pie_ab, aes(Mean_Diff, fill = Diff_Color)) +
-  geom_histogram() +
-  scale_fill_manual(name = 'Difference', values = c("#F8766D","#00BA38", "#619CFF"), labels = c('<0', '>0', '0')) +
-  labs(x = "Difference", y = "Frequency", title = "Annual vs Biennial") +
-  theme(legend.position = "none",
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.background = element_blank(),
-        axis.line = element_line(colour = "black"),
-        axis.text=element_text(size=12),
-        axis.title=element_text(size=14),
-        plot.title = element_text(size = 14, face = 'bold'))
-
-hist_an <- ggplot(data = banana_cream_pie_an, aes(Mean_Diff, fill = Diff_Color)) +
-  geom_histogram() +
-  scale_fill_manual(name = 'Difference', values = c("#F8766D", "#619CFF","#00BA38"), labels = c('<0', '0', '>0')) +
-  labs(x = "Difference", y = "Frequency", title = "Annual vs No Vaccination") +
-  theme(legend.position = "none",
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.background = element_blank(),
-        axis.line = element_line(colour = "black"),
-        axis.text=element_text(size=12),
-        axis.title=element_text(size=14),
-        plot.title = element_text(size = 14, face = 'bold'))
-
-hist_bn <- ggplot(data = banana_cream_pie_bn, aes(Mean_Diff, fill = Diff_Color)) +
-  geom_histogram() +
-  scale_fill_manual(name = 'Difference', values = c("#F8766D","#00BA38", "#619CFF"), labels = c('<0', '>0', '0')) +
-  labs(x = "Difference", y = "Frequency", title = "Biennial vs No Vaccination") +
-  theme(legend.position = "none",
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.background = element_blank(),
-        axis.line = element_line(colour = "black"),
-        axis.text=element_text(size=12),
-        axis.title=element_text(size=14),
-        plot.title = element_text(size = 14, face = 'bold'))
-
-
-hists <- plot_grid(hist_ab, hist_an, hist_bn, labels = "AUTO", ncol = 1, align = 'v', axis = 'l')
-
-legend_b <- get_legend(
-  hist_ab +
-    guides(color = guide_legend(nrow = 1)) +
-    theme(legend.position = "bottom")
-)
-hists <- plot_grid(hists, legend_b, ncol = 1, rel_heights = c(1, .1))
-
-filename <- "~/Dropbox/Kylie/Projects/Morevac/figures/"
-png(file = paste0(filename,"histograms.png"), width = 12, height = 8,
-    units = "in", pointsize = 8, res = 300)
-hists
 dev.off()
 
 ###########################################################
@@ -546,6 +371,12 @@ dev.off()
 # cutoff = 16
 ###########################################################
 #banana_cream_16 <- banana_cream_pie_16 %>% filter(Type == "Diff_AB") %>% mutate(Abs_Val = abs(Mean_Diff))
+# cutoff = 16
+banana_cream_pie_16 <- vroom(file = "banana_cream_pie_16.csv", delim = ",", col_names = TRUE) %>%
+  mutate(Diff_Color = ifelse(Upper < 0, '<0',ifelse(Lower <=0 & Upper >=0, 'zero',ifelse(Lower >0, '>0', 'something else'))))
+banana_bread_16 <- vroom(file = "banana_bread_16.csv", delim = ",", col_names = TRUE)
+banana_hammock_zero_16 <- banana_cream_pie_16 %>% filter(Type == "Diff_AB", Diff_Color == 'zero')
+banana_hammock_16 <- banana_cream_pie_16 %>% filter(Type == "Diff_AB",Diff_Color != 'zero') %>% mutate(Abs_Val = abs(Mean_Diff))
 
 p_epsilon_ve2 <- ggplot(data = banana_hammock_16, aes(x = exposure_penalty, y = vac_protect, color = Diff_Color)) +
   geom_point(aes(size = Abs_Val), alpha = 0.7) +
@@ -654,3 +485,61 @@ png(file = paste0(filename,"SuppMatFig2.png"), width = 12, height = 16,
     units = "in", pointsize = 8, res = 300)
 sm_figure2
 dev.off()
+
+#######################################################
+### Supplemental Figure 3 - bivariate scatter plots ###
+#######################################################
+# cutoff = 16
+# VE x exposure penalty
+#######################################################
+# c) cutoff = 16: scatter plots of all mean diff by exposure_penalty & vac_protect
+p3c1 <- ggplot(banana_hammock_16, aes(x = exposure_penalty, y = Mean_Diff, color = Diff_Color)) +
+  geom_point() +
+  geom_errorbar(aes(ymin = Lower, ymax = Upper)) +
+  geom_hline(yintercept = 0, color = "black") +
+  scale_color_manual(name = 'Difference', values = c("#F8766D","#00BA38", "#619CFF")) +
+  xlab("Exposure Penalty") +
+  ylab('Difference') +
+  theme(legend.position = "none",
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        axis.text=element_text(size=12),
+        axis.title=element_text(size=14)) +
+  geom_point(data = banana_hammock_zero_16, aes(x = exposure_penalty, y = Mean_Diff), alpha = 0.4) +
+  geom_errorbar(data = banana_hammock_zero_16, aes(ymin = Lower, ymax = Upper), alpha = 0.4)
+
+p3c2 <- ggplot(banana_hammock_16, aes(x = vac_protect, y = Mean_Diff, color = Diff_Color)) +
+  geom_point() +
+  geom_errorbar(aes(ymin = Lower, ymax = Upper)) +
+  geom_hline(yintercept = 0, color = "black") +
+  scale_color_manual(name = 'Difference', values = c("#F8766D","#00BA38", "#619CFF")) +
+  xlab("Vaccine Effectiveness") +
+  ylab('Difference') +
+  theme(legend.position = "none",
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        axis.text=element_text(size=12),
+        axis.title=element_text(size=14)) +
+  geom_point(data = banana_hammock_zero_16, aes(x = vac_protect, y = Mean_Diff), alpha = 0.4) +
+  geom_errorbar(data = banana_hammock_zero_16, aes(ymin = Lower, ymax = Upper), alpha = 0.4)
+
+p3c <- plot_grid(p3c1, p3c2, ncol = 1, align = 'v', axis = 'l')
+
+# d) cutoff = 16: scatter plot of vac_protect x exposure_penalty with only sig diff points
+p3d <- ggplot(data = banana_hammock_16, aes(x = exposure_penalty, y = vac_protect, color = Diff_Color)) +
+  geom_point(aes(size = Abs_Val), alpha = 0.7) +
+  scale_size_continuous(name = "|Difference|") +
+  scale_color_manual(name = "Difference", values = c("#F8766D","#00BA38")) +
+  xlab('Exposure Penalty') +
+  ylab('VaccineEffectiveness') +
+  theme(legend.position = "bottom",
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        axis.text=element_text(size=12),
+        axis.title=element_text(size=14),
+        legend.text = element_text(size=12),
+        legend.title = element_text(size=12))
+
