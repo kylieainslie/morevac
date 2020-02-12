@@ -33,12 +33,12 @@ obj <- didehpc::queue_didehpc(ctx)
 # bulk jobs
 library(morevac)
 library(lhs)
-params <- create_params_file(n_sim = 100, n_indiv = 30000, lhc_size = 500, start_year = 1918, end_year = 2028,
-                             out_file = "param_values", vac_cutoff = 10, seed = 1234)
-params_16 <- create_params_file(n_sim = 100, n_indiv = 30000, lhc_size = 500, start_year = 1918, end_year = 2028,
-                             out_file = "param_values_16", vac_cutoff = 16, seed = 1234)
-# params <- read.csv(file = "param_values.csv")
+# params <- create_params_file(n_sim = 100, n_indiv = 30000, lhc_size = 500, start_year = 1918, end_year = 2028,
+#                              out_file = "param_values", vac_cutoff = 10, seed = 1234)
+# params_16 <- create_params_file(n_sim = 100, n_indiv = 30000, lhc_size = 500, start_year = 1918, end_year = 2028,
+#                              out_file = "param_values_16", vac_cutoff = 16, seed = 1234)
+params_baseline <- read.csv(file = "param_values_baseline.csv")
 
-job_bulk <- obj$enqueue_bulk(params_16[451:500,], run_sims_clust, do_call = TRUE)
+job_bulk <- obj$enqueue_bulk(params_baseline, run_sims_clust, do_call = TRUE)
 
 
