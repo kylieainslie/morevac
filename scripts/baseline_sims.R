@@ -65,21 +65,14 @@ try(data.table::fwrite(vac_histories, file = paste0(file,"_vac_hist.csv"), col.n
 ### read in results (rather than re-run simulations)
 #setwd("~/Dropbox/Kylie/Projects/Morevac/data/sim_data/baseline/")
 setwd("C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/data/sim_data/baseline/")
+### cutoff = 10
 dt_inf <- vroom(file = "baseline/baseline_inf_hist.csv", delim = ",", col_names = TRUE) %>%
                mutate(Num_Infs = rowSums(select(.,Age0:Age18)))
 dt_vac <- vroom(file = "baseline/baseline_vac_hist.csv", delim = ",", col_names = TRUE) %>%
                mutate(Num_Vacs = rowSums(select(.,Age0:Age18)))
 
-dt_inf_16 <- vroom(file = "baseline/baseline_16_inf_hist.csv", delim = ",", col_names = TRUE) %>%
-                mutate(Num_Infs = rowSums(select(.,Age0:Age18)))
-dt_vac_16 <- vroom(file = "baseline/baseline_16_vac_hist.csv", delim = ",", col_names = TRUE) %>%
-                mutate(Num_Vacs = rowSums(select(.,Age0:Age18)))
-
 ### summarise raw data for lifetime infections
 banana <- bind_cols(dt_inf[,c("Vac_Strategy", "Sim", "Cohort", "ID", "Num_Infs")], Num_Vacs = dt_vac[,c("Num_Vacs")]) %>%
-            group_by(Vac_Strategy, Sim) %>% summarise(Mean_Infs = mean(Num_Infs))
-
-banana2 <- bind_cols(dt_inf_16[,c("Vac_Strategy", "Sim", "Cohort", "ID", "Num_Infs")], Num_Vacs = dt_vac_16[,c("Num_Vacs")]) %>%
             group_by(Vac_Strategy, Sim) %>% summarise(Mean_Infs = mean(Num_Infs))
 
 # bootstrap to get CI for Lifetime Infs
@@ -90,33 +83,8 @@ foo1 <- function(data, indices){
 my_bootstrap <- plyr::dlply(banana, "Vac_Strategy", function(dat) boot(dat, foo1, R=100)) # boostrap for each set of param values
 my_ci <- sapply(my_bootstrap, function(x) boot.ci(x, index = 1, type='perc')$percent[c(4,5)]) # get confidence intervals
 banana_boat <- banana_boat %>% group_by(Vac_Strategy) %>% summarise(Mean_Infs = mean(Mean_Infs)) %>%
-                mutate(Lower = my_ci[1,], Upper = my_ci[2,])
-
-my_bootstrap <- plyr::dlply(banana2, "Vac_Strategy", function(dat) boot(dat, foo1, R=100)) # boostrap for each set of param values
-my_ci <- sapply(my_bootstrap, function(x) boot.ci(x, index = 1, type='perc')$percent[c(4,5)]) # get confidence intervals
-banana_boat2 <- banana_boat2 %>% group_by(Vac_Strategy) %>% summarise(Mean_Infs = mean(Mean_Infs)) %>%
-                  mutate(Lower = my_ci[1,], Upper = my_ci[2,])
-
-# Difference in Lifetime Infs
-# banana_split <- banana_boat %>% spread(Vac_Strategy, Mean_Infs) %>%
-#                   mutate(Diff_AB = Annual - Biennial, Diff_AN = Annual - No_Vac, Diff_BN = Biennial - No_Vac) %>%
-#                   select(Sim, Diff_AB, Diff_AN, Diff_BN) %>%
-#                   gather(Type, Difference, Diff_AB:Diff_BN)
-#
-# bootstrap to get CI for Difference
-# foo2 <- function(data, indices){
-#   dt<-data[indices,]
-#   mean(dt$Difference)
-# }
-# my_bootstrap <- plyr::dlply(banana_split, "Type", function(dat) boot(dat, foo2, R=100)) # boostrap for each set of param values
-# my_ci <- sapply(my_bootstrap, function(x) boot.ci(x, index = 1, type='perc')$percent[c(4,5)]) # get confidence intervals
-#
-# banana_split2 <- banana_split %>% group_by(Type) %>% summarise(Mean_Diff = mean(Difference))
-# banana_split2$Lower <- my_ci[1,]
-# banana_split2$Upper <- my_ci[2,]
-
+                mutate(Lower = my_ci[1,], Upper = my_ci[2,], Cutoff = 10)
 ### summarise raw data for attack rates
-# cutoff = 10
 chocolate <- dt_inf %>% group_by(Vac_Strategy, Sim, Cohort) %>% select(-ID) %>% summarise_all(list(sum))
 chocolate_sprinkles <- dt_inf %>% group_by(Vac_Strategy, Sim, Cohort) %>% do(tail(.,1))
 chocolate$ID <- chocolate_sprinkles$ID
@@ -136,8 +104,27 @@ my_ci <- sapply(my_bootstrap, function(x) boot.ci(x, index = 1, type='perc')$per
 chocolate_sundae2 <- chocolate_sundae %>% group_by(Vac_Strategy, Age) %>%
                         summarise(Mean_AR = mean(Attack_Rate)) %>% ungroup() %>%
                         mutate(Lower = my_ci[1,], Upper = my_ci[2,])
+
+### write files to avoid having to read in raw data again
+data.table::fwrite(banana_boat, file = "banana_boat.csv", col.names = TRUE,
+                   row.names = FALSE, sep = ",")
+data.table::fwrite(chocolate_sundae2, file = "chocolate_sundae.csv", col.names = TRUE,
+                   row.names = FALSE, sep = ",")
 #####################
-# cutoff = 16
+### cutoff = 16
+# dt_inf_16 <- vroom(file = "baseline/baseline_16_inf_hist.csv", delim = ",", col_names = TRUE) %>%
+#                 mutate(Num_Infs = rowSums(select(.,Age0:Age18)))
+# dt_vac_16 <- vroom(file = "baseline/baseline_16_vac_hist.csv", delim = ",", col_names = TRUE) %>%
+#                 mutate(Num_Vacs = rowSums(select(.,Age0:Age18)))
+# banana2 <- bind_cols(dt_inf_16[,c("Vac_Strategy", "Sim", "Cohort", "ID", "Num_Infs")], Num_Vacs = dt_vac_16[,c("Num_Vacs")]) %>%
+#   group_by(Vac_Strategy, Sim) %>% summarise(Mean_Infs = mean(Num_Infs))
+
+# my_bootstrap <- plyr::dlply(banana2, "Vac_Strategy", function(dat) boot(dat, foo1, R=100)) # boostrap for each set of param values
+# my_ci <- sapply(my_bootstrap, function(x) boot.ci(x, index = 1, type='perc')$percent[c(4,5)]) # get confidence intervals
+# banana_boat2 <- banana_boat2 %>% group_by(Vac_Strategy) %>% summarise(Mean_Infs = mean(Mean_Infs)) %>%
+#                   mutate(Lower = my_ci[1,], Upper = my_ci[2,])
+
+
 # chocolate <- dt_inf %>% group_by(Vac_Strategy, Sim, Cohort) %>% select(-ID) %>% summarise_all(list(sum))
 # chocolate_sprinkles <- dt_inf1 %>% group_by(Vac_Strategy, Sim, Cohort) %>% do(tail(.,1))
 # chocolate$ID <- chocolate_sprinkles$ID
@@ -152,11 +139,24 @@ chocolate_sundae2 <- chocolate_sundae %>% group_by(Vac_Strategy, Age) %>%
 #                         mutate(Lower = my_ci[1,], Upper = my_ci[2,])
 
 #######################################
-### write files to avoid having to read in raw data again
-data.table::fwrite(banana_boat, file = "banana_boat.csv", col.names = TRUE,
-                   row.names = FALSE, sep = ",")
-data.table::fwrite(chocolate_sundae2, file = "chocolate_sundae.csv", col.names = TRUE,
-                   row.names = FALSE, sep = ",")
+# Difference in Lifetime Infs
+# banana_split <- banana_boat %>% spread(Vac_Strategy, Mean_Infs) %>%
+#                   mutate(Diff_AB = Annual - Biennial, Diff_AN = Annual - No_Vac, Diff_BN = Biennial - No_Vac) %>%
+#                   select(Sim, Diff_AB, Diff_AN, Diff_BN) %>%
+#                   gather(Type, Difference, Diff_AB:Diff_BN)
+#
+# bootstrap to get CI for Difference
+# foo2 <- function(data, indices){
+#   dt<-data[indices,]
+#   mean(dt$Difference)
+# }
+# my_bootstrap <- plyr::dlply(banana_split, "Type", function(dat) boot(dat, foo2, R=100)) # boostrap for each set of param values
+# my_ci <- sapply(my_bootstrap, function(x) boot.ci(x, index = 1, type='perc')$percent[c(4,5)]) # get confidence intervals
+#
+# banana_split2 <- banana_split %>% group_by(Type) %>% summarise(Mean_Diff = mean(Difference))
+# banana_split2$Lower <- my_ci[1,]
+# banana_split2$Upper <- my_ci[2,]
+
 
 
 
