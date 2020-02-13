@@ -35,11 +35,11 @@ run_sims_all(params_file = "param_values_baseline.csv", out_file = "sim_baseline
 ### read in results (rather than re-run simulations)
 # setwd("~/Dropbox/Kylie/Projects/Morevac/data/sim_data/")
 # setwd("C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/data/sim_data/")
-param_values <- read.csv("param_values.csv", header = TRUE)
+param_values <- read.csv("param_values_baseline.csv", header = TRUE)
 names(param_values)[1] <- "Param_Index"
 
 setwd("~/Dropbox/Kylie/Projects/Morevac/data/sim_data/cutoff10")
-# setwd("C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/data/sim_data/cutoff10")
+# setwd("C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/data/sim_data/baseline")
 files_inf <- list.files(pattern="*inf_hist.csv")
 matches <- regmatches(files_inf, gregexpr("[[:digit:]]+", files_inf))
 param_indices <- as.numeric(unlist(matches))
@@ -129,11 +129,11 @@ banana_bread <- left_join(banana_bread, param_values, by = c("Param_Index"))
 chocolate_surprise <- left_join(chocolate_surprise, param_values, by = c("Param_Index"))
 
 ### write files to avoid having to read in raw data again
-data.table::fwrite(banana_cream_pie, file = "banana_cream_pie.csv", col.names = TRUE,
+data.table::fwrite(banana_cream_pie, file = "banana_cream_pie_baseline.csv", col.names = TRUE,
                    row.names = FALSE, sep = ",")
-data.table::fwrite(banana_bread, file = "banana_bread.csv", col.names = TRUE,
+data.table::fwrite(banana_bread, file = "banana_bread_baseline.csv", col.names = TRUE,
                    row.names = FALSE, sep = ",")
-data.table::fwrite(chocolate_surprise, file = "chocolate_surprise.csv", col.names = TRUE,
+data.table::fwrite(chocolate_surprise, file = "chocolate_surprise_baseline.csv", col.names = TRUE,
                    row.names = FALSE, sep = ",")
 
 ############################################

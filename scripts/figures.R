@@ -98,6 +98,47 @@ dev.off()
 ######################################
 ### Figure 1 - Annual vs No Vac AR ###
 ######################################
+setwd("C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/data/sim_data/baseline/")
+#setwd("~/Dropbox/Kylie/Projects/Morevac/data/sim_data/")
+banana_boat <- vroom(file = "banana_boat.csv", delim = ",", col_names = TRUE) %>%
+  mutate(Diff_Color = ifelse(Upper < 0, '<0',ifelse(Lower <=0 & Upper >=0, '0',ifelse(Lower >0, '>0', 'something else'))))
+chocolate_sundae <- vroom(file = "chocolate_sundae.csv", delim = ",", col_names = TRUE)
+
+### baseline conditions
+chocolate_sundae1 <- chocolate_sundae %>% filter(Vac_Strategy != "Biennial")
+banana_boat1 <- banana_boat %>% filter(Vac_Strategy != "Biennial")
+p1_ar_baseline <- ggplot(data = chocolate_sundae1, aes(x = Age, y = Mean_AR, colour= Vac_Strategy)) +
+  geom_line() + geom_ribbon(aes(x=Age,ymin=Lower,ymax=Upper,linetype=NA, fill = Vac_Strategy),alpha=0.2) +
+  xlab("Age (years)") + ylab("Attack Rate") +
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(colour = "black"),
+        legend.position = c(0.95, 0.95),
+        legend.justification = c("right", "top"),
+        legend.box.just = "right",
+        legend.margin = margin(6, 6, 6, 6),
+        legend.key = element_rect(fill = "white"))
+
+p1_li_baseline <- ggplot(data = banana_boat1, aes(x = Vac_Strategy, y = Mean_Infs, fill= Vac_Strategy)) +
+  geom_bar(stat="identity", color = "black", position = position_dodge(), width = 0.65) +
+  geom_errorbar(aes(ymin = Lower, ymax = Upper), width=.2, position = position_dodge(.65)) +
+  labs(x = "Vaccination Strategy", y = "Number of Lifetime Infections", fill = "Vaccination \nAge Cutoff") +
+  scale_x_discrete(labels = c("Annual", "Biennial", "No Vaccination")) +
+  scale_y_continuous(limits = c(0,3)) +
+  theme(legend.position = "none",
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(colour = "black"))
+
+figure1a <- plot_grid(p1_ar_baseline,p1_li_baseline, labels = "AUTO", ncol = 2, align = 'v', axis = 'l')
+# filename <- "~/Dropbox/Kylie/Projects/Morevac/figures/"
+filename <- "C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/figures/"
+png(file = paste0(filename,"figure1a.png"), width = 12, height = 8,
+    units = "in", pointsize = 8, res = 300)
+figure1a
+dev.off()
 ### read in summarised and bootstrapped data
 setwd("C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/data/sim_data/cutoff10/")
 #setwd("~/Dropbox/Kylie/Projects/Morevac/data/sim_data/")
@@ -109,7 +150,7 @@ chocolate_surprise <-  vroom(file = "chocolate_surprise.csv", delim = ",", col_n
 ### Scatter plots of difference between annual and no vaccination
 banana_hammock_an <- banana_cream_pie %>% filter(Type == "Diff_AN", Diff_Color != '0') %>% mutate(Abs_Val = abs(Mean_Diff))
 
-p1 <- ggplot(data = banana_hammock_an, aes(x = exposure_penalty, y = vac_protect, color = Diff_Color)) +
+p1_scatter <- ggplot(data = banana_hammock_an, aes(x = exposure_penalty, y = vac_protect, color = Diff_Color)) +
   geom_point(aes(size = Abs_Val), alpha = 0.7) +
   scale_size_continuous(name = "|Difference|") +
   scale_color_manual(name = "Difference", values = c("#F8766D","#00BA38")) +
@@ -123,26 +164,102 @@ p1 <- ggplot(data = banana_hammock_an, aes(x = exposure_penalty, y = vac_protect
         axis.title=element_text(size=14),
         legend.text = element_text(size=12),
         legend.title = element_text(size=12))
+# filename <- "~/Dropbox/Kylie/Projects/Morevac/figures/"
+filename <- "C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/figures/"
+png(file = paste0(filename,"figure1b.png"), width = 12, height = 8,
+    units = "in", pointsize = 8, res = 300)
+p1_scatter
+dev.off()
 
-
+### potential next figure or supplemental figure
+setwd("C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/data/sim_data/baseline/")
+#setwd("~/Dropbox/Kylie/Projects/Morevac/data/sim_data/")
+chocolate_surprise <- vroom(file = "chocolate_surprise_baseline.csv", delim = ",", col_names = TRUE)
+banana_bread <- vroom(file = "banana_bread_baseline.csv", delim = ",", col_names = TRUE)
 ### AR for different values of epsilon
-chocolate_surprise2 <- chocolate_surprise %>% mutate(exposure_penalty = round(exposure_penalty,3)) %>%
-                          filter(Vac_Strategy != "Biennial", exposure_penalty %in% c(min(exposure_penalty), 0.01, quantile(exposure_penalty,0.25), 0.05, 0.075, max(exposure_penalty))) %>%
-                          select(-c(n_sim, n_indiv, max_age, start_year, end_year, pandemic_beta, epidemic_beta))
-p1_ar <- ggplot(data = chocolate_surprise2, aes(x = Age, y = Mean_AR, colour= Vac_Strategy)) +
+chocolate_surprise2 <- chocolate_surprise %>% filter(Vac_Strategy != "Biennial") %>%  select(-c(n_sim, n_indiv, max_age, start_year, end_year, pandemic_beta, epidemic_beta)) %>%
+                          filter(exposure_penalty %in% c(0, 0.01, 0.03, 0.05, 0.08, 0.1) & vac_protect == 0.7 & Param_Index != 18)
+figure1c <- ggplot(data = chocolate_surprise2, aes(x = Age, y = Mean_AR, colour= Vac_Strategy)) +
   geom_line() + geom_ribbon(aes(x=Age,ymin=Lower,ymax=Upper,linetype=NA, fill = Vac_Strategy),alpha=0.2) +
   xlab("Age (years)") + ylab("Attack Rate") +
   theme(panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
         panel.background = element_blank(),
         axis.line = element_line(colour = "black"),
-        legend.position = c(0.95, 0.95),
+        legend.position = c(0.95, 0.15),
         legend.justification = c("right", "top"),
         legend.box.just = "right",
         legend.margin = margin(6, 6, 6, 6),
         legend.key = element_rect(fill = "white")) +
-  facet_wrap(~exposure_penalty)
+  facet_wrap(~exposure_penalty, nrow=3)
 
+filename <- "C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/figures/"
+png(file = paste0(filename,"figure1c_vert.png"), width = 8, height = 12,
+    units = "in", pointsize = 8, res = 300)
+figure1c
+dev.off()
+
+# add inset for number of childhood infections by vac_strategy
+banana_bread2 <- banana_bread %>% filter(Vac_Strategy != "Biennial") %>%  select(-c(n_sim, n_indiv, max_age, start_year, end_year, pandemic_beta, epidemic_beta)) %>%
+  filter(exposure_penalty %in% c(0, 0.01, 0.03, 0.05, 0.08, 0.1) & vac_protect == 0.7 & Param_Index != 18)
+
+figure1c_bars <- ggplot(data = banana_bread2, aes(x = as.factor(exposure_penalty), y = Mean_Infs, fill= Vac_Strategy)) +
+  geom_bar(stat="identity", color = "black", position = position_dodge(), width = 0.65) +
+  geom_errorbar(aes(ymin = Lower, ymax = Upper), width=.2, position = position_dodge(.65)) +
+  labs(x = "Exposure Penalty", y = "Number of Childhood Infections", fill = "Vaccination Strategy") +
+  scale_y_continuous(limits = c(0,3)) +
+  theme(legend.position = "top",
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(colour = "black"))
+
+filename <- "C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/figures/"
+png(file = paste0(filename,"figure1c_bars.png"), width = 12, height = 8,
+    units = "in", pointsize = 8, res = 300)
+figure1c_bars
+dev.off()
+
+
+# get_inset <- function(df){
+#   p <- ggplot(data=df, aes(x=Vac_Strategy, y = Mean_Infs, fill=Vac_Strategy)) +
+#     geom_bar(stat="identity", color = "black", position = position_dodge(), width = 0.65) +
+#     geom_errorbar(aes(ymin = Lower, ymax = Upper), width=.2, position = position_dodge(.65)) +
+#     scale_x_discrete(drop=FALSE) +
+#     guides(fill=FALSE) +
+#     theme_bw(base_size=9) +  ## makes everything smaller
+#     theme(panel.background = element_rect(fill="white"),  ## white plot background
+#           axis.title.y = element_blank(),
+#           axis.title.x = element_blank(),
+#           axis.text.x = element_text(size=rel(0.7)), ## tiny axis text
+#           panel.grid.major = element_blank(),
+#           panel.grid.minor = element_blank(),
+#           plot.background = element_blank())
+#   return(p)
+# }
+# #inset_plot <- get_inset(banana_bread2)
+#
+# annotation_custom2 <- function (grob, xmin = -Inf, xmax = Inf, ymin = -Inf, ymax = Inf, data)
+# {
+#   layer(data = data, stat = StatIdentity, position = PositionIdentity,
+#         geom = ggplot2:::GeomCustomAnn,
+#         inherit.aes = TRUE, params = list(grob = grob,
+#                                           xmin = xmin, xmax = xmax,
+#                                           ymin = ymin, ymax = ymax))
+# }
+#
+# insets <- banana_bread2 %>%
+#   split(f = .$exposure_penalty) %>%
+#   purrr::map(~annotation_custom2(
+#     grob = ggplotGrob(get_inset(.) +
+#                         scale_y_continuous(limits=c(0,105), breaks = c(0, 50, 100))),
+#     data = data.frame(category=unique(.$exposure_penalty)),
+#     ymin = -0.5, ymax=0.2, xmin=10, xmax=18)
+#   )
+#
+#
+# # add insets to main plot
+# figure1c + insets
 
 ###################################
 ### Figure 2 - baseline results ###
@@ -213,6 +330,50 @@ filename <- "C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/figures/"
 png(file = paste0(filename,"figure2.png"), width = 12, height = 8,
     units = "in", pointsize = 8, res = 300)
 figure2
+dev.off()
+
+### AR for different values of epsilon
+chocolate_surprise3 <- chocolate_surprise %>% select(-c(n_sim, n_indiv, max_age, start_year, end_year, pandemic_beta, epidemic_beta)) %>%
+                          filter(exposure_penalty %in% c(0, 0.01, 0.03, 0.05, 0.08, 0.1) & vac_protect == 0.7 & Param_Index != 18)
+figure2c <- ggplot(data = chocolate_surprise3, aes(x = Age, y = Mean_AR, colour= Vac_Strategy)) +
+  geom_line() + geom_ribbon(aes(x=Age,ymin=Lower,ymax=Upper,linetype=NA, fill = Vac_Strategy),alpha=0.2) +
+  xlab("Age (years)") + ylab("Attack Rate") +
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(colour = "black"),
+        legend.position = c(0.95, 0.15),
+        legend.justification = c("right", "top"),
+        legend.box.just = "right",
+        legend.margin = margin(6, 6, 6, 6),
+        legend.key = element_rect(fill = "white")) +
+  facet_wrap(~exposure_penalty)
+
+filename <- "C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/figures/"
+png(file = paste0(filename,"figure2c.png"), width = 12, height = 8,
+    units = "in", pointsize = 8, res = 300)
+figure2c
+dev.off()
+
+# add inset for number of childhood infections by vac_strategy
+banana_bread3 <- banana_bread %>% select(-c(n_sim, n_indiv, max_age, start_year, end_year, pandemic_beta, epidemic_beta)) %>%
+  filter(exposure_penalty %in% c(0, 0.01, 0.03, 0.05, 0.08, 0.1) & vac_protect == 0.7 & Param_Index != 18)
+
+figure2c_bars <- ggplot(data = banana_bread3, aes(x = as.factor(exposure_penalty), y = Mean_Infs, fill= Vac_Strategy)) +
+  geom_bar(stat="identity", color = "black", position = position_dodge(), width = 0.65) +
+  geom_errorbar(aes(ymin = Lower, ymax = Upper), width=.2, position = position_dodge(.65)) +
+  labs(x = "Exposure Penalty", y = "Number of Childhood Infections", fill = "Vaccination Strategy") +
+  scale_y_continuous(limits = c(0,3)) +
+  theme(legend.position = "top",
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(colour = "black"))
+
+filename <- "C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/figures/"
+png(file = paste0(filename,"figure2c_bars.png"), width = 12, height = 8,
+    units = "in", pointsize = 8, res = 300)
+figure2c_bars
 dev.off()
 ################################
 ### Figure 3 - scatter plots ###

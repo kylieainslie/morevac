@@ -13,7 +13,7 @@ options(didehpc.username = "kainslie",
 
 # dont really know what these lines do but you need them
 context::context_log_start()
-root <- "contexts3"
+root <- "contexts"
 
 # setting up the context: what files need to be sourced for your function to work, what packages you need
 # package sources only required here because the package I am using is not on CRAN
@@ -37,8 +37,8 @@ library(lhs)
 #                              out_file = "param_values", vac_cutoff = 10, seed = 1234)
 # params_16 <- create_params_file(n_sim = 100, n_indiv = 30000, lhc_size = 500, start_year = 1918, end_year = 2028,
 #                              out_file = "param_values_16", vac_cutoff = 16, seed = 1234)
-params_baseline <- read.csv(file = "param_values_baseline.csv")
+params_baseline <- read.csv(file = "param_values_baseline.csv", header = TRUE)
 
-job_bulk <- obj$enqueue_bulk(params_baseline, run_sims_clust, do_call = TRUE)
+job_bulk <- obj$enqueue_bulk(params_baseline[c(5,9:16),], run_sims_clust, do_call = TRUE)
 
 
