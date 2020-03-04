@@ -28,7 +28,7 @@ p1_ar_baseline <- ggplot(data = chocolate_sundae1, aes(x = Age, y = Mean_AR, col
 p1_li_baseline <- ggplot(data = banana_boat1, aes(x = Vac_Strategy, y = Mean_Infs, fill= Vac_Strategy)) +
   geom_bar(stat="identity", color = "black", position = position_dodge(), width = 0.65) +
   geom_errorbar(aes(ymin = Lower, ymax = Upper), width=.2, position = position_dodge(.65)) +
-  labs(x = "Vaccination Strategy", y = "Number of Lifetime Infections", fill = "Vaccination \nAge Cutoff") +
+  labs(x = "Vaccination Strategy", y = "Number of Childhood Infections", fill = "Vaccination \nAge Cutoff") +
   scale_x_discrete(labels = c("Annual", "Biennial", "No Vaccination")) +
   scale_y_continuous(limits = c(0,3)) +
   theme(legend.position = "none",
@@ -37,13 +37,13 @@ p1_li_baseline <- ggplot(data = banana_boat1, aes(x = Vac_Strategy, y = Mean_Inf
         panel.background = element_blank(),
         axis.line = element_line(colour = "black"))
 
-figure1a <- plot_grid(p1_ar_baseline,p1_li_baseline, labels = "AUTO", ncol = 2, align = 'v', axis = 'l')
-# filename <- "~/Dropbox/Kylie/Projects/Morevac/figures/"
-filename <- "C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/figures/"
-png(file = paste0(filename,"figure1a.png"), width = 12, height = 8,
-    units = "in", pointsize = 8, res = 300)
-figure1a
-dev.off()
+ figure1a <- plot_grid(p1_ar_baseline,p1_li_baseline, labels = "AUTO", ncol = 2, align = 'v', axis = 'l')
+# # filename <- "~/Dropbox/Kylie/Projects/Morevac/figures/"
+# filename <- "C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/figures/"
+# png(file = paste0(filename,"figure1a.png"), width = 12, height = 8,
+#     units = "in", pointsize = 8, res = 300)
+# figure1a
+# dev.off()
 ### read in summarised and bootstrapped data
 setwd("C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/data/sim_data/cutoff10/")
 #setwd("~/Dropbox/Kylie/Projects/Morevac/data/sim_data/")
@@ -69,11 +69,14 @@ p1_scatter <- ggplot(data = banana_hammock_an, aes(x = exposure_penalty, y = vac
         axis.title=element_text(size=14),
         legend.text = element_text(size=12),
         legend.title = element_text(size=12))
+
+figure1 <- plot_grid(figure1a, p1_scatter, labels = c('', "C"), nrow = 2, rel_heights = c(1,1.5))
 # filename <- "~/Dropbox/Kylie/Projects/Morevac/figures/"
 filename <- "C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/figures/"
-png(file = paste0(filename,"figure1b.png"), width = 12, height = 8,
+png(file = paste0(filename,"figure1.png"), width = 10, height = 10,
     units = "in", pointsize = 8, res = 300)
-p1_scatter
+# p1_scatter
+figure1
 dev.off()
 
 ### potential next figure or supplemental figure
