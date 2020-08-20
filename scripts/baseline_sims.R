@@ -17,7 +17,7 @@ library(Matrix)
 library(vroom)
 # load morevac package
 # setwd("~/Documents/morevac") # Mac path
-setwd("~/morevac") # PC path
+#setwd("~/morevac") # PC path
 devtools::load_all()
 ###
 
