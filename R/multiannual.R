@@ -90,6 +90,15 @@ multiannual <- function(n = 10000,
                   gammas = gammas,
                   vac_this_year = vac_this_year
       )
+
+      # # add column names
+      # for(i in seq_along(rtn)) {
+      #   if(is.matrix(rtn[[i]]) & dim(rtn[[i]])[2] == length(years)){
+      #     colnames(rtn[[i]]) <- letters[1:10]
+      #   }
+      # }
+
+      #output
       return(rtn)
 
 }
