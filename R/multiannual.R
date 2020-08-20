@@ -65,30 +65,32 @@ multiannual <- function(n = 10000,
                                ages_mat = init_pop$ages_mat,
                                vac_this_year = vac_this_year,
                                vac_cov = vac_coverage, take = take,
-                               rho = rho, vac_strategy = vac_strategy)
+                               rho = rho, vac_strategy = vac_strategy
+                               )
 
-    # calculate delta_v values
-      delta_v <- find_delta_v(v = vac_pop$v, dist_mat = antigenic_dist)
-    # run infection model
-      infect_pop <- infect_cpp_2(inf_history = init_pop$inf_hist_mat,
-                                 vac_history = vac_pop$vac_hist_mat,
-                                 years_since_last_vac = vac_pop$v,
-                                 suscept_mat = init_pop$suscept_mat,
-                                 x = init_pop$time_since_last_inf,
-                                 ages_mat = init_pop$ages_mat,
-                                 dist_mat = antigenic_dist, delta_v = delta_v,
-                                 gammas = gammas, foi = betas,
-                                 wane_rate = wane,
-                                 epsilon = epsilon)
+  # calculate delta_v values
+    delta_v <- find_delta_v(v = vac_pop$v, dist_mat = antigenic_dist)
+  # run infection model
+    infect_pop <- infect_cpp_2(inf_history = init_pop$inf_hist_mat,
+                               vac_history = vac_pop$vac_hist_mat,
+                               years_since_last_vac = vac_pop$v,
+                               suscept_mat = init_pop$suscept_mat,
+                               x = init_pop$time_since_last_inf,
+                               ages_mat = init_pop$ages_mat,
+                               dist_mat = antigenic_dist, delta_v = delta_v,
+                               gammas = gammas, foi = betas,
+                               wane_rate = wane,
+                               epsilon = epsilon
+                               )
 
-      # return
-      rtn <- list(inf_history = infect_pop,
-                  vac_history = vac_pop,
-                  ages = init_pop$ages_mat,
-                  drift = drift,
-                  vac_update = run_update$update,
-                  gammas = gammas,
-                  vac_this_year = vac_this_year
+  # return
+    rtn <- list(inf_history = infect_pop,
+                vac_history = vac_pop,
+                ages = init_pop$ages_mat,
+                drift = drift,
+                vac_update = run_update$update,
+                gammas = gammas,
+                vac_this_year = vac_this_year
       )
 
       # # add column names
