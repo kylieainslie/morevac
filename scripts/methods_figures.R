@@ -12,18 +12,19 @@ vac_cov_dat$Biennial[seq(3,vac_cut_off+1,2)] <- 0.44
 out <- multiannual(n=30000, years = my_years, max_age = max_age, betas = c(0.4,rep(0.2,length(my_years)-1)),
                    vac_coverage = vac_cov_dat$Annual, vac_strategy = 1)
 
-my_cohorts <- get_cohorts(inf_history = out$inf_history$inf_hist_mat, vac_history = out$vac_history$vac_hist_mat, ages = out$ages, total_year_range = my_years)
+#my_cohorts <- get_cohorts(inf_history = out$inf_history$inf_hist_mat, vac_history = out$vac_history$vac_hist_mat, ages = out$ages, total_year_range = my_years)
 # pick random subset of people susceptibility
-indivs <- sample(nrow(my_cohorts$inf_history), 9, replace = FALSE)
+birth_cohort <- which(out$ages[,"year_2020"] == 0)
+indivs <- sample(birth_cohort, 9, replace = FALSE)
 person <- data.frame(Year = 2000:2019,
-                     inf_hist = bc_inf_hist[i,],
-                     vac_hist = bc_vac_hist[i,],
+                     inf_hist = indivs$inf_hist[i,],
+                     vac_hist = indivs$vac_hist[i,],
                      suscept  = bc_suscept[i,])
 vax <- person$Year[which(person$vac_hist == 1)]
 infections <- person$Year[which(person$inf_hist == 1)]
 person
 # drift plot
-drift_dat <- data.frame(Year = 2000:2019, Drift = out$drift[181:200], Vac_Update = out$vac_update[181:200],
+drift_dat <- data.frame(Year = 2000:2019, Drift = out$drift$y[181:200], Vac_Update = out$vac_update[181:200],
                         Gammas = out$gammas[181:200])
 drift_dat$Shade_Group <- c(rep(1,dim(drift_dat)[1]))
 for (i in 2:dim(drift_dat)[1]){
