@@ -1,6 +1,22 @@
 ##################################
 ### Figure 0 - Model schematic ###
 ##################################
+
+# load required pacakges
+library(ggplot2)
+library(tidyr)
+library(reshape2)
+library(cowplot)
+library(stringr)
+library(dplyr)
+library(lhs)
+library(boot)
+library(data.table)
+library(rdist)
+library(Matrix)
+library(vroom)
+devtools::load_all()
+
 # run multi-annual model
 max_age = 80
 vac_cut_off <- 10
@@ -21,13 +37,14 @@ out <- multiannual(n = 30000,
                    betas = c(0.4,rep(0.2,length(my_years)-1)),
                    vac_coverage = vac_cov_dat$Annual,
                    vac_strategy = 1,
+                   epsilon = 0.005,
                    seed = 1234
                    )
 
 # pick random subset of people susceptibility
 colnames(out$ages) <- paste0("year_", my_years)
 
-birth_cohort <- which(out$ages[,"year_2020"] == 0)
+birth_cohort <- which(out$ages[,"year_2000"] == 0)
 indivs <- data.frame(id = sample(birth_cohort, 9, replace = FALSE))
 year_index <- which(my_years %in% 2000:2020)
 
@@ -53,16 +70,9 @@ person <- bind_rows(data.frame(id = indivs, sample_profiles$inf_hist),
   pivot_longer(cols = starts_with("year_"),
                names_to = "year",
                names_prefix = "year_",
-               values_to = "value")
+               values_to = "value") %>%
+  mutate(year = as.numeric(year))
 
-# do I need this code?
-vax <- person %>%
-  filter(profile == "vac_hist",
-         value == 1)
-
-infections <- person %>%
-  filter(profile == "inf_hist",
-         value == 1)
 ###########
 
 ### Top panel ###
@@ -127,25 +137,44 @@ p_drift
 
 ### Bottom panel ###
 # susceptibility plot
+
+# get suscept mat
+my_id <- unique(person$id)[1]
+
 suscept_mat <- person %>%
   filter(profile == "suscept_mat",
-         id = 1801)
+         id == my_id)
+
+# get vax and infection years
+vax <- person %>%
+  filter(profile == "vac_hist",
+         id == my_id,
+         value == 1)
+
+infections <- person %>%
+  filter(profile == "inf_hist",
+         id == my_id,
+         value == 1)
+
+
+# plot
 
 p_suscept <- ggplot(data = suscept_mat, aes(x = year, y = value)) +
   geom_line() +
   geom_ribbon(aes(ymax = value),ymin=0,alpha=0.1,) +
   xlab('Year') +
   ylab('Susceptibility') +
-  #scale_x_continuous(limits = c(2000,2020), expand = c(0,0)) +
+  scale_x_continuous(limits = c(2000,2020), expand = c(0,0)) +
   scale_y_continuous(limits = c(0,1), expand = c(0,0)) +
   theme(panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
         panel.background = element_blank(),
         axis.line = element_line(colour = "black"))
-vac_cols <- cols[drift_dat$Shade_Group[which(drift_dat$Year %in% vax)]]
+
+vac_cols <- cols[drift_dat$Shade_Group[which(drift_dat$Year %in% vax$year)]]
 p_suscept <- p_suscept +
-  geom_vline(xintercept=vax, linetype="dashed", colour = vac_cols) +
-  geom_vline(xintercept=infections, colour = 'red')
+  geom_vline(xintercept=vax$year, linetype="dashed", colour = vac_cols) +
+  geom_vline(xintercept=infections$year, colour = 'red')
 p_suscept
 #################
 
@@ -157,8 +186,8 @@ figure1 <- plot_grid(p_drift, p_suscept, labels = "AUTO", ncol = 1, align = 'v',
 
 ### Output
 # save figure
-filename <- "~/Dropbox/Kylie/Projects/Morevac/figures/"
-png(file = paste0(filename,"figure1.png"), width = 6, height = 8,
+filename <- "C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/figures/"
+png(file = paste0(filename,"figure0.png"), width = 6, height = 8,
     units = "in", pointsize = 8, res = 300)
 plot(figure1)
 dev.off()
