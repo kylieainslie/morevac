@@ -127,13 +127,16 @@ p_drift
 
 ### Bottom panel ###
 # susceptibility plot
+suscept_mat <- person %>%
+  filter(profile == "suscept_mat",
+         id = 1801)
 
-p_suscept <- ggplot(data = person %>% filter(profile == "suscept_mat"), aes(x = year, y = suscept)) +
+p_suscept <- ggplot(data = suscept_mat, aes(x = year, y = value)) +
   geom_line() +
-  geom_ribbon(aes(ymax = suscept),ymin=0,alpha=0.1,) +
+  geom_ribbon(aes(ymax = value),ymin=0,alpha=0.1,) +
   xlab('Year') +
   ylab('Susceptibility') +
-  scale_x_continuous(limits = c(2000,2019), expand = c(0,0)) +
+  #scale_x_continuous(limits = c(2000,2020), expand = c(0,0)) +
   scale_y_continuous(limits = c(0,1), expand = c(0,0)) +
   theme(panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
