@@ -29,7 +29,7 @@ p1_li_baseline <- ggplot(data = banana_boat1, aes(x = Vac_Strategy, y = Mean_Inf
   geom_bar(stat="identity", color = "black", position = position_dodge(), width = 0.65) +
   geom_errorbar(aes(ymin = Lower, ymax = Upper), width=.2, position = position_dodge(.65)) +
   labs(x = "Vaccination Strategy", y = "Number of Childhood Infections", fill = "Vaccination \nAge Cutoff") +
-  scale_x_discrete(labels = c("Annual", "Biennial", "No Vaccination")) +
+  scale_x_discrete(labels = c("Annual", "No Vaccination")) +
   scale_y_continuous(limits = c(0,3)) +
   theme(legend.position = "none",
         panel.grid.major = element_blank(),
@@ -37,13 +37,14 @@ p1_li_baseline <- ggplot(data = banana_boat1, aes(x = Vac_Strategy, y = Mean_Inf
         panel.background = element_blank(),
         axis.line = element_line(colour = "black"))
 
- figure1a <- plot_grid(p1_ar_baseline,p1_li_baseline, labels = "AUTO", ncol = 2, align = 'v', axis = 'l')
+figure1a <- plot_grid(p1_ar_baseline,p1_li_baseline, labels = "AUTO", ncol = 2, align = 'v', axis = 'l')
 # # filename <- "~/Dropbox/Kylie/Projects/Morevac/figures/"
 # filename <- "C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/figures/"
 # png(file = paste0(filename,"figure1a.png"), width = 12, height = 8,
 #     units = "in", pointsize = 8, res = 300)
 # figure1a
 # dev.off()
+
 ### read in summarised and bootstrapped data
 setwd("C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/data/sim_data/cutoff10/")
 #setwd("~/Dropbox/Kylie/Projects/Morevac/data/sim_data/")
@@ -231,7 +232,36 @@ p_li_baseline <- ggplot(data=banana_boat, aes(x=Vac_Strategy, y=Mean_Infs, fill=
         axis.line = element_line(colour = "black"))
 
 #ar_plots <- plot_grid(p_ar_baseline,p_ar_baseline16, labels = "AUTO", ncol = 1, align = 'v', axis = 'l')
-figure2 <- plot_grid(p_ar_baseline,p_li_baseline, labels = "AUTO", ncol = 2, align = 'v', axis = 'l')
+figure2a <- plot_grid(p_ar_baseline,p_li_baseline, labels = "AUTO", ncol = 2, align = 'v', axis = 'l')
+
+# b) cutoff = 10: scatter plot of vac_protect x exposure_penalty with only sig diff points
+banana_hammock_zero <- banana_cream_pie %>% filter(Type == "Diff_AB", Diff_Color == '0')
+banana_hammock <- banana_cream_pie %>% filter(Type == "Diff_AB", Diff_Color != '0') %>% mutate(Abs_Val = abs(Mean_Diff))
+
+p2c <- ggplot(data = banana_hammock, aes(x = exposure_penalty, y = vac_protect, color = Diff_Color)) +
+  geom_point(aes(size = Abs_Val), alpha = 0.7) +
+  scale_size_continuous(name = "|Difference|") +
+  scale_color_manual(name = "Difference", values = c("#F8766D","#00BA38")) +
+  xlab('Exposure Penalty') +
+  ylab('Vaccine Effectiveness') +
+  theme(legend.position = "bottom",
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        axis.text=element_text(size=12),
+        axis.title=element_text(size=14),
+        legend.text = element_text(size=12),
+        legend.title = element_text(size=12))
+
+
+figure2 <- plot_grid(figure2a, p2c, labels = c('', "C"), nrow = 2, rel_heights = c(1,1.5))
+# filename <- "~/Dropbox/Kylie/Projects/Morevac/figures/"
+filename <- "C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/figures/"
+png(file = paste0(filename,"figure2.png"), width = 10, height = 10,
+    units = "in", pointsize = 8, res = 300)
+# p1_scatter
+figure2
+dev.off()
 
 # filename <- "~/Dropbox/Kylie/Projects/Morevac/figures/"
 filename <- "C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/figures/"
