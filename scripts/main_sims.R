@@ -26,20 +26,39 @@ devtools::load_all()
 #######################################
 # specify save directory
 # setwd("~/Dropbox/Kylie/Projects/Morevac/data/sim_data")
-setwd("C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/data/sim_data/")
-### run simulations
-params <- create_params_file(n_sim = 10, n_indiv = 5000, lhc_size = 10, out_file = "param_values_test",
-                             vac_cutoff = 10, seed = 1234)
+# setwd("C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/data/sim_data/")
+setwd("C:/Users/ainsl/Dropbox/Kylie/Projects/Morevac/data/sim_data/")
+
+#######################################
+ ### Baseline
+#######################################
+# run simulations
 run_sims_all(params_file = "param_values_baseline.csv", out_file = "sim_baseline")
 #######################################
-### read in results (rather than re-run simulations)
-# setwd("~/Dropbox/Kylie/Projects/Morevac/data/sim_data/")
-# setwd("C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/data/sim_data/")
-param_values <- read.csv("param_values_baseline.csv", header = TRUE)
+ ### Latin hypercube
+#######################################
+# create parameter combination
+params <- create_params_file(n_sim = 1000, n_indiv = 30000, lhc_size = 500, out_file = "param_values_10",
+                             vac_cutoff = 10, seed = 1234)
+
+# run simulations
+run_sims_all(params_file = "param_values_10.csv", out_file = "sim_10")
+
+#######################################
+ ### Simulation results post-processing
+#######################################
+# read in parameter file
+param_path <- "C:/Users/ainsl/Dropbox/Kylie/Projects/Morevac/data/sim_data/"
+
+param_values <- read.csv(paste0(param_path,"param_values_baseline.csv"), header = TRUE)
 names(param_values)[1] <- "Param_Index"
 
-setwd("~/Dropbox/Kylie/Projects/Morevac/data/sim_data/cutoff10")
-# setwd("C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/data/sim_data/baseline")
+# set working directory where results files are located
+# setwd("~/Dropbox/Kylie/Projects/Morevac/data/sim_data/cutoff10")
+setwd("C:/Users/ainsl/Dropbox/Kylie/Projects/Morevac/data/sim_data/baseline")
+
+# read in results (rather than re-run simulations)
+
 files_inf <- list.files(pattern="*inf_hist.csv")
 matches <- regmatches(files_inf, gregexpr("[[:digit:]]+", files_inf))
 param_indices <- as.numeric(unlist(matches))
@@ -64,11 +83,16 @@ for (i in 1:n_files){
               mutate(Num_Vacs = rowSums(select(.,Age0:Age18)), Param_Index = i)
   if(length(unique(dt_vac$Vac_Strategy))<3){next} # make sure vac data contains all three vac strategies
 
-### summarise raw data for childhood infs
+#######################################
+# summarise raw data for childhood infs
   banana <- bind_cols(dt_inf[,c("Vac_Strategy", "Sim", "Cohort","Param_Index", "ID", "Num_Infs")], Num_Vacs = dt_vac[,c("Num_Vacs")]) %>%
                 group_by(Vac_Strategy, Sim) %>% summarise(Mean_Infs = mean(Num_Infs))
 
-### bootstrap to get CI for childhood infs
+#######################################
+### Bootstrapping
+#######################################
+
+# bootstrap to get CI for childhood infs
   foo1 <- function(data, indices){
     dt<-data[indices,]
     mean(dt$Mean_Infs)
@@ -78,13 +102,13 @@ for (i in 1:n_files){
   banana_boat <- banana %>% group_by(Vac_Strategy) %>% summarise(Mean_Infs = mean(Mean_Infs)) %>%
                   mutate(Lower = my_ci[1,], Upper = my_ci[2,], Param_Index = i)
 
-### Difference in childhood infs
+# Difference in childhood infs
   banana_split <- banana %>% spread(Vac_Strategy, Mean_Infs) %>%
                     mutate(Diff_AB = Annual - Biennial, Diff_AN = Annual - No_Vac, Diff_BN = Biennial - No_Vac) %>%
                     select(Sim, Diff_AB, Diff_AN, Diff_BN) %>%
                     gather(Type, Difference, Diff_AB:Diff_BN)
 
-### bootstrap to get CI for Difference
+# bootstrap to get CI for Difference
   foo2 <- function(data, indices){
     dt<-data[indices,]
     mean(dt$Difference)
@@ -94,7 +118,8 @@ for (i in 1:n_files){
 
   banana_split2 <- banana_split %>% group_by(Type) %>% summarise(Mean_Diff = mean(Difference)) %>%
                       mutate(Lower = my_ci[1,], Upper = my_ci[2,], Param_Index = i)
-### summarise raw data for attack rates
+
+# summarise raw data for attack rates
   chocolate_sprinkles <- dt_inf %>% group_by(Vac_Strategy, Sim, Cohort, Param_Index) %>% do(tail(.,1))
   chocolate_bar <- dt_inf %>% group_by(Vac_Strategy, Sim, Cohort, Param_Index) %>% select(-ID) %>% summarise_all(list(sum))
   chocolate_bar$ID <- chocolate_sprinkles$ID
@@ -102,7 +127,8 @@ for (i in 1:n_files){
                         select(Param_Index, Vac_Strategy, Sim, Cohort, Age0:Age18) %>% group_by(Param_Index, Vac_Strategy, Sim) %>%
                         summarise_at(vars(Age0:Age18), mean) %>% gather(Age, Attack_Rate, Age0:Age18) %>%
                         mutate(Age = as.numeric(str_remove(Age, 'Age')))
-### bootstrap to get CI for ARs
+
+# bootstrap to get CI for ARs
   foo3 <- function(data, indices){
     dt<-data[indices,]
     mean(dt$Attack_Rate)
@@ -123,12 +149,15 @@ for (i in 1:n_files){
   }
 }
 
-### bind columns with parameter values
+#######################################
+### Create summary output files
+
+# bind columns with parameter values
 banana_cream_pie <- left_join(banana_cream_pie, param_values, by = c("Param_Index"))
 banana_bread <- left_join(banana_bread, param_values, by = c("Param_Index"))
 chocolate_surprise <- left_join(chocolate_surprise, param_values, by = c("Param_Index"))
 
-### write files to avoid having to read in raw data again
+# write files to avoid having to read in raw data again
 data.table::fwrite(banana_cream_pie, file = "banana_cream_pie_baseline.csv", col.names = TRUE,
                    row.names = FALSE, sep = ",")
 data.table::fwrite(banana_bread, file = "banana_bread_baseline.csv", col.names = TRUE,
