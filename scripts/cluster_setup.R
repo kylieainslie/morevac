@@ -4,6 +4,7 @@
  # drat:::add("mrc-ide")
  # install.packages("provisionr")
  # install.packages("didehpc")
+ # install.packages("buildr)
 
 # setwd('/Volumes/kainslie/cluster')
 setwd('Q:/cluster')
@@ -19,7 +20,7 @@ root <- "contexts"
 # package sources only required here because the package I am using is not on CRAN
 ctx <- context::context_save(path = root,
                              packages = c("morevac","Rcpp","dplyr","data.table","rdist", "Matrix"),
-                             package_sources = provisionr::package_sources(github = "kylieainslie/morevac",
+                             package_sources = provisionr::package_sources(local = "Q:/cluster/morevac_1.0.zip",
                                                                            cran = "https://cran.ma.imperial.ac.uk/")
                              )
 
@@ -39,6 +40,6 @@ library(lhs)
 #                              out_file = "param_values_16", vac_cutoff = 16, seed = 1234)
 params_baseline <- read.csv(file = "param_values_baseline.csv", header = TRUE)
 
-job_bulk <- obj$enqueue_bulk(params_baseline[c(5,9:16),], run_sims_clust, do_call = TRUE)
+job_bulk <- obj$enqueue_bulk(params_baseline, run_sims_clust, do_call = TRUE)
 
 
