@@ -8,7 +8,7 @@ Description: Multi-annual, individual-based, stochastic model of infection and v
 License: GPL (>= 2)
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.0.2
+RoxygenNote: 7.1.1
 LinkingTo: Rcpp
 Imports: Rcpp (>= 1.0.1), data.table, rdist, dplyr
 Suggests: knitr, rmarkdown
