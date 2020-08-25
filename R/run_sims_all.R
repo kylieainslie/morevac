@@ -32,25 +32,33 @@ run_sims_all <- function(params_file, out_file = "test"){
   vac_cov_dat$Annual[3:(vac_cutoff + 1)] <- params$vac_cov[i]
   vac_cov_dat$Biennial[seq(3,vac_cutoff+1,2)] <- params$vac_cov[i]
   ### run simulations
-  # cat("\n No vaccination simulation running... \n")
   # returns 3 arrays with inf_hist_mat, vac_hist_mat, and ages_mat from each sim
-  sim_test0 <- run_sim_2(sim = n_sim, n = n_indiv, years = years, betas = betas, vac_cov = vac_cov_dat$No_vac, vac_strategy = 0,
-                         wane = wane, take = take, epsilon = epsilon, vac_protect = vac_protect, rho = rho)
-  # cat("\n Annual vaccination simulation running... \n")
-  sim_test1 <- run_sim_2(sim = n_sim, n = n_indiv, years = years, betas = betas, vac_cov = vac_cov_dat$Annual, vac_strategy = 1,
-                         wane = wane, take = take, epsilon = epsilon, vac_protect = vac_protect, rho = rho)
-  # cat("\n Every other year vaccination simulation running... \n")
-  sim_test2 <- run_sim_2(sim = n_sim, n = n_indiv, years = years, betas = betas, vac_cov = vac_cov_dat$Biennial, vac_strategy = 2,
+  sim_results <- list()
+  for(vac_strat in 1:3){
+    sim_raw <- run_sim_2(sim = n_sim, n = n_indiv, years = years, betas = betas, vac_cov = vac_cov_dat$No_vac, vac_strategy = vac_strat-1,
                          wane = wane, take = take, epsilon = epsilon, vac_protect = vac_protect, rho = rho)
 
-  # extract cohorts from each sim and combine raw inf and vac histories for every simulation
-  sim0_results <- postprocess_sim_results_for_rolling_cohort(sim_dat = sim_test0, total_year_range = years, n_sim = n_sim)
-  sim1_results <- postprocess_sim_results_for_rolling_cohort(sim_dat = sim_test1, total_year_range = years, n_sim = n_sim)
-  sim2_results <- postprocess_sim_results_for_rolling_cohort(sim_dat = sim_test2, total_year_range = years, n_sim = n_sim)
+    # extract cohorts from each sim and combine raw inf and vac histories for every simulation
+    sim_results [[i]] <- postprocess_sim_results_for_rolling_cohort(sim_dat = sim_raw, total_year_range = years, n_sim = n_sim)
+    rm(sim_raw)
+  }
+
+
+  # cat("\n Annual vaccination simulation running... \n")
+  # sim_test1 <- run_sim_2(sim = n_sim, n = n_indiv, years = years, betas = betas, vac_cov = vac_cov_dat$Annual, vac_strategy = 1,
+  #                        wane = wane, take = take, epsilon = epsilon, vac_protect = vac_protect, rho = rho)
+  # # cat("\n Every other year vaccination simulation running... \n")
+  # sim_test2 <- run_sim_2(sim = n_sim, n = n_indiv, years = years, betas = betas, vac_cov = vac_cov_dat$Biennial, vac_strategy = 2,
+  #                        wane = wane, take = take, epsilon = epsilon, vac_protect = vac_protect, rho = rho)
+  #
+  # # extract cohorts from each sim and combine raw inf and vac histories for every simulation
+  #
+  # sim1_results <- postprocess_sim_results_for_rolling_cohort(sim_dat = sim_test1, total_year_range = years, n_sim = n_sim)
+  # sim2_results <- postprocess_sim_results_for_rolling_cohort(sim_dat = sim_test2, total_year_range = years, n_sim = n_sim)
 
   # combine sim results into one data.table
-  inf_histories <- rbindlist(list(No_Vac = sim0_results$inf_history, Annual = sim1_results$inf_history, Biennial = sim2_results$inf_history), idcol = 'Vac_Strategy')
-  vac_histories <- rbindlist(list(No_Vac = sim0_results$vac_history, Annual = sim1_results$vac_history, Biennial = sim2_results$vac_history), idcol = 'Vac_Strategy')
+  inf_histories <- rbindlist(list(No_Vac = sim_results[[1]]$inf_history, Annual = sim_results[[2]]$inf_history, Biennial = sim_results[[3]]$inf_history), idcol = 'Vac_Strategy')
+  vac_histories <- rbindlist(list(No_Vac = sim_results[[1]]$vac_history, Annual = sim_results[[2]]$vac_history, Biennial = sim_results[[3]]$vac_history), idcol = 'Vac_Strategy')
 
   # write raw output to file
   try(data.table::fwrite(inf_histories, file = paste0(out_file,i,"_inf_hist.csv"), col.names = TRUE,
