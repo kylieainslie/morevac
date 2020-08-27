@@ -81,9 +81,13 @@ run_sims_all <- function(params_file, out_file = "test"){
   # vac_histories <- rbindlist(list(No_Vac = sim0_results$vac_history, Annual = sim1_results$vac_history, Biennial = sim2_results$vac_history), idcol = 'Vac_Strategy')
 
   # write raw output to file
-  try(data.table::fwrite(inf_histories, file = paste0(out_file,i,"_inf_hist.csv"), col.names = TRUE,
+  try(data.table::fwrite(save_inf_hist, file = paste0(out_file,i,"_inf_hist.csv"), col.names = TRUE,
                          row.names = FALSE, sep = ","))
-  try(data.table::fwrite(vac_histories, file = paste0(out_file,i,"_vac_hist.csv"), col.names = TRUE,
+  try(data.table::fwrite(save_vac_hist, file = paste0(out_file,i,"_vac_hist.csv"), col.names = TRUE,
                          row.names = FALSE, sep = ","))
+
+  rm(save_inf_hist)
+  rm(save_vac_hist)
+
   }
 }
