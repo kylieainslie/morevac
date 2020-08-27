@@ -13,13 +13,14 @@ library(lhs)
 library(boot)
 library(data.table)
 library(rdist)
-library(Matrix)
+# library(Matrix)
 library(vroom)
 # library(foreach)
 # library(doParallel)
+
 # load morevac package
 # setwd("~/Documents/morevac") # Mac path
-setwd("~/morevac") # PC path
+# setwd("~/morevac") # PC path
 devtools::load_all()
 ###
 
