@@ -22,14 +22,14 @@ devtools::load_all()
 ###
 
 ### define input parameters
-file <- "C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/data/sim_data/baseline/baseline_16"
+file <- "C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/data/sim_data/baseline/baseline_10"
 
 n_sim = 100
 nindiv <- 30000
 max_age = 80
-myyears <- 1920:2028
+myyears <- 1918:2028
 mybetas <- c(0.4,rep(0.2,length(myyears)-1))
-vac_cut_off <- 16
+vac_cut_off <- 10
 vac_cov_dat <- data.frame(Age = 0:(max_age-1), No_Vac = numeric(max_age), Annual = numeric(max_age), Biennial = numeric(max_age))
 vac_cov_dat$Annual[3:(vac_cut_off + 1)] <- 0.44
 vac_cov_dat$Biennial[seq(3,vac_cut_off+1,2)] <- 0.44

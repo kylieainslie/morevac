@@ -24,7 +24,7 @@
 #'         2) a plot of annual attack rates by vaccination scenario
 #' @keywords morevac
 #' @export
-multiannual <- function(n = 10000,
+multiannual <- function(n = 30000,
                         years = 1918:2028,
                         max_age = 80,
                         start_vac_year = 2000,
@@ -84,14 +84,21 @@ multiannual <- function(n = 10000,
                                )
 
   # return
-    rtn <- list(inf_history = infect_pop,
-                vac_history = vac_pop,
-                ages = init_pop$ages_mat,
-                drift = drift,
-                vac_update = run_update$update,
-                gammas = gammas,
-                vac_this_year = vac_this_year
+    rtn <- list(inf_history = infect_pop$inf_hist_mat,
+                vac_history = vac_pop$vac_hist_mat,
+                ages = init_pop$ages_mat
+                #drift = drift,
+                #vac_update = run_update$update,
+                #gammas = gammas,
+                #vac_this_year = vac_this_year
       )
+
+    # remove objects from memory
+      rm(init_age_vec)
+      rm(init_pop)
+      rm(vac_pop)
+      rm(delta_v)
+      rm(infect_pop)
 
       # # add column names
       # for(i in seq_along(rtn)) {
@@ -100,7 +107,7 @@ multiannual <- function(n = 10000,
       #   }
       # }
 
-      #output
+    # output
       return(rtn)
 
 }

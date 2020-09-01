@@ -35,14 +35,15 @@ run_sim_2 <- function(sim = 100,
                       epsilon = 0.03,
                       drift_off = FALSE,
                       trim_age_mat = NULL,
+                      length_study = 19,
                       seed = NULL){
 
   if (vac_strategy == 0){vac_cov <- c(rep(0,length(vac_cov)))}
   nyears <- length(years)
   ### create empty matrix to store sim results
-  histories <- list(inf_history = list(),
-                       vac_history = list(),
-                       ages = list())
+  # histories <- list(inf_history = list(),
+  #                      vac_history = list(),
+  #                      ages = list())
 
   ### create progress bar
   pb <- txtProgressBar(min = 0, max = sim, style = 3)
@@ -60,14 +61,50 @@ run_sim_2 <- function(sim = 100,
                                wane = wane, take = take, epsilon = epsilon,
                                drift_off = drift_off)
 
-      histories$inf_history[[s]] <- Matrix(run_model$inf_history$inf_hist_mat, sparse = TRUE)
-      histories$vac_history[[s]] <- Matrix(run_model$vac_history$vac_hist_mat, sparse = TRUE)
-      if(!is.null(trim_age_mat)){histories$ages[[s]] <- run_model$ages[,which(years == trim_age_mat):length(years)]
-      } else {histories$ages[[s]] <- run_model$ages}
+    # post process results to get only childhood cohorts
+      my_cohorts <- get_cohorts(inf_history = run_model$inf_history,
+                                vac_history = run_model$vac_history,
+                                ages = run_model$ages,
+                                total_year_range = years)
 
-   }
-  close(pb)
+    # tiny bit of data wrangling
+      my_cohorts$inf_history$Sim <- my_cohorts$vac_history$Sim <- s
+      my_cohorts$inf_history$Vac_Strategy <- my_cohorts$vac_history$Vac_Strategy <- vac_strategy
+      my_cohorts$inf_history <- setcolorder(my_cohorts$inf_history,
+                                            c("Sim","Vac_Strategy","Cohort","ID",paste0("Age",0:(length_study-1)))
+                                            )
+      my_cohorts$vac_history <- setcolorder(my_cohorts$vac_history,
+                                            c("Sim","Vac_Strategy","Cohort","ID",paste0("Age",0:(length_study-1)))
+                                            )
 
-  return(histories)
+    # remove raw output from memory
+      rm(run_model)
+
+    # rbind subsequent simulations
+      if (s == 1){
+        save_inf_hist <- my_cohorts$inf_history
+        save_vac_hist <- my_cohorts$vac_history
+      } else {
+        save_inf_hist <- rbind(save_inf_hist, my_cohorts$inf_history)
+        save_vac_hist <- rbind(save_vac_hist, my_cohorts$vac_history)
+      }
+
+      rm(my_cohorts)
+      # histories$inf_history[[s]] <- Matrix(run_model$inf_history, sparse = TRUE)
+      # histories$vac_history[[s]] <- Matrix(run_model$vac_history, sparse = TRUE)
+      # if(!is.null(trim_age_mat)){histories$ages[[s]] <- run_model$ages[,which(years == trim_age_mat):length(years)]
+      # } else {histories$ages[[s]] <- run_model$ages}
+
+  }
+
+  # close progress bar
+    close(pb)
+
+  # output
+    rtn <- list(inf_history = save_inf_hist,
+                vac_history = save_vac_hist)
+
+
+  return(rtn)
 
 }
