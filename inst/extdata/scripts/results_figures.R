@@ -30,11 +30,11 @@ figure1 <- ggplot(data = chocolate_surprise2, aes(x = Age, y = Mean_AR, colour= 
         #legend.margin = margin(6, 6, 6, 6),
         #legend.key = element_rect(fill = "white")
         ) +
-  facet_wrap(~exposure_penalty, nrow=3)
+  facet_wrap(~exposure_penalty, nrow=2)
 figure1
 
 filename <- "C:/Users/ainsl/Dropbox/Kylie/Projects/Morevac/figures/"
-png(file = paste0(filename,"figure1.png"), width = 8, height = 12,
+png(file = paste0(filename,"figure1.png"), width = 12, height = 8,
     units = "in", pointsize = 8, res = 300)
 figure1
 dev.off()
