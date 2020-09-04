@@ -20,6 +20,7 @@ run_sim_2(
   epsilon = 0.03,
   drift_off = FALSE,
   trim_age_mat = NULL,
+  length_study = 19,
   seed = NULL
 )
 }

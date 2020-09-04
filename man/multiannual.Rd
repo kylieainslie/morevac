@@ -5,7 +5,7 @@
 \title{Multi-annual model of infection and vaccination (version 2)}
 \usage{
 multiannual(
-  n = 10000,
+  n = 30000,
   years = 1918:2028,
   max_age = 80,
   start_vac_year = 2000,
