@@ -8,17 +8,16 @@
 #' @param years vector of years to run simulation over (YYYY format)
 #' @param max_age maximum age of an individual (removed from population after max_age)
 #' @param vac_start_year year that vaccination starts (YYYY)
-#' @param start_vac_age age at which an individual may be vaccinated
-#' @param stop_vac_age age at which vaccination stops
 #' @param vac_coverage vaccination coverage
 #' @param betas vector of force of infection parameters for every year
 #' @param vac_protect protective effect of vaccine
-#' @param suscept_func_version integer indicating which susceptibility version to use.
-#'        1 = either-or, 2 = multiplicative.
 #' @param vac_strategy Integer value indicating frequency of vaccination (1 = annual, 2 = biannual, 3 =triannual,...)
 #' @param rho correlation of vaccination
 #' @param wane amount of protection of vaccine due to waning (0, 1) (inclusive)
 #' @param take percentage of vaccine take (0, 1) (inclusive)
+#' @param drift_rate rate of exponential drift: exp(drift_rate) used to calculate amount of drift each year
+#' @param drift_off logical. if TRUE there is no antigenic drift
+#' @param epsilon exposure penalty. Takes values between 0 and 1.
 #' @param seed set random seed
 #' @return list with two elements: 1) a list of infection histories and attack rates and
 #'         2) a plot of annual attack rates by vaccination scenario
