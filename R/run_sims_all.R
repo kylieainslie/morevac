@@ -36,11 +36,11 @@ run_sims_all <- function(params_file, out_file = "test"){
   # returns 3 arrays with inf_hist_mat, vac_hist_mat, and ages_mat from each sim
   sim_results <- list()
   for(vac_strat in 1:3){
-    sim_raw <- run_sim_2(sim = n_sim, n = n_indiv, years = years, betas = betas, vac_cov = vac_cov_dat$No_vac, vac_strategy = vac_strat-1,
-                         wane = wane, take = take, epsilon = epsilon, vac_protect = vac_protect, rho = rho)
+    sim_raw <- run_sim_2(sim = n_sim, n = n_indiv, years = years, betas = betas, vac_cov = vac_cov_dat[,vac_strat + 1],
+                         vac_strategy = vac_strat - 1, wane = wane, take = take, epsilon = epsilon,
+                         vac_protect = vac_protect, rho = rho)
 
-    # extract cohorts from each sim and combine raw inf and vac histories for every simulation
-    sim_results [[i]] <- postprocess_sim_results_for_rolling_cohort(sim_dat = sim_raw, total_year_range = years, n_sim = n_sim)
+    sim_results [[vac_strat]] <- sim_raw
     rm(sim_raw)
   }
 
