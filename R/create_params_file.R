@@ -11,6 +11,7 @@
 #' @param epidemic_beta value of epidemic force of infection
 #' @param lhc_size number of latin hypercube parameter combinations
 #' @param out_file name of output file
+#' @param seed seed
 #' @return tibble with parameter values and writes csv file to the working directory with parameter values
 #' @keywords morevac
 #' @export
