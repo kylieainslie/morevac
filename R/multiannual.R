@@ -7,7 +7,7 @@
 #' @param n number of individuals to be simulated
 #' @param years vector of years to run simulation over (YYYY format)
 #' @param max_age maximum age of an individual (removed from population after max_age)
-#' @param vac_start_year year that vaccination starts (YYYY)
+#' @param start_vac_year year that vaccination starts (YYYY)
 #' @param vac_coverage vaccination coverage
 #' @param betas vector of force of infection parameters for every year
 #' @param vac_protect protective effect of vaccine
@@ -22,6 +22,7 @@
 #' @return list with two elements: 1) a list of infection histories and attack rates and
 #'         2) a plot of annual attack rates by vaccination scenario
 #' @keywords morevac
+#' @importFrom dplyr if_else
 #' @export
 multiannual <- function(n = 30000,
                         years = 1918:2028,

@@ -14,6 +14,9 @@
 #' @param seed seed
 #' @return tibble with parameter values and writes csv file to the working directory with parameter values
 #' @keywords morevac
+#' @importFrom lhs randomLHS
+#' @importFrom tibble tibble
+#' @importFrom stats qunif
 #' @export
 create_params_file <- function(n_sim = 100, n_indiv = 30000, max_age = 80, vac_cutoff = 10,
                                start_year = 1820, end_year = 2028, pandemic_beta = 0.4, epidemic_beta = 0.2,

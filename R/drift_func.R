@@ -8,6 +8,8 @@
 #' @param rate rate of exponential distribution to draw from
 #' @return distance matrix
 #' @keywords morevac
+#' @importFrom stats rexp
+#' @importFrom rdist pdist
 #' @export
 drift_func <- function(nyears = 200, rate = 1){
   # drift for infection

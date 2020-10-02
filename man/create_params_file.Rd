@@ -38,6 +38,8 @@ create_params_file(
 \item{lhc_size}{number of latin hypercube parameter combinations}
 
 \item{out_file}{name of output file}
+
+\item{seed}{seed}
 }
 \value{
 tibble with parameter values and writes csv file to the working directory with parameter values

@@ -21,6 +21,9 @@
 #' @param seed seed for simulations
 #' @return list of infection histories, vaccination histories, and age matrices for each simulation
 #' @keywords morevac
+#' @importFrom utils txtProgressBar
+#' @importFrom utils setTxtProgressBar
+#' @importFrom data.table setcolorder
 #' @export
 run_sim_2 <- function(sim = 100,
                       n = 30000,

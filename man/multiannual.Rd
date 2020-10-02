@@ -29,6 +29,8 @@ multiannual(
 
 \item{max_age}{maximum age of an individual (removed from population after max_age)}
 
+\item{start_vac_year}{year that vaccination starts (YYYY)}
+
 \item{vac_coverage}{vaccination coverage}
 
 \item{betas}{vector of force of infection parameters for every year}
@@ -43,16 +45,13 @@ multiannual(
 
 \item{take}{percentage of vaccine take (0, 1) (inclusive)}
 
+\item{drift_rate}{rate of exponential drift: exp(drift_rate) used to calculate amount of drift each year}
+
+\item{drift_off}{logical. if TRUE there is no antigenic drift}
+
+\item{epsilon}{exposure penalty. Takes values between 0 and 1.}
+
 \item{seed}{set random seed}
-
-\item{vac_start_year}{year that vaccination starts (YYYY)}
-
-\item{start_vac_age}{age at which an individual may be vaccinated}
-
-\item{stop_vac_age}{age at which vaccination stops}
-
-\item{suscept_func_version}{integer indicating which susceptibility version to use.
-1 = either-or, 2 = multiplicative.}
 }
 \value{
 list with two elements: 1) a list of infection histories and attack rates and

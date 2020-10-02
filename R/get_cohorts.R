@@ -5,7 +5,7 @@
 #' @param vac_history sparse matrix of vaccination history for each person
 #' @param ages matrix of ages of each person for every year
 #' @param enrollment_start_year year for cohort enrollment to start (YYYY format)
-#' @param n_cohorts number of cohorts to enroll
+#' @param ncohorts number of cohorts to enroll
 #' @param total_year_range vector of years to run simulations over
 #' @param length_study number of years to follow each cohort
 #' @param write.file logical. if true, the infection histories and vaccination
@@ -13,6 +13,7 @@
 #' @param file character string used as the prefix for the output file if write.file = TRUE
 #' @return data frame of attack rates within the cohort by year
 #' @keywords morevac
+#' @importFrom data.table rbindlist
 #' @export
 get_cohorts <- function(inf_history, vac_history, ages, enrollment_start_year = 2000, ncohorts = 10,
                         total_year_range, length_study = 18, write.file = FALSE, file = "test"){

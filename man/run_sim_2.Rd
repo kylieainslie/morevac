@@ -33,6 +33,8 @@ run_sim_2(
 
 \item{max_age}{maimum age of an individual before they are removed from the population}
 
+\item{start_vac_year}{year to start vaccinating (YYYY format)}
+
 \item{vac_cov}{vector of vaccination coverages for each age group (should be of length max_age)}
 
 \item{betas}{vector of force of infetion for each year (should be same length as years)}
@@ -52,6 +54,8 @@ run_sim_2(
 \item{drift_off}{logical. if TRUE there will be no antigenic drift}
 
 \item{trim_age_mat}{year before which age matrix is subsetted. If the year 2000 is used, then age matrix will only contain ages for year 2000 and beyond.}
+
+\item{length_study}{length of time to follow cohorts}
 
 \item{seed}{seed for simulations}
 }
