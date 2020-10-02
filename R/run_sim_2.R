@@ -6,6 +6,7 @@
 #' @param n number of individuals to be simulated
 #' @param years vector of years in YYYY format
 #' @param max_age maimum age of an individual before they are removed from the population
+#' @param start_vac_year year to start vaccinating (YYYY format)
 #' @param vac_cov vector of vaccination coverages for each age group (should be of length max_age)
 #' @param betas vector of force of infetion for each year (should be same length as years)
 #' @param vac_protect vaccine efficacy
@@ -16,6 +17,7 @@
 #' @param epsilon exposure penalty
 #' @param drift_off logical. if TRUE there will be no antigenic drift
 #' @param trim_age_mat year before which age matrix is subsetted. If the year 2000 is used, then age matrix will only contain ages for year 2000 and beyond.
+#' @param length_study length of time to follow cohorts
 #' @param seed seed for simulations
 #' @return list of infection histories, vaccination histories, and age matrices for each simulation
 #' @keywords morevac
