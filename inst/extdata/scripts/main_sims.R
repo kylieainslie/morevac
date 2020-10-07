@@ -1,5 +1,5 @@
 ### Latin Hypercube simulations script ###
-# last modified: 22/01/2020
+# last modified: 07/10/2020
 
 ### preamble
 # load required packages
@@ -39,11 +39,11 @@ run_sims_all(params_file = "param_values_baseline.csv", out_file = "sim_baseline
  ### Latin hypercube
 #######################################
 # create parameter combination
-params <- create_params_file(n_sim = 1000, n_indiv = 30000, lhc_size = 500, out_file = "param_values_10",
+params <- create_params_file(n_sim = 500, n_indiv = 30000, lhc_size = 500, out_file = "param_values_10",
                              vac_cutoff = 10, seed = 1234)
 
 # run simulations
-run_sims_all(params_file = "param_values_10.csv", out_file = "sim_10")
+run_sims_all(params_file = "param_values_10.csv", index = 106:120, out_file = "sim_10_")
 
 #######################################
  ### Simulation results post-processing
