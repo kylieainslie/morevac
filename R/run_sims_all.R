@@ -4,15 +4,20 @@
 
 #' This function runs sims for each combination of parameter value from parameter input file creates
 #' @param params_file character string indicating the name of the file with input parameter values
+#' @param index sequence of rows to index params file by
 #' @param out_file character string indicating name of output file
 #' @return writes csv files to the working directory with infection and vaccination histories for every row of params_file
 #' @keywords morevac
 #' @importFrom data.table fread
 #' @export
-run_sims_all <- function(params_file, out_file = "test"){
+run_sims_all <- function(params_file, index = NULL, out_file = "test"){
 
   ### read in parameter file
   params <- fread(params_file)
+
+  if(!is.null(index)){
+    params <- params[index,]
+  }
 
   for (i in 1:nrow(params)){
   cat("\n Simulation ",i," of",nrow(params),"\n")
@@ -62,9 +67,9 @@ run_sims_all <- function(params_file, out_file = "test"){
   vac_histories <- rbindlist(list(No_Vac = sim_results[[1]]$vac_history, Annual = sim_results[[2]]$vac_history, Biennial = sim_results[[3]]$vac_history), idcol = 'Vac_Strategy')
 
   # write raw output to file
-  try(data.table::fwrite(inf_histories, file = paste0(out_file,i,"_inf_hist.csv"), col.names = TRUE,
+  try(data.table::fwrite(inf_histories, file = paste0(out_file,params$id,"_inf_hist.csv"), col.names = TRUE,
                          row.names = FALSE, sep = ","))
-  try(data.table::fwrite(vac_histories, file = paste0(out_file,i,"_vac_hist.csv"), col.names = TRUE,
+  try(data.table::fwrite(vac_histories, file = paste0(out_file,params$id,"_vac_hist.csv"), col.names = TRUE,
                          row.names = FALSE, sep = ","))
   }
 }
