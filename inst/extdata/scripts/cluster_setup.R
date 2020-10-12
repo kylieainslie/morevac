@@ -20,7 +20,8 @@ root <- "contexts"
 # package sources only required here because the package I am using is not on CRAN
 ctx <- context::context_save(path = root,
                              packages = c("morevac","Rcpp","dplyr","data.table","rdist", "Matrix"),
-                             package_sources = provisionr::package_sources(local = "Q:/cluster/morevac_1.0.zip",
+                             package_sources = provisionr::package_sources(#github = "kylieainslie/morevac",
+                                                                           local = "Q:/cluster/morevac_1.0.zip",
                                                                            cran = "https://cran.ma.imperial.ac.uk/")
                              )
 
@@ -29,7 +30,9 @@ obj <- didehpc::queue_didehpc(ctx)
 
 # run a single job
 # 'job' is the thing I am running on the cluster
-# job <- obj$enqueue(run_sims_all(params_file = "param_values.csv", out_file = "sim"))
+job <- obj$enqueue(
+        run_sims_all(params_file = "param_values_10.csv", index = 106:110, out_file = "sim_10_")
+        )
 
 # bulk jobs
 library(morevac)
@@ -38,7 +41,7 @@ library(lhs)
 #                              out_file = "param_values", vac_cutoff = 10, seed = 1234)
 # params_16 <- create_params_file(n_sim = 100, n_indiv = 30000, lhc_size = 500, start_year = 1918, end_year = 2028,
 #                              out_file = "param_values_16", vac_cutoff = 16, seed = 1234)
-params_baseline <- read.csv(file = "param_values_baseline.csv", header = TRUE)
+params_baseline <- read.csv(file = "param_values_10.csv", header = TRUE)
 
 job_bulk <- obj$enqueue_bulk(params_baseline, run_sims_clust, do_call = TRUE)
 
