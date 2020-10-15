@@ -43,45 +43,53 @@ params <- create_params_file(n_sim = 500, n_indiv = 30000, lhc_size = 500, out_f
                              vac_cutoff = 10, seed = 1234)
 
 # run simulations
-run_sims_all(params_file = "param_values_10.csv", index = 106:120, out_file = "sim_10_")
+run_sims_all(params_file = "param_values_10.csv", index = 121:140, out_file = "sim_10_")
 
 #######################################
  ### Simulation results post-processing
 #######################################
 # read in parameter file
-param_path <- "C:/Users/ainsl/Dropbox/Kylie/Projects/Morevac/data/sim_data/"
+param_path <- "C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/data/sim_data/"
 
-param_values <- read.csv(paste0(param_path,"param_values_baseline.csv"), header = TRUE)
+param_values <- read.csv(paste0(param_path,"param_values_10.csv"), header = TRUE)
 names(param_values)[1] <- "Param_Index"
 
 # set working directory where results files are located
 # setwd("~/Dropbox/Kylie/Projects/Morevac/data/sim_data/cutoff10")
-setwd("C:/Users/ainsl/Dropbox/Kylie/Projects/Morevac/data/sim_data/baseline")
+setwd("C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/data/sim_data/cutoff10/sim500")
 
 # read in results (rather than re-run simulations)
 
-files_inf <- list.files(pattern="*inf_hist.csv")
-matches <- regmatches(files_inf, gregexpr("[[:digit:]]+", files_inf))
-param_indices <- as.numeric(unlist(matches))
-files_inf <- files_inf[order(param_indices)] # re-order in numerical order
+files_inf <- data.frame(file_name = list.files(pattern="*inf_hist.csv"),
+                        file_name_for_sep = list.files(pattern="*inf_hist.csv")) %>%
+  separate(col = file_name_for_sep, into = c("x", "cut_off", "param_index", "file_type", "y"), sep = "_") %>%
+  mutate(param_index = as.numeric(param_index)) %>%
+  arrange(param_index)
 
-files_vac <- list.files(pattern="*vac_hist.csv")
-matches2 <- regmatches(files_vac, gregexpr("[[:digit:]]+", files_vac))
-param_indices2 <- as.numeric(unlist(matches2))
-files_vac <- files_vac[order(param_indices2)] # re-order in numerical order
+files_vac <- data.frame(file_name = list.files(pattern="*vac_hist.csv"),
+                        file_name_for_sep = list.files(pattern="*vac_hist.csv")) %>%
+  separate(col = file_name_for_sep, into = c("x", "cut_off", "param_index", "file_type", "y"), sep = "_") %>%
+  select(-x,-y) %>%
+  mutate(param_index = as.numeric(param_index)) %>%
+  arrange(param_index)
 
-matching_elements <- which(gsub("_inf_hist.csv","",files_inf) %in% gsub("_vac_hist.csv","",files_vac))
-files_inf <- files_inf[matching_elements]
-
-n_files <- length(files_inf)
+all_files <- left_join(files_vac, files_inf, by = "param_index")
+n_files <- dim(all_files)[1]
 
 ### create progress bar
 for (i in 1:n_files){
 ### read in data from list of files
-  dt_inf = vroom(file = files_inf[i], delim = ",", col_names = TRUE)  %>%
-              mutate(Num_Infs = rowSums(select(.,Age0:Age18)), Param_Index = i)
-  dt_vac = vroom(file = files_vac[i], delim = ",", col_names = TRUE) %>%
-              mutate(Num_Vacs = rowSums(select(.,Age0:Age18)), Param_Index = i)
+  print(files_inf$file_name[i])
+  dt_inf = vroom(file = all_files$file_name.x[i], delim = ",", col_names = TRUE)  %>%
+              rename("Vac_Strategy" = "Vac_Strategy...1",
+                     "Vac_Strategy_num" = "Vac_Strategy...3") %>%
+              mutate(Num_Infs = rowSums(select(.,Age0:Age18)), Param_Index = files_inf$param_index[i])
+
+  print(files_vac$file_name[i])
+  dt_vac = vroom(file = all_files$file_name.y[i], delim = ",", col_names = TRUE) %>%
+              rename("Vac_Strategy" = "Vac_Strategy...1",
+                     "Vac_Strategy_num" = "Vac_Strategy...3") %>%
+              mutate(Num_Vacs = rowSums(select(.,Age0:Age18)), Param_Index = files_vac$param_index[i])
   if(length(unique(dt_vac$Vac_Strategy))<3){next} # make sure vac data contains all three vac strategies
 
 #######################################
@@ -148,7 +156,21 @@ for (i in 1:n_files){
           banana_bread <- banana_boat
           chocolate_surprise <- chocolate_sundae2
   }
-}
+
+  # remove dt_inf and dt_vac from memory
+  rm(dt_inf)
+  rm(dt_vac)
+
+  # write out files in case for loop stops
+  data.table::fwrite(banana_cream_pie, file = "banana_cream_pie_10_tmp.csv", col.names = TRUE,
+                     row.names = FALSE, sep = ",")
+  data.table::fwrite(banana_bread, file = "banana_bread_10_tmp.csv", col.names = TRUE,
+                     row.names = FALSE, sep = ",")
+  data.table::fwrite(chocolate_surprise, file = "chocolate_surprise_10_tmp.csv", col.names = TRUE,
+                     row.names = FALSE, sep = ",")
+
+
+  }
 
 #######################################
 ### Create summary output files
