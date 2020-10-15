@@ -27,8 +27,8 @@ devtools::load_all()
 #######################################
 # specify save directory
 # setwd("~/Dropbox/Kylie/Projects/Morevac/data/sim_data")
-# setwd("C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/data/sim_data/")
-setwd("C:/Users/ainsl/Dropbox/Kylie/Projects/Morevac/data/sim_data/")
+setwd("C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/data/sim_data/")
+# setwd("C:/Users/ainsl/Dropbox/Kylie/Projects/Morevac/data/sim_data/")
 
 #######################################
  ### Baseline
@@ -77,16 +77,17 @@ all_files <- left_join(files_vac, files_inf, by = "param_index")
 n_files <- dim(all_files)[1]
 
 ### create progress bar
-for (i in 1:n_files){
+start_index <- 173
+for (i in start_index:n_files){
 ### read in data from list of files
-  print(files_inf$file_name[i])
-  dt_inf = vroom(file = all_files$file_name.x[i], delim = ",", col_names = TRUE)  %>%
+  print(all_files$file_name.y[i])
+  dt_inf = vroom(file = all_files$file_name.y[i], delim = ",", col_names = TRUE)  %>%
               rename("Vac_Strategy" = "Vac_Strategy...1",
                      "Vac_Strategy_num" = "Vac_Strategy...3") %>%
               mutate(Num_Infs = rowSums(select(.,Age0:Age18)), Param_Index = files_inf$param_index[i])
 
-  print(files_vac$file_name[i])
-  dt_vac = vroom(file = all_files$file_name.y[i], delim = ",", col_names = TRUE) %>%
+  print(all_files$file_name.x[i])
+  dt_vac = vroom(file = all_files$file_name.x[i], delim = ",", col_names = TRUE) %>%
               rename("Vac_Strategy" = "Vac_Strategy...1",
                      "Vac_Strategy_num" = "Vac_Strategy...3") %>%
               mutate(Num_Vacs = rowSums(select(.,Age0:Age18)), Param_Index = files_vac$param_index[i])
@@ -148,7 +149,7 @@ for (i in 1:n_files){
   chocolate_sundae2 <- chocolate_sundae %>% group_by(Param_Index, Vac_Strategy, Age) %>% summarise(Mean_AR = mean(Attack_Rate)) %>%
                           ungroup() %>% mutate(Lower = my_ci[1,], Upper = my_ci[2,])
 
-  if(i > 1) {
+  if(i > start_index) {
     banana_cream_pie <- bind_rows(banana_cream_pie,banana_split2)
     banana_bread <- bind_rows(banana_bread,banana_boat)
     chocolate_surprise <- bind_rows(chocolate_surprise, chocolate_sundae2)
