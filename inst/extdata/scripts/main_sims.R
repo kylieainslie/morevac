@@ -51,12 +51,12 @@ run_sims_all(params_file = "param_values_10.csv", index = 121:140, out_file = "s
 # read in parameter file
 param_path <- "C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/data/sim_data/"
 
-param_values <- read.csv(paste0(param_path,"param_values_10.csv"), header = TRUE)
+param_values <- read.csv(paste0(param_path,"param_values_baseline.csv"), header = TRUE)
 names(param_values)[1] <- "Param_Index"
 
 # set working directory where results files are located
 # setwd("~/Dropbox/Kylie/Projects/Morevac/data/sim_data/cutoff10")
-setwd("C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/data/sim_data/cutoff10/sim500")
+setwd("C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/data/sim_data/baseline/sim500")
 
 # read in results (rather than re-run simulations)
 
@@ -77,7 +77,7 @@ all_files <- left_join(files_vac, files_inf, by = "param_index")
 n_files <- dim(all_files)[1]
 
 ### create progress bar
-start_index <- 173
+start_index <- 1
 for (i in start_index:n_files){
 ### read in data from list of files
   print(all_files$file_name.y[i])
@@ -163,11 +163,11 @@ for (i in start_index:n_files){
   rm(dt_vac)
 
   # write out files in case for loop stops
-  data.table::fwrite(banana_cream_pie, file = "banana_cream_pie_10_tmp.csv", col.names = TRUE,
+  data.table::fwrite(banana_cream_pie, file = paste0("banana_cream_pie_10_tmp",start_index,".csv"), col.names = TRUE,
                      row.names = FALSE, sep = ",")
-  data.table::fwrite(banana_bread, file = "banana_bread_10_tmp.csv", col.names = TRUE,
+  data.table::fwrite(banana_bread, file = paste0("banana_bread_10_tmp",start_index,".csv"), col.names = TRUE,
                      row.names = FALSE, sep = ",")
-  data.table::fwrite(chocolate_surprise, file = "chocolate_surprise_10_tmp.csv", col.names = TRUE,
+  data.table::fwrite(chocolate_surprise, file = paste0("chocolate_surprise_10_tmp",start_index,".csv"), col.names = TRUE,
                      row.names = FALSE, sep = ",")
 
 
@@ -182,11 +182,11 @@ banana_bread <- left_join(banana_bread, param_values, by = c("Param_Index"))
 chocolate_surprise <- left_join(chocolate_surprise, param_values, by = c("Param_Index"))
 
 # write files to avoid having to read in raw data again
-data.table::fwrite(banana_cream_pie, file = "banana_cream_pie_baseline.csv", col.names = TRUE,
+data.table::fwrite(banana_cream_pie, file = "banana_cream_pie_10.csv", col.names = TRUE,
                    row.names = FALSE, sep = ",")
-data.table::fwrite(banana_bread, file = "banana_bread_baseline.csv", col.names = TRUE,
+data.table::fwrite(banana_bread, file = "banana_bread_10.csv", col.names = TRUE,
                    row.names = FALSE, sep = ",")
-data.table::fwrite(chocolate_surprise, file = "chocolate_surprise_baseline.csv", col.names = TRUE,
+data.table::fwrite(chocolate_surprise, file = "chocolate_surprise_10.csv", col.names = TRUE,
                    row.names = FALSE, sep = ",")
 
 ############################################
