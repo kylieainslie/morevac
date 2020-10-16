@@ -31,18 +31,19 @@ obj <- didehpc::queue_didehpc(ctx)
 # run a single job
 # 'job' is the thing I am running on the cluster
 job <- obj$enqueue(
-        run_sims_all(params_file = "param_values_10.csv", index = 106:110, out_file = "sim_10_")
+        run_sims_all(params_file = "param_values_10.csv", index = 158, out_file = "sim_10_")
         )
 
-# bulk jobs
-library(morevac)
-library(lhs)
-# params <- create_params_file(n_sim = 100, n_indiv = 30000, lhc_size = 500, start_year = 1918, end_year = 2028,
-#                              out_file = "param_values", vac_cutoff = 10, seed = 1234)
-# params_16 <- create_params_file(n_sim = 100, n_indiv = 30000, lhc_size = 500, start_year = 1918, end_year = 2028,
-#                              out_file = "param_values_16", vac_cutoff = 16, seed = 1234)
-params_baseline <- read.csv(file = "param_values_10.csv", header = TRUE)
 
-job_bulk <- obj$enqueue_bulk(params_baseline, run_sims_clust, do_call = TRUE)
+# bulk jobs
+job_index <- c(113,165,170,175,183,195,216,217)
+
+for (i in job_index){
+  job <- obj$enqueue(
+           run_sims_all(params_file = "param_values_10.csv", index = i, out_file = "sim_10_")
+        )
+
+}
+# job_bulk <- obj$enqueue_bulk(params_baseline, run_sims_clust, do_call = TRUE)
 
 
