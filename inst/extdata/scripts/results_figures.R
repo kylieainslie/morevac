@@ -6,7 +6,7 @@ library(cowplot)
 ##############################################
 ### Figure 1 - AR plot by exposure penalty ###
 ##############################################
-setwd("C:/Users/ainsl/Dropbox/Kylie/Projects/Morevac/data/sim_data/baseline/")
+setwd("C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/data/sim_data/baseline/")
 
 chocolate_surprise <- vroom(file = "chocolate_surprise_baseline.csv", delim = ",", col_names = TRUE)
 
@@ -33,8 +33,8 @@ figure1 <- ggplot(data = chocolate_surprise2, aes(x = Age, y = Mean_AR, colour= 
   facet_wrap(~exposure_penalty, nrow=2)
 figure1
 
-filename <- "C:/Users/ainsl/Dropbox/Kylie/Projects/Morevac/figures/"
-png(file = paste0(filename,"figure1.png"), width = 12, height = 8,
+filename <- "C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/figures/"
+png(file = paste0(filename,"figure1_sim500.png"), width = 12, height = 8,
     units = "in", pointsize = 8, res = 300)
 figure1
 dev.off()
@@ -46,8 +46,8 @@ dev.off()
 # a) annual vs. no vac
 # b) annual vs. biennial
 ###################################
-setwd("C:/Users/ainsl/Dropbox/Kylie/Projects/Morevac/data/sim_data/cutoff10/")
-banana_cream_pie <- vroom(file = "banana_cream_pie.csv", delim = ",", col_names = TRUE) %>%
+setwd("C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/data/sim_data/cutoff10/sim500/")
+banana_cream_pie <- vroom(file = "banana_cream_pie_10.csv", delim = ",", col_names = TRUE) %>%
                       mutate(Diff_Color = ifelse(Upper < 0, '<0',ifelse(Lower <=0 & Upper >=0, '0',ifelse(Lower >0, '>0', 'something else'))))
 
 # a) Scatter plot of difference between annual and no vaccination
@@ -93,8 +93,8 @@ figure2b <- ggplot(data = banana_hammock_ab, aes(x = exposure_penalty, y = vac_p
 
 figure2 <- plot_grid(figure2a, figure2b, labels = "AUTO", nrow = 1) # rel_heights = c(1,1.5)
 
-filename <- "C:/Users/ainsl/Dropbox/Kylie/Projects/Morevac/figures/"
-png(file = paste0(filename,"figure2.png"), width = 12, height = 6,
+filename <- "C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/figures/"
+png(file = paste0(filename,"figure2_sim500.png"), width = 13, height = 6,
     units = "in", pointsize = 8, res = 300)
 figure2
 dev.off()
