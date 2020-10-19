@@ -26,7 +26,9 @@ run_sims_all <- function(params_file, index = NULL, out_file = "test"){
   n_indiv = params$n_indiv[i]
   max_age = params$max_age[i]
   years = params$start_year[i]:params$end_year[i]
-  betas = c(params$pandemic_beta[i], rep(params$epidemic_beta[i],length(years)-1))
+  if (fixed_beta){
+    betas = c(params$pandemic_beta[i], rep(params$epidemic_beta[i],length(years)-1))
+  } else {betas = c(params$pandemic_beta[i], rtgamma(length(years)-1, shape = 0.267, scale = 0.75, a = 0.15, b = 0.35))}
   wane = params$wane[i]
   take = params$take[i]
   epsilon = params$exposure_penalty[i]
