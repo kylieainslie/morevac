@@ -15,6 +15,7 @@ library(data.table)
 library(rdist)
 # library(Matrix)
 library(vroom)
+library(TruncatedDistributions)
 # library(foreach)
 # library(doParallel)
 
@@ -34,7 +35,7 @@ setwd("C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/data/sim_data/")
  ### Baseline
 #######################################
 # run simulations
-run_sims_all(params_file = "param_values_baseline.csv", out_file = "sim_baseline")
+run_sims_all(params_file = "param_values_baseline_time-varying_beta.csv", index = 1, out_file = "sim_baseline_tv_beta_")
 #######################################
  ### Latin hypercube
 #######################################
