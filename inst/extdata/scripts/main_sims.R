@@ -35,7 +35,7 @@ setwd("C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/data/sim_data/")
  ### Baseline
 #######################################
 # run simulations
-run_sims_all(params_file = "param_values_baseline_time-varying_beta.csv", index = 1, out_file = "sim_baseline_tv_beta_")
+run_sims_all(params_file = "param_values_baseline_time-varying_beta.csv", index = c(2,4,6,9,11), out_file = "sim_baseline2_")
 #######################################
  ### Latin hypercube
 #######################################
@@ -52,12 +52,12 @@ run_sims_all(params_file = "param_values_10.csv", index = 121:140, out_file = "s
 # read in parameter file
 param_path <- "C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/data/sim_data/"
 
-param_values <- read.csv(paste0(param_path,"param_values_baseline.csv"), header = TRUE)
+param_values <- read.csv(paste0(param_path,"param_values_baseline_time-varying_beta.csv"), header = TRUE)
 names(param_values)[1] <- "Param_Index"
 
 # set working directory where results files are located
 # setwd("~/Dropbox/Kylie/Projects/Morevac/data/sim_data/cutoff10")
-setwd("C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/data/sim_data/baseline/sim500")
+setwd("C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/data/sim_data/baseline/sim500/time-varying_beta")
 
 # read in results (rather than re-run simulations)
 
@@ -111,7 +111,7 @@ for (i in start_index:n_files){
   my_bootstrap <- plyr::dlply(banana, "Vac_Strategy", function(dat) boot(dat, foo1, R=100)) # boostrap for each set of param values
   my_ci <- sapply(my_bootstrap, function(x) boot.ci(x, index = 1, type='perc')$percent[c(4,5)]) # get confidence intervals
   banana_boat <- banana %>% group_by(Vac_Strategy) %>% summarise(Mean_Infs = mean(Mean_Infs)) %>%
-                  mutate(Lower = my_ci[1,], Upper = my_ci[2,], Param_Index = i)
+                  mutate(Lower = my_ci[1,], Upper = my_ci[2,], Param_Index = all_files$param_index[i])
 
 # Difference in childhood infs
   banana_split <- banana %>% spread(Vac_Strategy, Mean_Infs) %>%
@@ -128,7 +128,7 @@ for (i in start_index:n_files){
   my_ci <- sapply(my_bootstrap, function(x) boot.ci(x, index = 1, type='perc')$percent[c(4,5)]) # get confidence intervals
 
   banana_split2 <- banana_split %>% group_by(Type) %>% summarise(Mean_Diff = mean(Difference)) %>%
-                      mutate(Lower = my_ci[1,], Upper = my_ci[2,], Param_Index = i)
+                      mutate(Lower = my_ci[1,], Upper = my_ci[2,], Param_Index = all_files$param_index[i])
 
 # summarise raw data for attack rates
   chocolate_sprinkles <- dt_inf %>% group_by(Vac_Strategy, Sim, Cohort, Param_Index) %>% do(tail(.,1))
@@ -164,11 +164,11 @@ for (i in start_index:n_files){
   rm(dt_vac)
 
   # write out files in case for loop stops
-  data.table::fwrite(banana_cream_pie, file = paste0("banana_cream_pie_10_tmp",start_index,".csv"), col.names = TRUE,
+  data.table::fwrite(banana_cream_pie, file = paste0("banana_cream_pie_tmp",start_index,".csv"), col.names = TRUE,
                      row.names = FALSE, sep = ",")
-  data.table::fwrite(banana_bread, file = paste0("banana_bread_10_tmp",start_index,".csv"), col.names = TRUE,
+  data.table::fwrite(banana_bread, file = paste0("banana_bread_tmp",start_index,".csv"), col.names = TRUE,
                      row.names = FALSE, sep = ",")
-  data.table::fwrite(chocolate_surprise, file = paste0("chocolate_surprise_10_tmp",start_index,".csv"), col.names = TRUE,
+  data.table::fwrite(chocolate_surprise, file = paste0("chocolate_surprise_tmp",start_index,".csv"), col.names = TRUE,
                      row.names = FALSE, sep = ",")
 
 
@@ -183,11 +183,11 @@ banana_bread <- left_join(banana_bread, param_values, by = c("Param_Index"))
 chocolate_surprise <- left_join(chocolate_surprise, param_values, by = c("Param_Index"))
 
 # write files to avoid having to read in raw data again
-data.table::fwrite(banana_cream_pie, file = "banana_cream_pie_10.csv", col.names = TRUE,
+data.table::fwrite(banana_cream_pie, file = "banana_cream_pie_baseline2.csv", col.names = TRUE,
                    row.names = FALSE, sep = ",")
-data.table::fwrite(banana_bread, file = "banana_bread_10.csv", col.names = TRUE,
+data.table::fwrite(banana_bread, file = "banana_bread_baseline2.csv", col.names = TRUE,
                    row.names = FALSE, sep = ",")
-data.table::fwrite(chocolate_surprise, file = "chocolate_surprise_10.csv", col.names = TRUE,
+data.table::fwrite(chocolate_surprise, file = "chocolate_surprise_baseline2.csv", col.names = TRUE,
                    row.names = FALSE, sep = ",")
 
 ############################################
