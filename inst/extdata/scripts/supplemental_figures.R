@@ -406,65 +406,9 @@ png(file = paste0(filename,"SuppMatFig2.png"), width = 12, height = 16,
 sm_figure2
 dev.off()
 
-#######################################################
-### Supplemental Figure 3 - bivariate scatter plots ###
-#######################################################
-# cutoff = 16
-# VE x exposure penalty
-#######################################################
-# c) cutoff = 16: scatter plots of all mean diff by exposure_penalty & vac_protect
-p3c1 <- ggplot(banana_hammock_16, aes(x = exposure_penalty, y = Mean_Diff, color = Diff_Color)) +
-  geom_point() +
-  geom_errorbar(aes(ymin = Lower, ymax = Upper)) +
-  geom_hline(yintercept = 0, color = "black") +
-  scale_color_manual(name = 'Difference', values = c("#F8766D","#00BA38", "#619CFF")) +
-  xlab("Exposure Penalty") +
-  ylab('Difference') +
-  theme(legend.position = "none",
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.background = element_blank(),
-        axis.text=element_text(size=12),
-        axis.title=element_text(size=14)) +
-  geom_point(data = banana_hammock_zero_16, aes(x = exposure_penalty, y = Mean_Diff), alpha = 0.4) +
-  geom_errorbar(data = banana_hammock_zero_16, aes(ymin = Lower, ymax = Upper), alpha = 0.4)
-
-p3c2 <- ggplot(banana_hammock_16, aes(x = vac_protect, y = Mean_Diff, color = Diff_Color)) +
-  geom_point() +
-  geom_errorbar(aes(ymin = Lower, ymax = Upper)) +
-  geom_hline(yintercept = 0, color = "black") +
-  scale_color_manual(name = 'Difference', values = c("#F8766D","#00BA38", "#619CFF")) +
-  xlab("Vaccine Effectiveness") +
-  ylab('Difference') +
-  theme(legend.position = "none",
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.background = element_blank(),
-        axis.text=element_text(size=12),
-        axis.title=element_text(size=14)) +
-  geom_point(data = banana_hammock_zero_16, aes(x = vac_protect, y = Mean_Diff), alpha = 0.4) +
-  geom_errorbar(data = banana_hammock_zero_16, aes(ymin = Lower, ymax = Upper), alpha = 0.4)
-
-p3c <- plot_grid(p3c1, p3c2, ncol = 1, align = 'v', axis = 'l')
-
-# d) cutoff = 16: scatter plot of vac_protect x exposure_penalty with only sig diff points
-p3d <- ggplot(data = banana_hammock_16, aes(x = exposure_penalty, y = vac_protect, color = Diff_Color)) +
-  geom_point(aes(size = Abs_Val), alpha = 0.7) +
-  scale_size_continuous(name = "|Difference|") +
-  scale_color_manual(name = "Difference", values = c("#F8766D","#00BA38")) +
-  xlab('Exposure Penalty') +
-  ylab('VaccineEffectiveness') +
-  theme(legend.position = "bottom",
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.background = element_blank(),
-        axis.text=element_text(size=12),
-        axis.title=element_text(size=14),
-        legend.text = element_text(size=12),
-        legend.title = element_text(size=12))
 
 ###############################################################
-### Supplemental Figure 4 - attack rates for time-varying beta
+### Supplemental Figure 3 - attack rates for time-varying beta
 ###############################################################
 setwd("C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/data/sim_data/baseline/sim500/time-varying_beta/")
 
@@ -501,7 +445,7 @@ dev.off()
 
 
 ###############################################################
-### Supplemental Figure 5 - scatter plots for time-varying beta
+### Supplemental Figure 4 - scatter plots for time-varying beta
 ###############################################################
 # a) annual vs. no vac
 # b) annual vs. biennial
@@ -557,4 +501,61 @@ png(file = paste0(filename,"figure_s5_sim500.png"), width = 13, height = 6,
     units = "in", pointsize = 8, res = 300)
 figure2
 dev.off()
+
+# #######################################################
+# ### Supplemental Figure 3 - bivariate scatter plots ###
+# #######################################################
+# # cutoff = 16
+# # VE x exposure penalty
+# #######################################################
+# # c) cutoff = 16: scatter plots of all mean diff by exposure_penalty & vac_protect
+# p3c1 <- ggplot(banana_hammock_16, aes(x = exposure_penalty, y = Mean_Diff, color = Diff_Color)) +
+#   geom_point() +
+#   geom_errorbar(aes(ymin = Lower, ymax = Upper)) +
+#   geom_hline(yintercept = 0, color = "black") +
+#   scale_color_manual(name = 'Difference', values = c("#F8766D","#00BA38", "#619CFF")) +
+#   xlab("Exposure Penalty") +
+#   ylab('Difference') +
+#   theme(legend.position = "none",
+#         panel.grid.major = element_blank(),
+#         panel.grid.minor = element_blank(),
+#         panel.background = element_blank(),
+#         axis.text=element_text(size=12),
+#         axis.title=element_text(size=14)) +
+#   geom_point(data = banana_hammock_zero_16, aes(x = exposure_penalty, y = Mean_Diff), alpha = 0.4) +
+#   geom_errorbar(data = banana_hammock_zero_16, aes(ymin = Lower, ymax = Upper), alpha = 0.4)
+#
+# p3c2 <- ggplot(banana_hammock_16, aes(x = vac_protect, y = Mean_Diff, color = Diff_Color)) +
+#   geom_point() +
+#   geom_errorbar(aes(ymin = Lower, ymax = Upper)) +
+#   geom_hline(yintercept = 0, color = "black") +
+#   scale_color_manual(name = 'Difference', values = c("#F8766D","#00BA38", "#619CFF")) +
+#   xlab("Vaccine Effectiveness") +
+#   ylab('Difference') +
+#   theme(legend.position = "none",
+#         panel.grid.major = element_blank(),
+#         panel.grid.minor = element_blank(),
+#         panel.background = element_blank(),
+#         axis.text=element_text(size=12),
+#         axis.title=element_text(size=14)) +
+#   geom_point(data = banana_hammock_zero_16, aes(x = vac_protect, y = Mean_Diff), alpha = 0.4) +
+#   geom_errorbar(data = banana_hammock_zero_16, aes(ymin = Lower, ymax = Upper), alpha = 0.4)
+#
+# p3c <- plot_grid(p3c1, p3c2, ncol = 1, align = 'v', axis = 'l')
+#
+# # d) cutoff = 16: scatter plot of vac_protect x exposure_penalty with only sig diff points
+# p3d <- ggplot(data = banana_hammock_16, aes(x = exposure_penalty, y = vac_protect, color = Diff_Color)) +
+#   geom_point(aes(size = Abs_Val), alpha = 0.7) +
+#   scale_size_continuous(name = "|Difference|") +
+#   scale_color_manual(name = "Difference", values = c("#F8766D","#00BA38")) +
+#   xlab('Exposure Penalty') +
+#   ylab('VaccineEffectiveness') +
+#   theme(legend.position = "bottom",
+#         panel.grid.major = element_blank(),
+#         panel.grid.minor = element_blank(),
+#         panel.background = element_blank(),
+#         axis.text=element_text(size=12),
+#         axis.title=element_text(size=14),
+#         legend.text = element_text(size=12),
+#         legend.title = element_text(size=12))
 
