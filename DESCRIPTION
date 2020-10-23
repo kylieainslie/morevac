@@ -17,7 +17,8 @@ Imports: Rcpp (>= 1.0.1),
          dplyr,
          lhs,
          tibble,
-         utils
+         utils,
+         logitnorm
 Suggests: knitr, 
           rmarkdown,
           ggplot2,
