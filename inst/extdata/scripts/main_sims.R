@@ -13,9 +13,9 @@ library(lhs)
 library(boot)
 library(data.table)
 library(rdist)
-# library(Matrix)
 library(vroom)
-library(TruncatedDistributions)
+library(logitnorm)
+# library(TruncatedDistributions)
 # library(foreach)
 # library(doParallel)
 
@@ -35,7 +35,7 @@ setwd("C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/data/sim_data/")
  ### Baseline
 #######################################
 # run simulations
-run_sims_all(params_file = "param_values_baseline_time-varying_beta.csv", index = c(2,4,6,9,11), out_file = "sim_baseline2_")
+run_sims_all(params_file = "param_values_baseline_time-varying_beta.csv", index = c(1,2,4,6,9,11), out_file = "sim_baseline2_")
 #######################################
  ### Latin hypercube
 #######################################
