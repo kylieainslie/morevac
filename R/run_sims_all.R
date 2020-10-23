@@ -9,6 +9,7 @@
 #' @return writes csv files to the working directory with infection and vaccination histories for every row of params_file
 #' @keywords morevac
 #' @importFrom data.table fread
+#' @importFrom logitnorm rlogitnorm
 #' @export
 run_sims_all <- function(params_file, index = NULL, out_file = "test"){
 
@@ -28,7 +29,7 @@ run_sims_all <- function(params_file, index = NULL, out_file = "test"){
   years = params$start_year[i]:params$end_year[i]
   if (params$fixed_beta[i]){
     betas = c(params$pandemic_beta[i], rep(params$epidemic_beta[i],length(years)-1))
-  } else {betas = c(params$pandemic_beta[i], rtgamma(length(years)-1, shape = 0.267, scale = 0.75, a = 0.15, b = 0.35))}
+  } else {betas = c(params$pandemic_beta[i], rlogitnorm(length(years)-1, mu = -1.386, sigma = 0.35))}
   wane = params$wane[i]
   take = params$take[i]
   epsilon = params$exposure_penalty[i]
@@ -50,19 +51,6 @@ run_sims_all <- function(params_file, index = NULL, out_file = "test"){
     sim_results [[vac_strat]] <- sim_raw
     rm(sim_raw)
   }
-
-
-  # cat("\n Annual vaccination simulation running... \n")
-  # sim_test1 <- run_sim_2(sim = n_sim, n = n_indiv, years = years, betas = betas, vac_cov = vac_cov_dat$Annual, vac_strategy = 1,
-  #                        wane = wane, take = take, epsilon = epsilon, vac_protect = vac_protect, rho = rho)
-  # # cat("\n Every other year vaccination simulation running... \n")
-  # sim_test2 <- run_sim_2(sim = n_sim, n = n_indiv, years = years, betas = betas, vac_cov = vac_cov_dat$Biennial, vac_strategy = 2,
-  #                        wane = wane, take = take, epsilon = epsilon, vac_protect = vac_protect, rho = rho)
-  #
-  # # extract cohorts from each sim and combine raw inf and vac histories for every simulation
-  #
-  # sim1_results <- postprocess_sim_results_for_rolling_cohort(sim_dat = sim_test1, total_year_range = years, n_sim = n_sim)
-  # sim2_results <- postprocess_sim_results_for_rolling_cohort(sim_dat = sim_test2, total_year_range = years, n_sim = n_sim)
 
   # combine sim results into one data.table
   inf_histories <- rbindlist(list(No_Vac = sim_results[[1]]$inf_history, Annual = sim_results[[2]]$inf_history, Biennial = sim_results[[3]]$inf_history), idcol = 'Vac_Strategy')
