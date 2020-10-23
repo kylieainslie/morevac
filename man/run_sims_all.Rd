@@ -4,10 +4,12 @@
 \alias{run_sims_all}
 \title{This function runs sims for each combination of parameter value from parameter input file creates}
 \usage{
-run_sims_all(params_file, out_file = "test")
+run_sims_all(params_file, index = NULL, out_file = "test")
 }
 \arguments{
 \item{params_file}{character string indicating the name of the file with input parameter values}
+
+\item{index}{sequence of rows to index params file by}
 
 \item{out_file}{character string indicating name of output file}
 }
