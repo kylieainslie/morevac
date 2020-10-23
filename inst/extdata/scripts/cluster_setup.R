@@ -19,7 +19,7 @@ root <- "contexts"
 # setting up the context: what files need to be sourced for your function to work, what packages you need
 # package sources only required here because the package I am using is not on CRAN
 ctx <- context::context_save(path = root,
-                             packages = c("morevac","Rcpp","dplyr","data.table","rdist", "Matrix"),
+                             packages = c("morevac","Rcpp","dplyr","data.table","rdist", "Matrix", "logitnorm"),
                              package_sources = provisionr::package_sources(#github = "kylieainslie/morevac",
                                                                            local = "Q:/cluster/morevac_1.0.zip",
                                                                            cran = "https://cran.ma.imperial.ac.uk/")
