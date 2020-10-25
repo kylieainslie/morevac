@@ -16,8 +16,8 @@
 #' @importFrom boot boot.ci
 #' @export
 
-summarise_raw_output <- function(dt_inf = inf_histories,
-                                 dt_vac = vac_histories,
+summarise_raw_output <- function(dt_inf,
+                                 dt_vac,
                                  id){
 
 # combine dt_inf and dt_vac and determine mean number of

@@ -73,7 +73,9 @@ run_sims_all <- function(params_file,
            Num_Vacs = rowSums(select(.,Age0:Age18)))
 
   # determine mean infections and attack rates over simulations and bootstrap for CIs
-  data_summary <- summarise_raw_output(id = params$id[i])
+  data_summary <- summarise_raw_output(dt_inf = inf_histories,
+                                       dt_vac = vac_histories,
+                                       id = params$id[i])
 
   ### Create summary output files
   # bind columns with parameter values
