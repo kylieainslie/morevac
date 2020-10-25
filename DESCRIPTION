@@ -20,11 +20,11 @@ Imports: Rcpp (>= 1.0.1),
          utils,
          logitnorm,
          plyr,
-         boot
+         boot,
+         stringr
 Suggests: knitr, 
           rmarkdown,
           ggplot2,
-          cowplot,
-          stringr
+          cowplot
 SystemRequirements: C++11
 VignetteBuilder: knitr
