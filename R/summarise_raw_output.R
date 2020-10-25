@@ -52,12 +52,12 @@ banana_boat <- banana %>%
 
 # Difference in childhood infs
 banana_split <- banana %>%
-  spread(.data$Vac_Strategy, .data$Mean_Infs) %>%
+  spread(Vac_Strategy, Mean_Infs) %>%
   mutate(Diff_AB = .data$Annual - .data$Biennial,
          Diff_AN = .data$Annual - .data$No_Vac,
          Diff_BN = .data$Biennial - .data$No_Vac) %>%
   select(.data$Sim, .data$Diff_AB, .data$Diff_AN, .data$Diff_BN) %>%
-  gather(.data$Type, .data$Difference, .data$Diff_AB:.data$Diff_BN)
+  gather(Type, Difference, Diff_AB:Diff_BN)
 
 # bootstrap to get CI for Difference
 foo2 <- function(data, indices){
@@ -81,11 +81,11 @@ chocolate_bar <- dt_inf %>%
   summarise_all(list(sum))
 chocolate_bar$ID <- chocolate_sprinkles$ID
 chocolate_sundae <- chocolate_bar %>%
-  mutate_at(vars(.data$Age0:.data$Age18), funs(.data/.data$ID)) %>%
+  mutate_at(vars(Age0:Age18), funs(./ID)) %>%
   select(.data$Param_Index, .data$Vac_Strategy, .data$Sim, .data$Cohort, .data$Age0:.data$Age18) %>%
   group_by(.data$Param_Index, .data$Vac_Strategy, .data$Sim) %>%
   summarise_at(vars(.data$Age0:.data$Age18), mean) %>%
-  gather(.data$Age, .data$Attack_Rate, .data$Age0:.data$Age18) %>%
+  gather(Age, Attack_Rate, Age0:Age18) %>%
   mutate(Age = as.numeric(str_remove(.data$Age, 'Age')))
 
 # bootstrap to get CI for ARs

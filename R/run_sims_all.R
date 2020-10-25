@@ -65,13 +65,13 @@ run_sims_all <- function(params_file,
                                   Biennial = sim_results[[3]]$inf_history),
                              idcol = 'Vac_Strategy') %>%
     mutate(Param_Index = params$id[i],
-           Num_Infs = rowSums(select(.data,.data$Age0:.data$Age18)))
+           Num_Infs = rowSums(select(.,Age0:Age18)))
   vac_histories <- rbindlist(list(No_Vac = sim_results[[1]]$vac_history,
                                   Annual = sim_results[[2]]$vac_history,
                                   Biennial = sim_results[[3]]$vac_history),
                              idcol = 'Vac_Strategy') %>%
     mutate(Param_Index = params$id[i],
-           Num_Vacs = rowSums(select(.data,.data$Age0:.data$Age18)))
+           Num_Vacs = rowSums(select(.,Age0:Age18)))
 
   # determine mean infections and attack rates over simulations and bootstrap for CIs
   data_summary <- summarise_raw_output(dt_inf = inf_histories,
