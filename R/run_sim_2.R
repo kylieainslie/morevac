@@ -74,12 +74,12 @@ run_sim_2 <- function(sim = 100,
 
     # tiny bit of data wrangling
       my_cohorts$inf_history$Sim <- my_cohorts$vac_history$Sim <- s
-      my_cohorts$inf_history$Vac_Strategy <- my_cohorts$vac_history$Vac_Strategy <- vac_strategy
+      my_cohorts$inf_history$Vac_Strategy_num <- my_cohorts$vac_history$Vac_Strategy_num <- vac_strategy
       my_cohorts$inf_history <- setcolorder(my_cohorts$inf_history,
-                                            c("Sim","Vac_Strategy","Cohort","ID",paste0("Age",0:(length_study-1)))
+                                            c("Sim","Vac_Strategy_num","Cohort","ID",paste0("Age",0:(length_study-1)))
                                             )
       my_cohorts$vac_history <- setcolorder(my_cohorts$vac_history,
-                                            c("Sim","Vac_Strategy","Cohort","ID",paste0("Age",0:(length_study-1)))
+                                            c("Sim","Vac_Strategy_num","Cohort","ID",paste0("Age",0:(length_study-1)))
                                             )
 
     # remove raw output from memory
