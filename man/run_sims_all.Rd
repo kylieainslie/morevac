@@ -4,7 +4,12 @@
 \alias{run_sims_all}
 \title{This function runs sims for each combination of parameter value from parameter input file creates}
 \usage{
-run_sims_all(params_file, index = NULL, out_file = "test")
+run_sims_all(
+  params_file,
+  index = NULL,
+  out_file = "test_",
+  raw_out_file = FALSE
+)
 }
 \arguments{
 \item{params_file}{character string indicating the name of the file with input parameter values}
@@ -12,6 +17,8 @@ run_sims_all(params_file, index = NULL, out_file = "test")
 \item{index}{sequence of rows to index params file by}
 
 \item{out_file}{character string indicating name of output file}
+
+\item{raw_out_file}{if true, raw infection and vaccination history files are output. If false, only summary files are output.}
 }
 \value{
 writes csv files to the working directory with infection and vaccination histories for every row of params_file
