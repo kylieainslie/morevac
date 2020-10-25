@@ -76,15 +76,15 @@ banana_split2 <- banana_split %>%
 chocolate_sprinkles <- dt_inf %>%
   group_by(.data$Vac_Strategy, .data$Sim, .data$Cohort, .data$Param_Index) %>% do(tail(.,1))
 chocolate_bar <- dt_inf %>%
-  group_by(Vac_Strategy, Sim, Cohort, Param_Index) %>%
+  group_by(.data$Vac_Strategy, .data$Sim, .data$Cohort, .data$Param_Index) %>%
   select(-.data$ID) %>%
   summarise_all(list(sum))
 chocolate_bar$ID <- chocolate_sprinkles$ID
 chocolate_sundae <- chocolate_bar %>%
-  mutate_at(vars(Age0:Age18), funs(.data/ID)) %>%
+  mutate_at(vars(.data$Age0:.data$Age18), funs(.data/.data$ID)) %>%
   select(.data$Param_Index, .data$Vac_Strategy, .data$Sim, .data$Cohort, .data$Age0:.data$Age18) %>%
   group_by(.data$Param_Index, .data$Vac_Strategy, .data$Sim) %>%
-  summarise_at(vars(Age0:Age18), mean) %>%
+  summarise_at(vars(.data$Age0:.data$Age18), mean) %>%
   gather(.data$Age, .data$Attack_Rate, .data$Age0:.data$Age18) %>%
   mutate(Age = as.numeric(str_remove(.data$Age, 'Age')))
 
