@@ -86,7 +86,7 @@ run_sims_all <- function(params_file,
                      col.names = TRUE, row.names = FALSE, sep = ",")
   data.table::fwrite(mean_diff, file = paste0("mean_diff_",out_file,params$id[i],".csv"), col.names = TRUE,
                      row.names = FALSE, sep = ",")
-  data.table::fwrite(mean_ar, file = paste0("mean_ar",out_file,params$id[i],".csv"), col.names = TRUE,
+  data.table::fwrite(mean_ar, file = paste0("mean_ar_",out_file,params$id[i],".csv"), col.names = TRUE,
                      row.names = FALSE, sep = ",")
 
 
