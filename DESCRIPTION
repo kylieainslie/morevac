@@ -18,7 +18,9 @@ Imports: Rcpp (>= 1.0.1),
          lhs,
          tibble,
          utils,
-         logitnorm
+         logitnorm,
+         plyr,
+         boot
 Suggests: knitr, 
           rmarkdown,
           ggplot2,
