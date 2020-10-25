@@ -59,11 +59,21 @@ run_sims_all <- function(params_file,
   }
 
   # combine sim results into one data.table
-  inf_histories <- rbindlist(list(No_Vac = sim_results[[1]]$inf_history, Annual = sim_results[[2]]$inf_history, Biennial = sim_results[[3]]$inf_history), idcol = 'Vac_Strategy')
-  vac_histories <- rbindlist(list(No_Vac = sim_results[[1]]$vac_history, Annual = sim_results[[2]]$vac_history, Biennial = sim_results[[3]]$vac_history), idcol = 'Vac_Strategy')
+  inf_histories <- rbindlist(list(No_Vac = sim_results[[1]]$inf_history,
+                                  Annual = sim_results[[2]]$inf_history,
+                                  Biennial = sim_results[[3]]$inf_history),
+                             idcol = 'Vac_Strategy') %>%
+    mutate(Param_Index = params$id[i],
+           Num_Infs = rowSums(select(.,Age0:Age18)))
+  vac_histories <- rbindlist(list(No_Vac = sim_results[[1]]$vac_history,
+                                  Annual = sim_results[[2]]$vac_history,
+                                  Biennial = sim_results[[3]]$vac_history),
+                             idcol = 'Vac_Strategy') %>%
+    mutate(Param_Index = params$id[i],
+           Num_Vacs = rowSums(select(.,Age0:Age18)))
 
   # determine mean infections and attack rates over simulations and bootstrap for CIs
-  data_summary <- summarise_raw_output()
+  data_summary <- summarise_raw_output(id = params$id[i])
 
   ### Create summary output files
   # bind columns with parameter values
