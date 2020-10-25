@@ -52,17 +52,20 @@ run_sims_all(params_file = "param_values_10.csv", index = 121:140, out_file = "s
 #######################################
 # set working directory where results files are located
 # setwd("~/Dropbox/Kylie/Projects/Morevac/data/sim_data/cutoff10")
-setwd("C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/data/sim_data/baseline/sim1000")
+setwd("C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/data/sim_data/cutoff10/sim1000")
 
 # read in results (rather than re-run simulations)
 files_mean_infs <- list.files(pattern="mean_infs*")
 mean_infs <- vroom(files_mean_infs)
+write.csv(mean_infs, "mean_infs_10_sim1000.csv")
 
 files_mean_diff <- list.files(pattern="mean_diff*")
 mean_diff <- vroom(files_mean_diff)
+write.csv(mean_infs, "mean_diff_10_sim1000.csv")
 
 files_mean_ar <- list.files(pattern="mean_ar*")
 mean_ar <- vroom(files_mean_ar)
+write.csv(mean_infs, "mean_ar_10_sim1000.csv")
 
 
 ############################################
