@@ -6,12 +6,16 @@
 #' @param params_file character string indicating the name of the file with input parameter values
 #' @param index sequence of rows to index params file by
 #' @param out_file character string indicating name of output file
+#' @param raw_out_file if true, raw infection and vaccination history files are output. If false, only summary files are output.
 #' @return writes csv files to the working directory with infection and vaccination histories for every row of params_file
 #' @keywords morevac
 #' @importFrom data.table fread
 #' @importFrom logitnorm rlogitnorm
 #' @export
-run_sims_all <- function(params_file, index = NULL, out_file = "test"){
+run_sims_all <- function(params_file,
+                         index = NULL,
+                         out_file = "test_",
+                         raw_out_file = FALSE){
 
   ### read in parameter file
   params <- fread(params_file)
@@ -22,6 +26,7 @@ run_sims_all <- function(params_file, index = NULL, out_file = "test"){
 
   for (i in 1:nrow(params)){
   cat("\n Simulation ",i," of",nrow(params),"\n")
+
   ### parameter values
   n_sim = params$n_sim[i]
   n_indiv = params$n_indiv[i]
@@ -40,6 +45,7 @@ run_sims_all <- function(params_file, index = NULL, out_file = "test"){
   vac_cov_dat <- data.frame(Age = 0:(max_age-1), No_Vac = numeric(max_age), Annual = numeric(max_age), Biennial = numeric(max_age))
   vac_cov_dat$Annual[3:(vac_cutoff + 1)] <- params$vac_cov[i]
   vac_cov_dat$Biennial[seq(3,vac_cutoff+1,2)] <- params$vac_cov[i]
+
   ### run simulations
   # returns 3 arrays with inf_hist_mat, vac_hist_mat, and ages_mat from each sim
   sim_results <- list()
@@ -56,10 +62,30 @@ run_sims_all <- function(params_file, index = NULL, out_file = "test"){
   inf_histories <- rbindlist(list(No_Vac = sim_results[[1]]$inf_history, Annual = sim_results[[2]]$inf_history, Biennial = sim_results[[3]]$inf_history), idcol = 'Vac_Strategy')
   vac_histories <- rbindlist(list(No_Vac = sim_results[[1]]$vac_history, Annual = sim_results[[2]]$vac_history, Biennial = sim_results[[3]]$vac_history), idcol = 'Vac_Strategy')
 
+  # determine mean infections and attack rates over simulations and bootstrap for CIs
+  data_summary <- summarise_raw_output()
+
+  ### Create summary output files
+  # bind columns with parameter values
+  mean_infs <- left_join(data_summary$mean_infs, params, by = c("Param_Index" = "id"))
+  mean_diff <- left_join(data_summary$mean_diff, params, by = c("Param_Index" = "id"))
+  mean_ar <- left_join(data_summary$mean_ar, params, by = c("Param_Index" = "id"))
+
+  # write files to avoid having to read in raw data again
+  data.table::fwrite(mean_infs, file = paste0("mean_infs_",out_file,params$id[i],".csv"),
+                     col.names = TRUE, row.names = FALSE, sep = ",")
+  data.table::fwrite(mean_diff, file = paste0("mean_diff_",out_file,params$id[i],".csv"), col.names = TRUE,
+                     row.names = FALSE, sep = ",")
+  data.table::fwrite(mean_ar, file = paste0("mean_ar",out_file,params$id[i],".csv"), col.names = TRUE,
+                     row.names = FALSE, sep = ",")
+
+
   # write raw output to file
-  try(data.table::fwrite(inf_histories, file = paste0(out_file, params$id[i],"_inf_hist.csv"), col.names = TRUE,
-                         row.names = FALSE, sep = ","))
-  try(data.table::fwrite(vac_histories, file = paste0(out_file, params$id[i],"_vac_hist.csv"), col.names = TRUE,
-                         row.names = FALSE, sep = ","))
+    if(raw_out_file){
+      try(data.table::fwrite(inf_histories, file = paste0(out_file, params$id[i],"_inf_hist.csv"), col.names = TRUE,
+                             row.names = FALSE, sep = ","))
+      try(data.table::fwrite(vac_histories, file = paste0(out_file, params$id[i],"_vac_hist.csv"), col.names = TRUE,
+                             row.names = FALSE, sep = ","))
+    }
   }
 }
