@@ -1,6 +1,6 @@
 ### run simulations from parameter file ###
 # created: 23/01/2020
-# last modified: 23/01/2020
+# last modified: 25/10/2020
 
 #' This function runs sims for each combination of parameter value from parameter input file creates
 #' @param params_file character string indicating the name of the file with input parameter values

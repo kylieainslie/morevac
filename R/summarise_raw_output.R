@@ -1,7 +1,24 @@
+### run simulations from parameter file ###
+# created: 25/10/2020
+# last modified: 25/10/2020
+
+#' This function runs sims for each combination of parameter value from parameter input file creates
+#' @param dt_inf data frame of infection histories
+#' @param dt_vac data frame of vaccination histories
+#' @param id index of parameter values
+#' @return returns a list of 3 data frames:
+#'         - mean number of infections by vaccination strategy
+#'         - mean difference in number of infections by vaccination strategy
+#'         - mean attack rates by age and vaccination strategy
+#' @keywords morevac
+#' @importFrom plyr dlply
+#' @importFrom boot boot
+#' @importFrom boot boot.ci
+#' @export
 
 summarise_raw_output <- function(dt_inf = inf_histories,
                                  dt_vac = vac_histories,
-                                 id = params$id){
+                                 id){
 
 # combine dt_inf and dt_vac and determine mean number of
 # infections by vac strategy
