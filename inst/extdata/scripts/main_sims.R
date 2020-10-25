@@ -41,7 +41,7 @@ run_sims_all(params_file = "param_values_test.csv", out_file = "sim_test_")
  ### Latin hypercube
 #######################################
 # create parameter combination
-params <- create_params_file(n_sim = 500, n_indiv = 30000, lhc_size = 500, out_file = "param_values_10",
+params <- create_params_file(n_sim = 1000, n_indiv = 30000, lhc_size = 250, out_file = "param_values_10",
                              vac_cutoff = 10, seed = 1234)
 
 # run simulations
