@@ -74,7 +74,7 @@ banana_split2 <- banana_split %>%
 
 # summarise raw data for attack rates
 chocolate_sprinkles <- dt_inf %>%
-  group_by(.data$Vac_Strategy, .data$Sim, .data$Cohort, .data$Param_Index) %>% do(tail(.,1))
+  group_by(.data$Vac_Strategy, .data$Sim, .data$Cohort, .data$Param_Index) %>% do(tail(.data,1))
 chocolate_bar <- dt_inf %>%
   group_by(.data$Vac_Strategy, .data$Sim, .data$Cohort, .data$Param_Index) %>%
   select(-.data$ID) %>%
