@@ -490,16 +490,16 @@ dev.off()
 ###############################################################
 ### Supplemental Figure 3 - attack rates for time-varying beta
 ###############################################################
-setwd("C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/data/sim_data/baseline/sim500/time-varying_beta/")
+setwd("C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/data/sim_data/baseline/sim1000/time-varying_beta/")
 
-chocolate_surprise <- vroom(file = "chocolate_surprise_baseline2.csv", delim = ",", col_names = TRUE)
+mean_ar_baseline_tvb <- vroom(file = "mean_ar_baseline2_sim1000.csv", delim = ",", col_names = TRUE)
 
 ### AR for different values of epsilon
-chocolate_surprise2 <- chocolate_surprise %>%
+mean_ar_baseline_tvb2 <- mean_ar_baseline_tvb %>%
   select(-c(n_sim, n_indiv, max_age, start_year, end_year, pandemic_beta, epidemic_beta)) %>%
   filter(exposure_penalty %in% c(0, 0.01, 0.03, 0.05, 0.08, 0.1) & vac_protect == 0.7 & Param_Index != 18)
 
-figure_s4 <- ggplot(data = chocolate_surprise2, aes(x = Age, y = Mean_AR, colour= Vac_Strategy)) +
+figure_s3 <- ggplot(data = mean_ar_baseline_tvb2, aes(x = Age, y = Mean_AR, colour= Vac_Strategy)) +
   geom_line() +
   geom_ribbon(aes(x=Age,ymin=Lower,ymax=Upper,linetype=NA, fill = Vac_Strategy),alpha=0.2) +
   scale_y_continuous(limits = c(0, 0.2)) +
@@ -515,72 +515,73 @@ figure_s4 <- ggplot(data = chocolate_surprise2, aes(x = Age, y = Mean_AR, colour
         #legend.key = element_rect(fill = "white")
   ) +
   facet_wrap(~exposure_penalty, nrow=2)
-figure_s4
+figure_s3
 
 filename <- "C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/figures/"
-png(file = paste0(filename,"figure_s4_sim500.png"), width = 12, height = 8,
+png(file = paste0(filename,"figure_s3_sim1000.png"), width = 12, height = 8,
     units = "in", pointsize = 8, res = 300)
-figure_s4
+figure_s3
 dev.off()
 
 
 ###############################################################
 ### Supplemental Figure 4 - scatter plots for time-varying beta
 ###############################################################
+### may not need these! ###
 # a) annual vs. no vac
 # b) annual vs. biennial
 ###################################
-banana_cream_pie <- vroom(file = "banana_cream_pie_baseline2.csv", delim = ",", col_names = TRUE) %>%
-  mutate(Diff_Color = ifelse(Upper < 0, '<0',ifelse(Lower <=0 & Upper >=0, '0',ifelse(Lower >0, '>0', 'something else'))))
-
-# a) Scatter plot of difference between annual and no vaccination
-banana_hammock_an <- banana_cream_pie %>%
-  filter(Type == "Diff_AN", Diff_Color != '0') %>%
-  mutate(Abs_Val = abs(Mean_Diff))
-
-figure_s5a <- ggplot(data = banana_hammock_an, aes(x = exposure_penalty, y = vac_protect, color = Diff_Color)) +
-  geom_point(aes(size = Abs_Val), alpha = 0.7) +
-  scale_size_continuous(name = "|Difference|") +
-  scale_color_manual(name = "Difference", values = c("#F8766D","#00BA38")) +
-  xlab('Exposure Penalty') +
-  ylab('Vaccine Effectiveness') +
-  theme(legend.position = "bottom",
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.background = element_blank(),
-        axis.text=element_text(size=12),
-        axis.title=element_text(size=14),
-        legend.text = element_text(size=12),
-        legend.title = element_text(size=12))
-
-
-# b) Scatter plot of difference between annual and biennial
-banana_hammock_ab <- banana_cream_pie %>%
-  filter(Type == "Diff_AB", Diff_Color != '0') %>%
-  mutate(Abs_Val = abs(Mean_Diff))
-
-figure_s5b <- ggplot(data = banana_hammock_ab, aes(x = exposure_penalty, y = vac_protect, color = Diff_Color)) +
-  geom_point(aes(size = Abs_Val), alpha = 0.7) +
-  scale_size_continuous(name = "|Difference|") +
-  scale_color_manual(name = "Difference", values = c("#F8766D","#00BA38")) +
-  xlab('Exposure Penalty') +
-  ylab('Vaccine Effectiveness') +
-  theme(legend.position = "bottom",
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.background = element_blank(),
-        axis.text=element_text(size=12),
-        axis.title=element_text(size=14),
-        legend.text = element_text(size=12),
-        legend.title = element_text(size=12))
-
-figure_s5 <- plot_grid(figure_s5a, figure_s5b, labels = "AUTO", nrow = 1) # rel_heights = c(1,1.5)
-
-filename <- "C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/figures/"
-png(file = paste0(filename,"figure_s5_sim500.png"), width = 13, height = 6,
-    units = "in", pointsize = 8, res = 300)
-figure2
-dev.off()
+# banana_cream_pie <- vroom(file = "banana_cream_pie_baseline2.csv", delim = ",", col_names = TRUE) %>%
+#   mutate(Diff_Color = ifelse(Upper < 0, '<0',ifelse(Lower <=0 & Upper >=0, '0',ifelse(Lower >0, '>0', 'something else'))))
+#
+# # a) Scatter plot of difference between annual and no vaccination
+# banana_hammock_an <- banana_cream_pie %>%
+#   filter(Type == "Diff_AN", Diff_Color != '0') %>%
+#   mutate(Abs_Val = abs(Mean_Diff))
+#
+# figure_s4a <- ggplot(data = banana_hammock_an, aes(x = exposure_penalty, y = vac_protect, color = Diff_Color)) +
+#   geom_point(aes(size = Abs_Val), alpha = 0.7) +
+#   scale_size_continuous(name = "|Difference|") +
+#   scale_color_manual(name = "Difference", values = c("#F8766D","#00BA38")) +
+#   xlab('Exposure Penalty') +
+#   ylab('Vaccine Effectiveness') +
+#   theme(legend.position = "bottom",
+#         panel.grid.major = element_blank(),
+#         panel.grid.minor = element_blank(),
+#         panel.background = element_blank(),
+#         axis.text=element_text(size=12),
+#         axis.title=element_text(size=14),
+#         legend.text = element_text(size=12),
+#         legend.title = element_text(size=12))
+#
+#
+# # b) Scatter plot of difference between annual and biennial
+# banana_hammock_ab <- banana_cream_pie %>%
+#   filter(Type == "Diff_AB", Diff_Color != '0') %>%
+#   mutate(Abs_Val = abs(Mean_Diff))
+#
+# figure_s4b <- ggplot(data = banana_hammock_ab, aes(x = exposure_penalty, y = vac_protect, color = Diff_Color)) +
+#   geom_point(aes(size = Abs_Val), alpha = 0.7) +
+#   scale_size_continuous(name = "|Difference|") +
+#   scale_color_manual(name = "Difference", values = c("#F8766D","#00BA38")) +
+#   xlab('Exposure Penalty') +
+#   ylab('Vaccine Effectiveness') +
+#   theme(legend.position = "bottom",
+#         panel.grid.major = element_blank(),
+#         panel.grid.minor = element_blank(),
+#         panel.background = element_blank(),
+#         axis.text=element_text(size=12),
+#         axis.title=element_text(size=14),
+#         legend.text = element_text(size=12),
+#         legend.title = element_text(size=12))
+#
+# figure_s4 <- plot_grid(figure_s4a, figure_s4b, labels = "AUTO", nrow = 1) # rel_heights = c(1,1.5)
+#
+# filename <- "C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/figures/"
+# png(file = paste0(filename,"figure_s4_sim1000.png"), width = 13, height = 6,
+#     units = "in", pointsize = 8, res = 300)
+# figure_s4
+# dev.off()
 
 # #######################################################
 # ### Supplemental Figure 3 - bivariate scatter plots ###
