@@ -21,8 +21,9 @@ root <- "contexts"
 ctx <- context::context_save(path = root,
                              packages = c("morevac","Rcpp","dplyr","data.table","rdist", "Matrix", "logitnorm"),
                              package_sources = provisionr::package_sources(#github = "kylieainslie/morevac",
-                                                                           local = "Q:/cluster/morevac_1.0.zip",
-                                                                           cran = "https://cran.ma.imperial.ac.uk/")
+                                                                           local = "Q:/cluster/morevac_1.0.zip"#,
+                                                                           #cran = "https://cran.ma.imperial.ac.uk/"
+                                                                           )
                              )
 
 # this line should give you a login prompt
@@ -38,7 +39,7 @@ job <- obj$enqueue(
 
 
 # bulk jobs
-job_index <- c(1,2,4,6,9,11)
+job_index <- c(1:21)
 
 for (i in job_index){
   job <- obj$enqueue(
