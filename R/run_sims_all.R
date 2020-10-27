@@ -35,7 +35,7 @@ run_sims_all <- function(params_file,
   years = params$start_year[i]:params$end_year[i]
   if (params$fixed_beta[i]){
     betas = c(params$pandemic_beta[i], rep(params$epidemic_beta[i],length(years)-1))
-  } else {betas = c(params$pandemic_beta[i], rlogitnorm(length(years)-1, mu = -1.386, sigma = 0.35))}
+  } else {betas = c(params$pandemic_beta[i], rlogitnorm(length(years)-1, mu = -1.49, sigma = 0.6))}
   wane = params$wane[i]
   take = params$take[i]
   epsilon = params$exposure_penalty[i]
