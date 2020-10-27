@@ -6,16 +6,18 @@ library(cowplot)
 ##############################################
 ### Figure 1 - AR plot by exposure penalty ###
 ##############################################
-setwd("C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/data/sim_data/baseline/")
+setwd("C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/data/sim_data/baseline/sim1000")
 
-chocolate_surprise <- vroom(file = "chocolate_surprise_baseline.csv", delim = ",", col_names = TRUE)
+mean_ar_baseline <- vroom(file = "mean_ar_baseline_sim1000.csv",
+                          delim = ",",
+                          col_names = TRUE)
 
 ### AR for different values of epsilon
-chocolate_surprise2 <- chocolate_surprise %>%
+mean_ar_baseline1 <- mean_ar_baseline %>%
   select(-c(n_sim, n_indiv, max_age, start_year, end_year, pandemic_beta, epidemic_beta)) %>%
   filter(exposure_penalty %in% c(0, 0.01, 0.03, 0.05, 0.08, 0.1) & vac_protect == 0.7 & Param_Index != 18)
 
-figure1 <- ggplot(data = chocolate_surprise2, aes(x = Age, y = Mean_AR, colour= Vac_Strategy)) +
+figure1 <- ggplot(data = mean_ar_baseline1, aes(x = Age, y = Mean_AR, colour= Vac_Strategy)) +
   geom_line() +
   geom_ribbon(aes(x=Age,ymin=Lower,ymax=Upper,linetype=NA, fill = Vac_Strategy),alpha=0.2) +
   scale_y_continuous(limits = c(0, 0.2)) +
@@ -34,7 +36,7 @@ figure1 <- ggplot(data = chocolate_surprise2, aes(x = Age, y = Mean_AR, colour= 
 figure1
 
 filename <- "C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/figures/"
-png(file = paste0(filename,"figure1_sim500.png"), width = 12, height = 8,
+png(file = paste0(filename,"figure1_sim1000.png"), width = 12, height = 8,
     units = "in", pointsize = 8, res = 300)
 figure1
 dev.off()
@@ -46,16 +48,16 @@ dev.off()
 # a) annual vs. no vac
 # b) annual vs. biennial
 ###################################
-setwd("C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/data/sim_data/cutoff10/sim500/")
-banana_cream_pie <- vroom(file = "banana_cream_pie_10.csv", delim = ",", col_names = TRUE) %>%
+setwd("C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/data/sim_data/cutoff10/sim1000/")
+mean_diff_10 <- vroom(file = "mean_diff_10_sim1000.csv", delim = ",", col_names = TRUE) %>%
                       mutate(Diff_Color = ifelse(Upper < 0, '<0',ifelse(Lower <=0 & Upper >=0, '0',ifelse(Lower >0, '>0', 'something else'))))
 
 # a) Scatter plot of difference between annual and no vaccination
-banana_hammock_an <- banana_cream_pie %>%
+mean_diff_10_an <- mean_diff_10 %>%
   filter(Type == "Diff_AN", Diff_Color != '0') %>%
   mutate(Abs_Val = abs(Mean_Diff))
 
-figure2a <- ggplot(data = banana_hammock_an, aes(x = exposure_penalty, y = vac_protect, color = Diff_Color)) +
+figure2a <- ggplot(data = mean_diff_10_an, aes(x = exposure_penalty, y = vac_protect, color = Diff_Color)) +
   geom_point(aes(size = Abs_Val), alpha = 0.7) +
   scale_size_continuous(name = "|Difference|") +
   scale_color_manual(name = "Difference", values = c("#F8766D","#00BA38")) +
@@ -72,11 +74,11 @@ figure2a <- ggplot(data = banana_hammock_an, aes(x = exposure_penalty, y = vac_p
 
 
 # b) Scatter plot of difference between annual and biennial
-banana_hammock_ab <- banana_cream_pie %>%
+mean_diff_10_ab <- mean_diff_10 %>%
   filter(Type == "Diff_AB", Diff_Color != '0') %>%
   mutate(Abs_Val = abs(Mean_Diff))
 
-figure2b <- ggplot(data = banana_hammock_ab, aes(x = exposure_penalty, y = vac_protect, color = Diff_Color)) +
+figure2b <- ggplot(data = mean_diff_10_ab, aes(x = exposure_penalty, y = vac_protect, color = Diff_Color)) +
   geom_point(aes(size = Abs_Val), alpha = 0.7) +
   scale_size_continuous(name = "|Difference|") +
   scale_color_manual(name = "Difference", values = c("#F8766D","#00BA38")) +
@@ -94,7 +96,7 @@ figure2b <- ggplot(data = banana_hammock_ab, aes(x = exposure_penalty, y = vac_p
 figure2 <- plot_grid(figure2a, figure2b, labels = "AUTO", nrow = 1) # rel_heights = c(1,1.5)
 
 filename <- "C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/figures/"
-png(file = paste0(filename,"figure2_sim500.png"), width = 13, height = 6,
+png(file = paste0(filename,"figure2_sim1000.png"), width = 13, height = 6,
     units = "in", pointsize = 8, res = 300)
 figure2
 dev.off()
