@@ -43,6 +43,9 @@ run_sim_2 <- function(sim = 100,
                       length_study = 19,
                       seed = NULL){
 
+  # set seed
+  if(!is.null(seed)){set.seed(seed)}
+
   if (vac_strategy == 0){vac_cov <- c(rep(0,length(vac_cov)))}
   nyears <- length(years)
   ### create empty matrix to store sim results
