@@ -46,6 +46,7 @@ run_sims_all <- function(params_file,
   vac_cov_dat <- data.frame(Age = 0:(max_age-1), No_Vac = numeric(max_age), Annual = numeric(max_age), Biennial = numeric(max_age))
   vac_cov_dat$Annual[3:(vac_cutoff + 1)] <- params$vac_cov[i]
   vac_cov_dat$Biennial[seq(3,vac_cutoff+1,2)] <- params$vac_cov[i]
+  seed = params$seed[i]
 
   ### run simulations
   # returns 3 arrays with inf_hist_mat, vac_hist_mat, and ages_mat from each sim
@@ -53,7 +54,7 @@ run_sims_all <- function(params_file,
   for(vac_strat in 1:3){
     sim_raw <- run_sim_2(sim = n_sim, n = n_indiv, years = years, betas = betas, vac_cov = vac_cov_dat[,vac_strat + 1],
                          vac_strategy = vac_strat - 1, wane = wane, take = take, epsilon = epsilon,
-                         vac_protect = vac_protect, rho = rho)
+                         vac_protect = vac_protect, rho = rho, seed = seed)
 
     sim_results [[vac_strat]] <- sim_raw
     rm(sim_raw)
