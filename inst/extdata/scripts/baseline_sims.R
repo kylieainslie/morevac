@@ -64,26 +64,94 @@ try(data.table::fwrite(vac_histories, file = paste0(file,"_vac_hist.csv"), col.n
 #######################################
 ### read in results (rather than re-run simulations)
 #setwd("~/Dropbox/Kylie/Projects/Morevac/data/sim_data/baseline/")
-setwd("C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/data/sim_data/baseline/")
+setwd("C:/Users/ainsliek/Dropbox/Kylie/Projects/Morevac/data/sim_data/baseline/sim1000")
+
 ### cutoff = 10
-dt_inf <- vroom(file = "baseline/baseline_inf_hist.csv", delim = ",", col_names = TRUE) %>%
-               mutate(Num_Infs = rowSums(select(.,Age0:Age18)))
-dt_vac <- vroom(file = "baseline/baseline_vac_hist.csv", delim = ",", col_names = TRUE) %>%
-               mutate(Num_Vacs = rowSums(select(.,Age0:Age18)))
+dt_inf <- vroom(file = "sim_baseline2_1_inf_hist.csv", delim = ",", col_names = TRUE) %>%
+  mutate(Num_Infs = rowSums(select(.,Age0:Age18)),
+         Num_Infs_0_1 = rowSums(select(.,Age0:Age1)),
+         Num_infs_2_10 = rowSums(select(.,Age2:Age10)),
+         Num_infs_11_18 = rowSums(select(.,Age11:Age18))) %>%
+  rename(Vac_Strategy_char = Vac_Strategy...1,
+         Vac_Strategy_num = Vac_Strategy...3) %>%
+  select(-(Age0:Age18))
+dt_vac <- vroom(file = "sim_baseline2_1_vac_hist.csv", delim = ",", col_names = TRUE) %>%
+  mutate(Num_Vacs = rowSums(select(.,Age0:Age18))) %>%
+  rename(Vac_Strategy_char = Vac_Strategy...1,
+         Vac_Strategy_num = Vac_Strategy...3)
 
 ### summarise raw data for lifetime infections
-banana <- bind_cols(dt_inf[,c("Vac_Strategy", "Sim", "Cohort", "ID", "Num_Infs")], Num_Vacs = dt_vac[,c("Num_Vacs")]) %>%
-            group_by(Vac_Strategy, Sim) %>% summarise(Mean_Infs = mean(Num_Infs))
+dt_comb <- bind_cols(dt_inf, Num_Vacs = dt_vac[,c("Num_Vacs")])
+
+sum_all <- dt_comb %>%
+  group_by(Vac_Strategy_char, Sim) %>%
+  summarise(Infs_all = mean(Num_Infs),
+            Infs_0_1 = mean(Num_Infs_0_1),
+            Infs_2_10 = mean(Num_infs_2_10),
+            Infs_11_18 = mean(Num_infs_11_18)) %>%
+  ungroup()
+
+sum_half <- dt_comb %>%
+  mutate(vac_cat = case_when(
+    Num_Vacs == 0 ~ "0",
+    (Num_Vacs %in% c(1,2,3,4) & Vac_Strategy_char == "Annual") ~ "<50%",
+    (Num_Vacs >= 5 & Vac_Strategy_char == "Annual") ~ ">50%",
+    (Num_Vacs %in% c(1,2) & Vac_Strategy_char == "Biennial") ~ "<50%",
+    (Num_Vacs >= 3 & Vac_Strategy_char == "Biennial") ~ ">50%")
+    ) %>%
+  group_by(Vac_Strategy_char, vac_cat, Sim) %>%
+  summarise(Infs_all = mean(Num_Infs),
+            Infs_0_1 = mean(Num_Infs_0_1),
+            Infs_2_10 = mean(Num_infs_2_10),
+            Infs_11_18 = mean(Num_infs_11_18)) %>%
+  ungroup()
 
 # bootstrap to get CI for Lifetime Infs
+dt_for_boot <- sum_half
+
 foo1 <- function(data, indices){
-  dt<-data[indices,]
-  mean(dt$Mean_Infs)
+  dt <-data[indices,]
+  dt_for_apply <- dt %>%
+    select(starts_with("Infs"))
+  rtn <- apply(dt_for_apply, 2, mean)
+  return(rtn)
 }
-my_bootstrap <- plyr::dlply(banana, "Vac_Strategy", function(dat) boot(dat, foo1, R=100)) # boostrap for each set of param values
-my_ci <- sapply(my_bootstrap, function(x) boot.ci(x, index = 1, type='perc')$percent[c(4,5)]) # get confidence intervals
-banana_boat <- banana_boat %>% group_by(Vac_Strategy) %>% summarise(Mean_Infs = mean(Mean_Infs)) %>%
-                mutate(Lower = my_ci[1,], Upper = my_ci[2,], Cutoff = 10)
+
+my_bootstrap <- plyr::dlply(dt_for_boot, c("Vac_Strategy_char", "vac_cat"), function(dat) boot(dat, foo1, R=1000)) # boostrap for each set of param values
+my_ci_all <- sapply(my_bootstrap, function(x) boot.ci(x, index = 1, type='perc')$percent[c(4,5)]) # get confidence intervals
+my_ci_0_1 <- sapply(my_bootstrap, function(x) boot.ci(x, index = 2, type='perc')$percent[c(4,5)]) # get confidence intervals
+my_ci_2_10 <- sapply(my_bootstrap, function(x) boot.ci(x, index = 3, type='perc')$percent[c(4,5)]) # get confidence intervals
+my_ci_11_18 <- sapply(my_bootstrap, function(x) boot.ci(x, index = 4, type='perc')$percent[c(4,5)]) # get confidence intervals
+
+mean_infs_tab <- dt_for_boot %>%
+  select(-Sim) %>%
+  group_by(Vac_Strategy_char, vac_cat) %>%
+  summarise_all(mean) %>%
+  ungroup() %>%
+  mutate(Lower_all = my_ci_all[1,],
+         Upper_all = my_ci_all[2,],
+         Lower_0_1 = my_ci_0_1[1,],
+         Upper_0_1 = my_ci_0_1[2,],
+         Lower_2_10 = my_ci_2_10[1,],
+         Upper_2_10 = my_ci_2_10[2,],
+         Lower_11_18 = my_ci_11_18[1,],
+         Upper_11_18 = my_ci_11_18[2,],) %>%
+  pivot_longer(cols = Infs_all:Upper_11_18,
+               names_to = c("stat", "age_group"),
+               names_sep = "_",
+               values_to = "value") %>%
+  mutate(stat = ifelse(stat == "Infs", "Mean", stat),
+         age_group = case_when(
+           age_group == "all" ~ "Total",
+           age_group == "0" ~ "0-1",
+           age_group == "2" ~ "2-10",
+           age_group == "11" ~ "11-18"
+         ))
+
+### write file to avoid having to read in raw data again
+data.table::fwrite(mean_infs_tab, file = "mean_infs_tab.csv", col.names = TRUE,
+                   row.names = FALSE, sep = ",")
+
 ### summarise raw data for attack rates
 chocolate <- dt_inf %>% group_by(Vac_Strategy, Sim, Cohort) %>% select(-ID) %>% summarise_all(list(sum))
 chocolate_sprinkles <- dt_inf %>% group_by(Vac_Strategy, Sim, Cohort) %>% do(tail(.,1))
@@ -105,9 +173,7 @@ chocolate_sundae2 <- chocolate_sundae %>% group_by(Vac_Strategy, Age) %>%
                         summarise(Mean_AR = mean(Attack_Rate)) %>% ungroup() %>%
                         mutate(Lower = my_ci[1,], Upper = my_ci[2,])
 
-### write files to avoid having to read in raw data again
-data.table::fwrite(banana_boat, file = "banana_boat.csv", col.names = TRUE,
-                   row.names = FALSE, sep = ",")
+### write file to avoid having to read in raw data again
 data.table::fwrite(chocolate_sundae2, file = "chocolate_sundae.csv", col.names = TRUE,
                    row.names = FALSE, sep = ",")
 #####################
