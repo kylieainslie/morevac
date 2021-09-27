@@ -15,27 +15,24 @@ library(data.table)
 library(rdist)
 library(vroom)
 library(logitnorm)
-# library(TruncatedDistributions)
-# library(foreach)
-# library(doParallel)
 
 # load morevac package
 # setwd("~/Documents/morevac") # Mac path
-# setwd("~/morevac") # PC path
+setwd("~/morevac") # PC path
 devtools::load_all()
 ###
 
 #######################################
 # specify save directory
 # setwd("~/Dropbox/Kylie/Projects/Morevac/data/sim_data")
-setwd("C:/Users/kainslie/Dropbox/Kylie/Projects/Morevac/data/sim_data/")
+setwd("C:/Users/ainsliek/Dropbox/Kylie/Projects/Morevac/data/sim_data/")
 # setwd("C:/Users/ainsl/Dropbox/Kylie/Projects/Morevac/data/sim_data/")
 
 #######################################
  ### Baseline
 #######################################
 # run simulations
-run_sims_all(params_file = "param_values_test.csv", out_file = "sim_test_")
+run_sims_all(params_file = "param_values_baseline_16.csv", out_file = "sim_test_")
 
 #######################################
  ### Latin hypercube
