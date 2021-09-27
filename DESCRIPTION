@@ -5,7 +5,7 @@ Date: 2019-06-07
 Author: Kylie Ainslie
 Maintainer: Kylie Ainslie <k.ainslie@imperial.ac.uk>
 Description: Multi-annual, individual-based, stochastic model of infection and vaccination.
-License: MIT + file LICENSE
+License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.1
