@@ -86,9 +86,11 @@ multiannual <- function(n = 30000,
   # return
     rtn <- list(inf_history = infect_pop$inf_hist_mat,
                 vac_history = vac_pop$vac_hist_mat,
-                ages = init_pop$ages_mat
-                #drift = drift,
-                #vac_update = run_update$update,
+                suscept_mat = infect_pop$suscept_mat,
+                ages = init_pop$ages_mat,
+                drift = drift,
+                vac_update = run_update$update,
+                distance = run_update$distance
                 #gammas = gammas,
                 #vac_this_year = vac_this_year
       )
