@@ -62,7 +62,7 @@ List infect_cpp_2(NumericMatrix inf_history,
         }
      // determine if individual was vaccinated in current year
         if (years_since_last_vac(i,j) >= 999){
-          suscept_mat(i,j) = std::min(inf_comp, 1.0);
+          suscept_mat(i,j) = std::min(inf_comp + (exposure_count[i] * epsilon), 1.0);
         } else {
           if(years_since_last_vac(i,j) == 0){
             vac_ind = 1;
@@ -75,7 +75,7 @@ List infect_cpp_2(NumericMatrix inf_history,
               vac_comp = (1/(1 + exp(1.299*((titre_vac-log(2.844))))));
             }
           // determine susceptibility
-              suscept_mat(i,j) = std::min(inf_comp * vac_comp, 1.0);
+              suscept_mat(i,j) = std::min(std::max((inf_comp * vac_comp), (exposure_count[i] * epsilon)), 1.0);
            }
       // determine infection status
         if (randnum_inf[i] <= foi[j]*suscept_mat(i,j)) {
@@ -102,7 +102,7 @@ List infect_cpp_2(NumericMatrix inf_history,
 
 /*** R
 # input parameter values
- nyears <- 209
+ nyears <- 111
  maxage <- 80
  nindiv <- 10000
  betas <- c(0.4, rep(0.2,nyears-1))
@@ -110,7 +110,7 @@ List infect_cpp_2(NumericMatrix inf_history,
  init_age_vec <- sample(0:maxage-1,nindiv,replace=TRUE)
  init_pop <- initialize_pop_cpp(n = nindiv, nyears = nyears, init_ages = init_age_vec, max_age = maxage)
  vac_this_year <- c(rep(0,nyears/2),rep(1,nyears/2))
- drift <- drift_func(nyears = nyears, rate = 0.25)$antigenic_dist
+ drift <- drift_func(nyears = nyears, rate = 1)$antigenic_dist
  # determine vaccine update schedule
  run_update <- vaccine_update_cpp(drift = drift, threshold = 4, vac_protect = 0.7)
  gammas <- run_update$gammas
