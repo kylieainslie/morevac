@@ -9,12 +9,14 @@
 #' @return distance matrix
 #' @keywords morevac
 #' @export
+#' @importFrom stats rexp
+#' @importFrom rdist pdist
 drift_func <- function(nyears = 200, rate = 1){
   # drift for infection
   draws <- rexp(nyears, rate = rate)
   drift <- cumsum(draws)
   drift_data <- data.frame(x = 1:nyears, y = drift)
-  antigenic_dist <- pdist(drift_data) # calculate distance between strains
+  antigenic_dist <- pdist(drift_data$y) # calculate distance between strains
 
   rtn <- list(drift = drift_data, antigenic_dist = antigenic_dist)
   return(rtn)
