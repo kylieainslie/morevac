@@ -29,8 +29,11 @@ LazyData: true
 RoxygenNote: 7.3.1
 LinkingTo: Rcpp
 Imports: 
+    dplyr,
     Rcpp (>= 1.0.1),
-    rdist
+    rdist,
+    stringr,
+    tidyr
 Suggests: 
     ggplot2,
     knitr,
