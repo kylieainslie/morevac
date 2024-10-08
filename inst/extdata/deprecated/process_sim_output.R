@@ -12,7 +12,7 @@
 #'         2) data frame with lifetime infections by simulation, year, age, and vac strategy
 #' @keywords morevac
 #' @export
-process_sim_output <- function(sim_out, year_range, age_range, ve_out = FALSE){
+process_sim_output <- function(sim_out, year_range = 1820:2019, age_range = 0:18, ve_out = FALSE){
 # attack rates
   rtn_ar <- data.frame(Year = c(rep(year_range,3)),
                        Attack_Rate = c(apply(sim_out[[1]]$attack_rate,1,mean),

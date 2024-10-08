@@ -10,6 +10,7 @@ for (i in 2:dim(drift_dat)[1]){
   if (drift_dat$Vac_Update[i]==1){drift_dat$Shade_Group[i] <- drift_dat$Shade_Group[i-1] + 1
   } else {drift_dat$Shade_Group[i] <- drift_dat$Shade_Group[i-1]}
 }
+
 drift_dat$Shade_Group <- (drift_dat$Shade_Group)
 #calculate cumulative drift
 drift_dat$Cum_Drift <- cumsum(drift_dat$Drift)
@@ -20,16 +21,19 @@ drift_dat_thinned$prev <-c(min(drift_dat$Year),drift_dat_thinned$Year[-nrow(drif
 # plot
 ymx <- 4
 p_drift <- ggplot(data = drift_dat, mapping=aes( x=Year,y = Cum_Drift))+
- #scale_x_discrete() +
- geom_rect(data=drift_dat_thinned,aes(xmin=prev,ymin=0,ymax=ymx,xmax=Year,fill=factor(Shade_Group),col=factor(Shade_Group)),alpha=0.2) +
- geom_ribbon(aes(ymin=Cum_Drift,ymax=ymx),fill="white" ,alpha=1)+  # color shading under cumulative drift by shade group
+ geom_rect(data=drift_dat_thinned,
+           aes(xmin=prev,ymin=0,ymax=ymx,xmax=Year,fill=factor(Shade_Group),
+               col=factor(Shade_Group)),alpha=0.2) +
+ # color shading under cumulative drift by shade group
+ geom_ribbon(aes(ymin=Cum_Drift,ymax=ymx),fill="white" ,alpha=1) +
   ylab('Cumulative Antigenic Drift') +
   theme(panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
         panel.background = element_blank(),
         axis.line = element_line(colour = "black"),
         legend.position = "none") +
-geom_point(data = drift_dat_thinned,aes(x=Year,y=Cum_Drift),colour = 'red') +
+geom_point(data = drift_dat_thinned,
+           aes(x=Year,y=Cum_Drift, col = factor(Shade_Group))) +
 geom_line()
 p_drift
 

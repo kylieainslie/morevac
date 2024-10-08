@@ -1,5 +1,4 @@
 ### Latin Hypercube simulations script ###
-# last modified: 07/10/2020
 
 ### preamble
 # load required packages
@@ -13,6 +12,7 @@ library(lhs)
 library(boot)
 library(data.table)
 library(rdist)
+library(Matrix)
 library(vroom)
 library(logitnorm)
 
@@ -22,8 +22,6 @@ setwd("~/morevac") # PC path
 devtools::load_all()
 ###
 
-#######################################
-# specify save directory
 # setwd("~/Dropbox/Kylie/Projects/Morevac/data/sim_data")
 setwd("C:/Users/ainsliek/Dropbox/Kylie/Projects/Morevac/data/sim_data/")
 # setwd("C:/Users/ainsl/Dropbox/Kylie/Projects/Morevac/data/sim_data/")
@@ -63,3 +61,4 @@ write.csv(mean_infs, "mean_diff_10_sim1000.csv")
 files_mean_ar <- list.files(pattern="mean_ar*")
 mean_ar <- vroom(files_mean_ar)
 write.csv(mean_infs, "mean_ar_10_sim1000.csv")
+

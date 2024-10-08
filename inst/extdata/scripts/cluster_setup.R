@@ -19,36 +19,28 @@ root <- "contexts"
 # setting up the context: what files need to be sourced for your function to work, what packages you need
 # package sources only required here because the package I am using is not on CRAN
 ctx <- context::context_save(path = root,
-                             packages = c("morevac","Rcpp","dplyr","data.table","rdist", "Matrix", "logitnorm"),
-                             package_sources = provisionr::package_sources(#github = "kylieainslie/morevac",
-                                                                           local = "Q:/cluster/morevac_1.0.zip"#,
-                                                                           #cran = "https://cran.ma.imperial.ac.uk/"
-                                                                           )
-                             )
+                             packages = c("morevac","Rcpp","dplyr",
+                                          "data.table","rdist", "Matrix"),
+                             package_sources =
+                               provisionr::package_sources(github = "kylieainslie/morevac@coudeville",
+                                                           cran = "https://cran.ma.imperial.ac.uk/")
+)
 
 # this line should give you a login prompt
 obj <- didehpc::queue_didehpc(ctx)
 
 # run a single job
 # 'job' is the thing I am running on the cluster
-job <- obj$enqueue(
-        run_sims_all(params_file = "param_values_baseline_time-varying_beta.csv",
-                     index = c(1,2,4,6,9,11),
-                     out_file = "sim_baseline2_")
-        )
-
+job <- obj$enqueue(run_sims_all(params_file = "param_values.csv", out_file = "sim"))
+job2 <- obj$enqueue(run_sims_all(params_file = "param_values_16.csv", out_file = "sim16_"))
 
 # bulk jobs
-job_index <- c(1:21)
+library(morevac)
+library(lhs)
+params <- create_params_file(n_sim = 100, n_indiv = 30000, lhc_size = 1000, out_file = "param_values",
+                            vac_cutoff = 10, seed = 1234)
 
-for (i in job_index){
-  job <- obj$enqueue(
-           run_sims_all(params_file = "param_values_baseline_time-varying_beta.csv",
-                        index = i,
-                        out_file = "sim_baseline2_")
-        )
+job_bulk2 <- obj$enqueue_bulk(params[40:50,], run_sims_clust, do_call = TRUE)
 
-}
-# job_bulk <- obj$enqueue_bulk(params_baseline, run_sims_clust, do_call = TRUE)
 
 

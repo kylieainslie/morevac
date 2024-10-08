@@ -5,6 +5,11 @@
 
 using namespace Rcpp;
 
+#ifdef RCPP_USE_GLOBAL_ROSTREAM
+Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
+Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
+#endif
+
 // find_delta_v
 NumericMatrix find_delta_v(NumericMatrix v, NumericMatrix dist_mat);
 RcppExport SEXP _morevac_find_delta_v(SEXP vSEXP, SEXP dist_matSEXP) {
