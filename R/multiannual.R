@@ -45,7 +45,7 @@ multiannual <- function(n = 10000,
     if (!is.null(seed)){set.seed(seed)}
   # initialize the population
     init_age_vec <- sample(1:max_age-1,n,replace = TRUE)
-    init_pop <- .Call('_morevac_initialize_pop_cpp',
+    init_pop <- initialize_pop_cpp(
                       n = n,
                       nyears = length(years),
                       init_ages = init_age_vec,
@@ -57,7 +57,7 @@ multiannual <- function(n = 10000,
     antigenic_dist <- drift$antigenic_dist
     if (drift_off){antigenic_dist <- 0}
   # determine vaccine update schedule
-    run_update <- .Call('_morevac_vaccine_update_cpp',
+    run_update <- vaccine_update_cpp(
                         drift = antigenic_dist,
                         threshold = 4,
                         vac_protect = vac_protect
@@ -69,7 +69,7 @@ multiannual <- function(n = 10000,
   # determine years of vaccination
     vac_this_year <- if_else(years>=start_vac_year, 1, 0)
   # vaccinate
-    vac_pop <- .Call('_morevac_vaccinate_cpp_2',
+    vac_pop <- vaccinate_cpp_2(
                      vac_hist_mat = init_pop$vac_hist_mat,
                      v = init_pop$time_since_last_vac,
                      ages_mat = init_pop$ages_mat,
@@ -80,12 +80,12 @@ multiannual <- function(n = 10000,
                      )
 
     # calculate delta_v values
-      delta_v <- .Call('_morevac_find_delta_v',
+      delta_v <- find_delta_v(
                        v = vac_pop$v,
                        dist_mat = antigenic_dist
                        )
     # run infection model
-      infect_pop <- .Call('_morevac_infect_cpp_2',
+      infect_pop <- infect_cpp_2(
                           inf_history = init_pop$inf_hist_mat,
                           vac_history = vac_pop$vac_hist_mat,
                           years_since_last_vac = vac_pop$v,
