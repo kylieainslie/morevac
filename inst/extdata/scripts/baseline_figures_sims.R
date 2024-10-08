@@ -8,13 +8,16 @@ library(cowplot)
 library(stringr)
 library(rdist)
 library(dplyr)
+library(data.table)
+library(boot)
+library(formattable)
 # load morevac package
 #  setwd("C:/Users/kainslie/Documents/GitHub/morevac")
 setwd("~/Documents/morevac")
 devtools::load_all()
 
-# parameters
-n_sim = 10
+### parameters
+n_sim = 50
 nindiv <- 30000
 max_age = 80
 myyears <- 1820:2028
@@ -24,6 +27,7 @@ vac_cov_dat <- data.frame(Age = 0:(max_age-1), No_Vac = numeric(max_age), Annual
 vac_cov_dat$Annual[3:(vac_cut_off + 1)] <- 0.44
 vac_cov_dat$Biennial[seq(3,vac_cut_off+1,2)] <- 0.44
 
+### run simulations #############################
 # output note to user
 cat("\n No vaccination simulation running... \n")
 # returns 3 arrays with inf_hist_mat, vac_hist_mat, and ages_mat from each sim
@@ -41,7 +45,50 @@ sim0_results <- postprocess_sim_results_for_rolling_cohort(simdat = sim_test0, t
 sim1_results <- postprocess_sim_results_for_rolling_cohort(simdat = sim_test1, total_year_range = myyears, nsim = n_sim)
 sim2_results <- postprocess_sim_results_for_rolling_cohort(simdat = sim_test2, total_year_range = myyears, nsim = n_sim)
 
+# combine into one data.table
+inf_histories <- rbindlist(list(No_Vac = sim0_results$inf_history, Annual = sim1_results$inf_history, Biennial = sim2_results$inf_history), idcol = 'Vac_Strategy')
+vac_histories <- rbindlist(list(No_Vac = sim0_results$vac_history, Annual = sim1_results$vac_history, Biennial = sim2_results$vac_history), idcol = 'Vac_Strategy')
+
+# write raw output to file
+file <- "~/Dropbox/Kylie/Projects/Morevac/data/sim_data/baseline/baseline"
+try(data.table::fwrite(inf_histories, file = paste0(file,"_inf_hist.csv"), col.names = TRUE,
+                       row.names = FALSE, sep = ","))
+try(data.table::fwrite(vac_histories, file = paste0(file,"_vac_hist.csv"), col.names = TRUE,
+                       row.names = FALSE, sep = ","))
+
+#######################################
+### read in results (rather than re-run simulations)
+dt_inf <- fread(file = "~/Dropbox/Kylie/Projects/Morevac/data/sim_data/baseline/baseline_inf_hist.csv")
+dt_vac <- fread(file = "~/Dropbox/Kylie/Projects/Morevac/data/sim_data/baseline/baseline_vac_hist.csv")
+
+### summarise raw data
+dt_inf1 <- dt_inf %>% mutate(Num_Infs = rowSums(select(.,Age0:Age18)))
+dt_vac1 <- dt_vac %>% mutate(Num_Vacs = rowSums(select(.,Age0:Age18)))
+
+banana <- cbind(dt_inf1[,c("Vac_Strategy", "Sim", "Cohort", "ID", "Num_Infs")], Num_Vacs = dt_vac1[,c("Num_Vacs")])
+banana_boat <- banana %>% group_by(Vac_Strategy, Sim) %>% summarise(Mean_Infs = mean(Num_Infs))
+banana_split <- banana_boat %>% spread(Vac_Strategy, Mean_Infs) %>%
+                  mutate(AB = Annual - Biennial, AN = Annual - No_Vac, BN = Biennial - No_Vac) %>%
+                  gather(key = Diff_Type, value = Difference, AB:BN)
+
+
 cat("\n Bootstrapping... \n")
+
+# bootstrap to get CI for Difference
+foo <- function(data, indices){
+  dt<-data[indices,]
+  mean(dt$Difference)
+}
+my_bootstrap <- plyr::dlply(banana_split, "Diff_Type", function(dat) boot(dat, foo, R=100)) # boostrap for each set of param values
+my_ci <- sapply(my_bootstrap, function(x) boot.ci(x, index = 1, type='perc')$percent[c(4,5)]) # get confidence intervals
+
+banana_split2 <- banana_split %>% summarise(Mean_Diff_AB = mean(DifferenceAB),
+                                            Mean_Diff_AN = mean(DifferenceAN),
+                                            Mean_Diff_BN = mean(DifferenceBN))
+banana_split2$Lower <- my_ci[1,]
+banana_split2$Upper <- my_ci[2,]
+banana_split2 <- left_join(banana_split2, param_values, by = c("Param_Index"))
+
 # bootstrapping
 foo <- function(data, indices){
   dt<-data[indices,]
