@@ -21,7 +21,9 @@
 #'         2) a plot of annual attack rates by vaccination scenario
 #' @keywords morevac
 #' @export
+#' @importFrom dplyr if_else
 #' @importFrom Rcpp evalCpp
+#' @useDynLib morevac, .registration = TRUE
 multiannual <- function(n = 10000,
                         years = 1918:2028,
                         max_age = 80,
