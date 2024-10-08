@@ -2,7 +2,7 @@
 % Please edit documentation in R/multiannual.R
 \name{multiannual}
 \alias{multiannual}
-\title{Multi-annual model of infection and vaccination (version 2)}
+\title{Multi-annual model of infection and vaccination}
 \usage{
 <<<<<<< HEAD
 multiannual(n = 10000, years = 1820:2019, max_age = 80,
