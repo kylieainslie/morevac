@@ -10,13 +10,18 @@
 #' @param pandemic_beta value of pandemic force of infection
 #' @param epidemic_beta value of epidemic force of infection
 #' @param lhc_size number of latin hypercube parameter combinations
+#' @param fixed_beta logical. if TRUE, beta is fixed otherwise it is drawn from a distribution.
 #' @param out_file name of output file
+#' @param seed seed
 #' @return tibble with parameter values and writes csv file to the working directory with parameter values
 #' @keywords morevac
+#' @importFrom lhs randomLHS
+#' @importFrom tibble tibble
+#' @importFrom stats qunif
 #' @export
 create_params_file <- function(n_sim = 100, n_indiv = 30000, max_age = 80, vac_cutoff = 10,
                                start_year = 1820, end_year = 2028, pandemic_beta = 0.4, epidemic_beta = 0.2,
-                               lhc_size = 1000, out_file = "parameter_values", seed = NULL){
+                               lhc_size = 1000, fixed_beta = TRUE, out_file = "parameter_values", seed = NULL){
 
   if(!is.null(seed)){set.seed(seed)}
 
@@ -38,7 +43,8 @@ create_params_file <- function(n_sim = 100, n_indiv = 30000, max_age = 80, vac_c
                 wane = mylhc[,"Waning"],
                 take = qunif(mylhc[,"Take"], min = 0.5, max = 1),
                 rho = mylhc[,"Rho"],
-                vac_protect = mylhc[,"VE"]
+                vac_protect = mylhc[,"VE"],
+                fixed_beta = fixed_beta
                 )
   data.table::fwrite(rtn, file = paste0(out_file,".csv"), col.names = TRUE,
                      row.names = FALSE, sep = ",")

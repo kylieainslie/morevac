@@ -6,13 +6,27 @@ Date: 2019-06-07
 Author: Kylie Ainslie
 Maintainer: Kylie Ainslie <k.ainslie@imperial.ac.uk>
 Description: Multi-annual, individual-based, stochastic model of infection and vaccination.
-License: GPL (>= 2)
+License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 6.1.1
+RoxygenNote: 7.1.1
 LinkingTo: Rcpp
-Imports: Rcpp (>= 1.0.1), data.table, rdist, dplyr
-Suggests: knitr, rmarkdown
+Imports: Rcpp (>= 1.0.1), 
+         data.table, 
+         rdist,
+         tidyr,
+         dplyr,
+         lhs,
+         tibble,
+         utils,
+         logitnorm,
+         plyr,
+         boot,
+         stringr
+Suggests: knitr, 
+          rmarkdown,
+          ggplot2,
+          cowplot
 SystemRequirements: C++11
 VignetteBuilder: knitr
 =======

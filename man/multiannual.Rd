@@ -4,13 +4,6 @@
 \alias{multiannual}
 \title{Multi-annual model of infection and vaccination}
 \usage{
-<<<<<<< HEAD
-multiannual(n = 10000, years = 1820:2019, max_age = 80,
-  start_vac_year = 2000, vac_coverage = c(rep(0.5, 80)),
-  betas = c(0.4, rep(0.2, 199)), vac_protect = 0.7, vac_strategy = 1,
-  rho = 0.9, wane = 0, take = 1, drift_rate = 1,
-  drift_off = FALSE, epsilon = 0, seed = NULL)
-=======
 multiannual(
   n = 10000,
   years = 1820:2019,
@@ -28,7 +21,6 @@ multiannual(
   epsilon = 0,
   seed = NULL
 )
->>>>>>> 863033e (update files in man/)
 }
 \arguments{
 \item{n}{number of individuals to be simulated}
@@ -36,6 +28,8 @@ multiannual(
 \item{years}{vector of years to run simulation over (YYYY format)}
 
 \item{max_age}{maximum age of an individual (removed from population after max_age)}
+
+\item{start_vac_year}{year that vaccination starts (YYYY)}
 
 \item{vac_coverage}{vaccination coverage}
 
@@ -51,16 +45,13 @@ multiannual(
 
 \item{take}{percentage of vaccine take (0, 1) (inclusive)}
 
+\item{drift_rate}{rate of exponential drift: exp(drift_rate) used to calculate amount of drift each year}
+
+\item{drift_off}{logical. if TRUE there is no antigenic drift}
+
+\item{epsilon}{exposure penalty. Takes values between 0 and 1.}
+
 \item{seed}{set random seed}
-
-\item{vac_start_year}{year that vaccination starts (YYYY)}
-
-\item{start_vac_age}{age at which an individual may be vaccinated}
-
-\item{stop_vac_age}{age at which vaccination stops}
-
-\item{suscept_func_version}{integer indicating which susceptibility version to use.
-1 = either-or, 2 = multiplicative.}
 }
 \value{
 a named list that contains the following elements:

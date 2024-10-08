@@ -4,10 +4,20 @@
 \alias{create_params_file}
 \title{This function creates parameter input file}
 \usage{
-create_params_file(n_sim = 100, n_indiv = 30000, max_age = 80,
-  vac_cutoff = 10, start_year = 1820, end_year = 2028,
-  pandemic_beta = 0.4, epidemic_beta = 0.2, lhc_size = 1000,
-  out_file = "parameter_values", seed = NULL)
+create_params_file(
+  n_sim = 100,
+  n_indiv = 30000,
+  max_age = 80,
+  vac_cutoff = 10,
+  start_year = 1820,
+  end_year = 2028,
+  pandemic_beta = 0.4,
+  epidemic_beta = 0.2,
+  lhc_size = 1000,
+  fixed_beta = TRUE,
+  out_file = "parameter_values",
+  seed = NULL
+)
 }
 \arguments{
 \item{n_sim}{number of simulations}
@@ -28,7 +38,11 @@ create_params_file(n_sim = 100, n_indiv = 30000, max_age = 80,
 
 \item{lhc_size}{number of latin hypercube parameter combinations}
 
+\item{fixed_beta}{logical. if TRUE, beta is fixed otherwise it is drawn from a distribution.}
+
 \item{out_file}{name of output file}
+
+\item{seed}{seed}
 }
 \value{
 tibble with parameter values and writes csv file to the working directory with parameter values

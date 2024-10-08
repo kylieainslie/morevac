@@ -17,20 +17,24 @@ get_cohorts(
 )
 }
 \arguments{
-\item{inf_history}{matrix of infection histories for each person}
+\item{inf_history}{sparse matrix of infection histories for each person}
 
-\item{vac_history}{matrix of vaccination history for each person}
+\item{vac_history}{sparse matrix of vaccination history for each person}
 
 \item{ages}{matrix of ages of each person for every year}
+
+\item{enrollment_start_year}{year for cohort enrollment to start (YYYY format)}
+
+\item{ncohorts}{number of cohorts to enroll}
+
+\item{total_year_range}{vector of years to run simulations over}
+
+\item{length_study}{number of years to follow each cohort}
 
 \item{write.file}{logical. if true, the infection histories and vaccination
 histories are written to the working directory}
 
 \item{file}{character string used as the prefix for the output file if write.file = TRUE}
-
-\item{years}{vector of years to run simulation over (YYYY format)}
-
-\item{year_index}{vector of index of years to get attack rates for}
 }
 \value{
 data frame of attack rates within the cohort by year

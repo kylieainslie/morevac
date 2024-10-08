@@ -8,6 +8,8 @@
 #' @param rate rate of exponential distribution to draw from
 #' @return distance matrix
 #' @keywords morevac
+#' @importFrom stats rexp
+#' @importFrom rdist pdist
 #' @export
 #' @importFrom stats rexp
 #' @importFrom rdist pdist

@@ -4,18 +4,17 @@
 #' @param n number of individuals to be simulated
 #' @param years vector of years to run simulation over (YYYY format)
 #' @param max_age maximum age of an individual (removed from population after max_age)
-#' @param vac_start_year year that vaccination starts (YYYY)
-#' @param start_vac_age age at which an individual may be vaccinated
-#' @param stop_vac_age age at which vaccination stops
+#' @param start_vac_year year that vaccination starts (YYYY)
 #' @param vac_coverage vaccination coverage
 #' @param betas vector of force of infection parameters for every year
 #' @param vac_protect protective effect of vaccine
-#' @param suscept_func_version integer indicating which susceptibility version to use.
-#'        1 = either-or, 2 = multiplicative.
 #' @param vac_strategy Integer value indicating frequency of vaccination (1 = annual, 2 = biannual, 3 =triannual,...)
 #' @param rho correlation of vaccination
 #' @param wane amount of protection of vaccine due to waning (0, 1) (inclusive)
 #' @param take percentage of vaccine take (0, 1) (inclusive)
+#' @param drift_rate rate of exponential drift: exp(drift_rate) used to calculate amount of drift each year
+#' @param drift_off logical. if TRUE there is no antigenic drift
+#' @param epsilon exposure penalty. Takes values between 0 and 1.
 #' @param seed set random seed
 #' @return a named list that contains the following elements:
 #' - `inf_history`: a named list of elements related to the infection histories of each individual, including
@@ -111,16 +110,33 @@ multiannual <- function(n = 10000,
                           epsilon = epsilon
                           )
 
-      # return
-      rtn <- list(inf_history = infect_pop,
-                  vac_history = vac_pop,
-                  ages = init_pop$ages_mat,
-                  drift = drift,
-                  vac_update = run_update$update,
-                  gammas = gammas,
-                  vac_this_year = vac_this_year
+  # return
+    rtn <- list(inf_history = infect_pop$inf_hist_mat,
+                vac_history = vac_pop$vac_hist_mat,
+                suscept_mat = infect_pop$suscept_mat,
+                ages = init_pop$ages_mat,
+                drift = drift,
+                vac_update = run_update$update,
+                distance = run_update$distance
+                #gammas = gammas,
+                #vac_this_year = vac_this_year
       )
 
+    # remove objects from memory
+      rm(init_age_vec)
+      rm(init_pop)
+      rm(vac_pop)
+      rm(delta_v)
+      rm(infect_pop)
+
+      # # add column names
+      # for(i in seq_along(rtn)) {
+      #   if(is.matrix(rtn[[i]]) & dim(rtn[[i]])[2] == length(years)){
+      #     colnames(rtn[[i]]) <- letters[1:10]
+      #   }
+      # }
+
+    # output
       return(rtn)
 
 }

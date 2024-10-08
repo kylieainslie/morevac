@@ -13,7 +13,7 @@ List vaccine_update_cpp(NumericMatrix drift, double threshold, double vac_protec
 
   NumericVector vaccine_dist(drift.nrow());
   IntegerVector update(drift.nrow());
-  int years_since_vac_update = 1;
+  int years_since_vac_update = 0;
   NumericVector gammas(drift.nrow());
 // set initial values of vaccine_dist and update vectors
   vaccine_dist[0] = 0;
@@ -25,7 +25,7 @@ List vaccine_update_cpp(NumericMatrix drift, double threshold, double vac_protec
     vaccine_dist[j] = drift(j, j - years_since_vac_update);
       if(vaccine_dist[j] > threshold){
         update[j] = 1;              // update vaccine
-        years_since_vac_update = 1; // change years since vac update to 0 if updated in current year
+        years_since_vac_update = 0; // change years since vac update to 0 if updated in current year
 //      vaccine_dist = 0;           // reset vaccine_dist to 0
         gammas[j] = 1-vac_protect;  // set protection from vaccination to 1-VE
       } else {

@@ -4,13 +4,6 @@
 \alias{run_sim_2}
 \title{Run simulations of multiannual() model of infection and vaccination}
 \usage{
-<<<<<<< HEAD
-run_sim_2(sim = 100, n = 10000, years = 1820:2019, max_age = 80,
-  start_vac_year = 2000, vac_cov = c(rep(0.5, 80)), betas = c(0.4,
-  rep(0.2, 199)), vac_protect = 0.7, vac_strategy = 1, rho = 0.9,
-  wane = 0, take = 1, epsilon = 0.03, drift_off = FALSE,
-  file.out = FALSE, tag = "", seed = NULL)
-=======
 run_sim_2(
   sim = 100,
   n = 10000,
@@ -28,29 +21,51 @@ run_sim_2(
   drift_off = FALSE,
   file.out = FALSE,
   tag = "",
+  trim_age_mat = NULL,
+  length_study = 19,
   seed = NULL
 )
->>>>>>> 863033e (update files in man/)
+
 }
 \arguments{
 \item{sim}{number of simulations to run}
 
-\item{nindiv}{number of individuals to be simulated}
+\item{n}{number of individuals to be simulated}
 
-\item{year_range}{range of years to follow cohort}
+\item{years}{vector of years in YYYY format}
 
-\item{age_range}{range of ages to follow cohort}
+\item{max_age}{maimum age of an individual before they are removed from the population}
 
-\item{vaccov}{vaccination coverage, should be between 0 and 1 (inclusive)}
+\item{start_vac_year}{year to start vaccinating (YYYY format)}
 
-\item{filename}{prefix of outputted figures}
+\item{vac_cov}{vector of vaccination coverages for each age group (should be of length max_age)}
 
-\item{version}{which vaccination version to use: 1 = either-or, 2 = multiplicative}
+\item{betas}{vector of force of infetion for each year (should be same length as years)}
+
+\item{vac_protect}{vaccine efficacy}
+
+\item{vac_strategy}{integer indicating which vaccination strategy to use (0 = no vaccination, 1 = annual, 2 = biennial)}
+
+\item{rho}{correlation of repeat vaccination in individuals (between 0 and 1 (inclusive))}
+
+\item{wane}{amount of vaccine waning}
+
+\item{take}{proportion of individuals who receive the vaccine and are protected}
+
+\item{epsilon}{exposure penalty}
+
+\item{drift_off}{logical. if TRUE there will be no antigenic drift}
+
+\item{trim_age_mat}{year before which age matrix is subsetted. If the year 2000 is used, then age matrix will only contain ages for year 2000 and beyond.}
+
+\item{length_study}{length of time to follow cohorts}
+
+\item{seed}{seed for simulations}
 }
 \value{
-two plots 1) plot of annual attack rates for the cohort and 2) a plot of number of lifetime infections by age
+list of infection histories, vaccination histories, and age matrices for each simulation
 }
 \description{
-This function initializes the population before running the model.
+Run simulations of multiannual() model of infection and vaccination
 }
 \keyword{morevac}

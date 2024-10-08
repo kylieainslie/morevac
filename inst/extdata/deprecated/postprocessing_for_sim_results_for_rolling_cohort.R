@@ -9,6 +9,7 @@
 #' @param file character string indicating the name of the output file. Only used when write.file = TRUE.
 #' @return data frame of attack rates within the cohort by year
 #' @keywords morevac
+#' @importFrom data.table setcolorder
 #' @export
 postprocess_sim_results_for_rolling_cohort <- function(sim_dat, n_sim = 100, total_year_range = 1918:2028,
                                                        length_study = 19, write_file = FALSE, file = "test"){
