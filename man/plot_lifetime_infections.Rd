@@ -4,8 +4,13 @@
 \alias{plot_lifetime_infections}
 \title{Plot multi-annual attack rates}
 \usage{
-plot_lifetime_infections(dat, by_vac = FALSE, no_legend = FALSE,
-  x = 0.3, y = 0.95)
+plot_lifetime_infections(
+  dat,
+  by_vac = FALSE,
+  no_legend = FALSE,
+  x = 0.3,
+  y = 0.95
+)
 }
 \arguments{
 \item{dat}{data frame of annual attack rates. Should have two colums: Age and Life_Inf.

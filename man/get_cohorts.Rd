@@ -4,9 +4,17 @@
 \alias{get_cohorts}
 \title{Multi-annual model of infection and vaccination (version 2)}
 \usage{
-get_cohorts(inf_history, vac_history, ages, enrollment_start_year = 2000,
-  ncohorts = 10, total_year_range, length_study = 18,
-  write.file = FALSE, file = "test")
+get_cohorts(
+  inf_history,
+  vac_history,
+  ages,
+  enrollment_start_year = 2000,
+  ncohorts = 10,
+  total_year_range,
+  length_study = 18,
+  write.file = FALSE,
+  file = "test"
+)
 }
 \arguments{
 \item{inf_history}{matrix of infection histories for each person}

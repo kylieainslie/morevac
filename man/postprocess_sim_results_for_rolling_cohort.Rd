@@ -5,9 +5,14 @@
 \alias{postprocess_sim_results_for_rolling_cohort}
 \title{Multi-annual model of infection and vaccination (version 2)}
 \usage{
-postprocess_sim_results_for_rolling_cohort(simdat, nsim = 100,
-  total_year_range = 1820:2028, length_study = 19,
-  write.file = FALSE, file = "test")
+postprocess_sim_results_for_rolling_cohort(
+  simdat,
+  nsim = 100,
+  total_year_range = 1820:2028,
+  length_study = 19,
+  write.file = FALSE,
+  file = "test"
+)
 }
 \arguments{
 \item{nsim}{number of simulations performed (must be the same for each sim case)}
