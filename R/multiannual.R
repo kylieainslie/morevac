@@ -1,10 +1,4 @@
-### MoReVac - Modelling Repeat Vaccination ###
-### Agent-based model of repeat vaccination in birth cohort
-# created:
-# modified: 16/01/2020
-# author: Kylie Ainslie
-
-#' Multi-annual model of infection and vaccination (version 2)
+#' Multi-annual model of infection and vaccination
 #'
 #' This function initializes the population before running the model.
 #' @param n number of individuals to be simulated
@@ -27,6 +21,7 @@
 #'         2) a plot of annual attack rates by vaccination scenario
 #' @keywords morevac
 #' @export
+#' @importFrom Rcpp evalCpp
 multiannual <- function(n = 10000,
                         years = 1918:2028,
                         max_age = 80,
@@ -48,14 +43,23 @@ multiannual <- function(n = 10000,
     if (!is.null(seed)){set.seed(seed)}
   # initialize the population
     init_age_vec <- sample(1:max_age-1,n,replace = TRUE)
-    init_pop <- initialize_pop_cpp(n = n, nyears = length(years), init_ages = init_age_vec, max_age = max_age)
+    init_pop <- .Call('_morevac_initialize_pop_cpp',
+                      n = n,
+                      nyears = length(years),
+                      init_ages = init_age_vec,
+                      max_age = max_age
+                      )
 
   # determine drift
     drift <- drift_func(nyears = length(years), rate = drift_rate)
     antigenic_dist <- drift$antigenic_dist
     if (drift_off){antigenic_dist <- 0}
   # determine vaccine update schedule
-    run_update <- vaccine_update_cpp(drift = antigenic_dist, threshold = 4, vac_protect = vac_protect)
+    run_update <- .Call('_morevac_vaccine_update_cpp',
+                        drift = antigenic_dist,
+                        threshold = 4,
+                        vac_protect = vac_protect
+                        )
   # determine value of protection from infection due to vaccination
   # (the value of protection is dependent on the distance of the
   # vaccination strain relative to the circulating strain)
@@ -63,26 +67,34 @@ multiannual <- function(n = 10000,
   # determine years of vaccination
     vac_this_year <- if_else(years>=start_vac_year, 1, 0)
   # vaccinate
-    vac_pop <- vaccinate_cpp_2(vac_hist_mat = init_pop$vac_hist_mat,
-                               v = init_pop$time_since_last_vac,
-                               ages_mat = init_pop$ages_mat,
-                               vac_this_year = vac_this_year,
-                               vac_cov = vac_coverage, take = take,
-                               rho = rho, vac_strategy = vac_strategy)
+    vac_pop <- .Call('_morevac_vaccinate_cpp_2',
+                     vac_hist_mat = init_pop$vac_hist_mat,
+                     v = init_pop$time_since_last_vac,
+                     ages_mat = init_pop$ages_mat,
+                     vac_this_year = vac_this_year,
+                     vac_cov = vac_coverage, take = take,
+                     rho = rho,
+                     vac_strategy = vac_strategy
+                     )
 
     # calculate delta_v values
-      delta_v <- find_delta_v(v = vac_pop$v, dist_mat = antigenic_dist)
+      delta_v <- .Call('_morevac_find_delta_v',
+                       v = vac_pop$v,
+                       dist_mat = antigenic_dist
+                       )
     # run infection model
-      infect_pop <- infect_cpp_2(inf_history = init_pop$inf_hist_mat,
-                                 vac_history = vac_pop$vac_hist_mat,
-                                 years_since_last_vac = vac_pop$v,
-                                 suscept_mat = init_pop$suscept_mat,
-                                 x = init_pop$time_since_last_inf,
-                                 ages_mat = init_pop$ages_mat,
-                                 dist_mat = antigenic_dist, delta_v = delta_v,
-                                 gammas = gammas, foi = betas,
-                                 wane_rate = wane,
-                                 epsilon = epsilon)
+      infect_pop <- .Call('_morevac_infect_cpp_2',
+                          inf_history = init_pop$inf_hist_mat,
+                          vac_history = vac_pop$vac_hist_mat,
+                          years_since_last_vac = vac_pop$v,
+                          suscept_mat = init_pop$suscept_mat,
+                          x = init_pop$time_since_last_inf,
+                          ages_mat = init_pop$ages_mat,
+                          dist_mat = antigenic_dist, delta_v = delta_v,
+                          gammas = gammas, foi = betas,
+                          wane_rate = wane,
+                          epsilon = epsilon
+                          )
 
       # return
       rtn <- list(inf_history = infect_pop,
@@ -93,6 +105,7 @@ multiannual <- function(n = 10000,
                   gammas = gammas,
                   vac_this_year = vac_this_year
       )
+
       return(rtn)
 
 }
