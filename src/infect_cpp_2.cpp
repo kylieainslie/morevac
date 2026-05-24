@@ -58,7 +58,7 @@ List infect_cpp_2(NumericMatrix inf_history,
         } else {
           delta_x(i,j) = dist_mat(j-x(i,j), j);
           // determine infection susceptibility component
-          inf_comp = (1/(1 + exp(1.299*((log(200)-delta_x(i,j)-log(2.844))))));
+          inf_comp = (1/(1 + exp(1.299*((log(200)-delta_x(i,j)-2.844)))));
         }
      // determine if individual was vaccinated in current year
         if (years_since_last_vac(i,j) >= 999){
@@ -71,8 +71,8 @@ List infect_cpp_2(NumericMatrix inf_history,
           } else {
               vac_ind = 0; // non-vac year
               w = gammas[j] + (1-gammas[j])*wane_rate*(1-vac_ind) - e; // waning
-              titre_vac = log(1/w - 1)/1.299 + log(2.844) - delta_v(i,j);
-              vac_comp = (1/(1 + exp(1.299*((titre_vac-log(2.844))))));
+              titre_vac = log(1/w - 1)/1.299 + 2.844 - delta_v(i,j);
+              vac_comp = (1/(1 + exp(1.299*((titre_vac-2.844)))));
             }
           // determine susceptibility
               suscept_mat(i,j) = std::min(std::max((inf_comp * vac_comp), (exposure_count[i] * epsilon)), 1.0);

@@ -31,7 +31,7 @@ List vaccine_update_cpp(NumericMatrix drift, double threshold, double vac_protec
       } else {
         update[j] = 0;
         years_since_vac_update += 1;
-        gammas[j] = 1 - vac_protect*(1-(1/(1 + exp(1.299*(log(200) - vaccine_dist[j]) - log(2.844)))));
+        gammas[j] = 1 - vac_protect*(1-(1/(1 + exp(1.299*(log(200) - vaccine_dist[j] - 2.844)))));
       }
   }
 
