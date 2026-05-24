@@ -1,0 +1,271 @@
+---
+title: "Reproducing the results of Ainslie & Riley (2022)"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Reproducing the results of Ainslie & Riley (2022)}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+bibliography: vignette_references.bib
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = FALSE
+)
+```
+
+This vignette describes how to reproduce the key results from [Ainslie & Riley (2022)](https://doi.org/10.1016/j.vaccine.2022.03.065) using the `morevac` package. The paper compares three childhood influenza vaccination strategies in terms of lifetime infections and age-specific attack rates:
+
+| `vac_strategy` | Strategy |
+|:-:|---|
+| `0` | No vaccination |
+| `1` | Annual vaccination |
+| `2` | Biennial (every-other-year) vaccination |
+
+> **Note on post-publication bug fixes:** Two bugs in the antibody protection curve were identified and fixed after publication (see GitHub issues [#5](https://github.com/kylieainslie/morevac/issues/5) and [#6](https://github.com/kylieainslie/morevac/issues/6)). Results produced with the current version of the package will therefore differ slightly from those in the published paper.
+
+## Installation
+
+```{r install}
+devtools::install_github("kylieainslie/morevac")
+library(morevac)
+```
+
+## Model parameters
+
+The table below describes the key parameters used across both the baseline and sensitivity analyses. Fixed values reflect the paper's baseline scenario (row 18 of `param_values_baseline.csv`).
+
+| Parameter | Description | Baseline value |
+|---|---|---|
+| `n_indiv` | Number of individuals simulated | 30,000 |
+| `n_sim` | Number of Monte Carlo simulations per parameter set | 500 |
+| `years` | Simulation period | 1918–2028 |
+| `pandemic_beta` | Force of infection in pandemic year (1918) | 0.4 |
+| `epidemic_beta` | Force of infection in non-pandemic years | 0.2 |
+| `vac_cutoff` | Maximum age eligible for vaccination (years) | 10 |
+| `vac_cov` | Vaccination coverage for eligible age groups | 0.44 |
+| `vac_protect` | Vaccine efficacy (proportion reduction in susceptibility) | 0.7 |
+| `wane` | Rate of waning vaccine protection (0 = no waning, 1 = full waning) | 1 |
+| `take` | Proportion of vaccinees who mount an immune response | 1 |
+| `rho` | Correlation in repeat vaccination across years | 0.9 |
+| `epsilon` | Exposure penalty — increase in minimum susceptibility per prior exposure | 0 |
+
+<!-- TODO: verify parameter descriptions and baseline values against paper Table 1 / Methods -->
+
+## Overview of the analysis
+
+The full analysis consists of two parts:
+
+1. **Baseline analysis** — fixed parameter values, sweeping over `epsilon` (0–0.1) and `vac_protect` (0.1–1.0) to assess sensitivity to these two parameters.
+2. **Latin Hypercube Sampling (LHC) sensitivity analysis** — simultaneous variation of six parameters (`vac_cov`, `wane`, `take`, `epsilon`, `rho`, `vac_protect`) across 250 combinations to characterise overall uncertainty.
+
+For both parts, `run_sims_all()` reads a parameter CSV and, for each row, runs all three vaccination strategies, then calls `summarise_raw_output()` to compute bootstrapped mean infections, pairwise differences, and age-specific attack rates, writing one set of summary CSVs per parameter row.
+
+## Part 1 — Baseline analysis
+
+### Step 1a — Run simulations
+
+A baseline parameter file is bundled with the package. It varies `epsilon` and `vac_protect` across 21 rows while holding all other parameters fixed.
+
+Create an output directory and run the simulations:
+
+```{r baseline-run}
+params_file <- system.file("extdata/input/param_values_baseline.csv",
+                           package = "morevac")
+
+out_dir <- "~/morevac_results/baseline"
+dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
+
+# each row runs ~500 sims × 3 strategies × 30,000 individuals
+# TODO: add approximate wall-clock time estimate per row
+withr::with_dir(out_dir, {
+  run_sims_all(params_file = params_file, out_file = "baseline_")
+})
+```
+
+### Step 1b — Read summary outputs
+
+```{r baseline-read}
+library(data.table)
+
+out_dir <- "~/morevac_results/baseline"
+
+mean_infs <- rbindlist(lapply(list.files(out_dir, pattern = "mean_infs_baseline_.*\\.csv",
+                                         full.names = TRUE), fread))
+mean_ar   <- rbindlist(lapply(list.files(out_dir, pattern = "mean_ar_baseline_.*\\.csv",
+                                         full.names = TRUE), fread))
+mean_diff <- rbindlist(lapply(list.files(out_dir, pattern = "mean_diff_baseline_.*\\.csv",
+                                         full.names = TRUE), fread))
+```
+
+### Step 1c — Plot mean lifetime infections by strategy
+
+<!-- TODO: confirm which paper figure this corresponds to -->
+
+```{r plot-infs}
+library(ggplot2)
+
+ggplot(mean_infs, aes(x = Vac_Strategy, y = Mean_Infs,
+                      ymin = Lower, ymax = Upper,
+                      colour = Vac_Strategy)) +
+  geom_point(size = 3) +
+  geom_errorbar(width = 0.2) +
+  labs(x = "Vaccination strategy",
+       y = "Mean lifetime infections (ages 0–18)",
+       colour = NULL) +
+  theme_bw() +
+  theme(legend.position = "none")
+```
+
+### Step 1d — Plot difference in infections between strategies
+
+`mean_diff` contains three pairwise comparisons: Annual vs. Biennial (`Diff_AB`), Annual vs. No Vac (`Diff_AN`), and Biennial vs. No Vac (`Diff_BN`). Positive values indicate more infections under the first-named strategy.
+
+<!-- TODO: confirm which paper figure this corresponds to -->
+
+```{r plot-diff}
+ggplot(mean_diff, aes(x = Type, y = Mean_Diff,
+                      ymin = Lower, ymax = Upper,
+                      colour = Type)) +
+  geom_point(size = 3) +
+  geom_errorbar(width = 0.2) +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  labs(x = "Comparison", y = "Mean difference in lifetime infections",
+       colour = NULL) +
+  scale_x_discrete(labels = c(Diff_AB = "Annual vs. Biennial",
+                               Diff_AN = "Annual vs. No Vac",
+                               Diff_BN = "Biennial vs. No Vac")) +
+  theme_bw() +
+  theme(legend.position = "none")
+```
+
+### Step 1e — Plot age-specific attack rates
+
+<!-- TODO: confirm which paper figure this corresponds to -->
+
+```{r plot-ar}
+ggplot(mean_ar, aes(x = Age, y = Mean_AR,
+                    ymin = Lower, ymax = Upper,
+                    colour = Vac_Strategy, fill = Vac_Strategy)) +
+  geom_line() +
+  geom_ribbon(alpha = 0.2, colour = NA) +
+  labs(x = "Age", y = "Mean attack rate",
+       colour = "Strategy", fill = "Strategy") +
+  theme_bw()
+```
+
+## Part 2 — Latin Hypercube sensitivity analysis
+
+The LHC analysis simultaneously varies six parameters uniformly across their ranges to characterise how robust the conclusions are to parameter uncertainty.
+
+| Parameter | LHC range |
+|---|---|
+| `vac_cov` | 0–0.5 |
+| `wane` | 0–1 |
+| `take` | 0.5–1 |
+| `epsilon` | 0.001–0.1 |
+| `rho` | 0–1 |
+| `vac_protect` | 0–1 |
+
+<!-- TODO: verify LHC ranges against paper Methods / Supplementary -->
+
+### Step 2a — Generate the LHC parameter file
+
+```{r lhc-params}
+out_dir <- "~/morevac_results/lhc"
+dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
+
+withr::with_dir(out_dir, {
+  create_params_file(
+    n_sim      = 1000,
+    n_indiv    = 30000,
+    lhc_size   = 250,
+    vac_cutoff = 10,
+    out_file   = "param_values_lhc",
+    seed       = 1234       # set seed for reproducibility
+  )
+})
+```
+
+### Step 2b — Run LHC simulations
+
+The LHC run (250 parameter sets × 1,000 simulations × 3 strategies) is very compute-intensive and is best submitted as array jobs on a cluster. The `index` argument to `run_sims_all()` subsets the parameter file so each job processes one row:
+
+```{r lhc-run}
+params_file <- file.path(out_dir, "param_values_lhc.csv")
+
+# example: run rows 1–10 (submit as separate jobs for the full set)
+withr::with_dir(out_dir, {
+  run_sims_all(params_file = params_file, index = 1:10, out_file = "lhc_")
+})
+```
+
+### Step 2c — Read and combine LHC outputs
+
+```{r lhc-read}
+mean_infs_lhc <- rbindlist(lapply(list.files(out_dir, pattern = "mean_infs_lhc_.*\\.csv",
+                                              full.names = TRUE), fread))
+mean_diff_lhc <- rbindlist(lapply(list.files(out_dir, pattern = "mean_diff_lhc_.*\\.csv",
+                                              full.names = TRUE), fread))
+```
+
+### Step 2d — Plot LHC results
+
+<!-- TODO: confirm which paper figure this corresponds to and add faceting by parameter if needed -->
+
+```{r lhc-plot}
+ggplot(mean_diff_lhc, aes(x = Type, y = Mean_Diff,
+                           ymin = Lower, ymax = Upper)) +
+  geom_jitter(width = 0.15, alpha = 0.4, size = 1) +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  labs(x = "Comparison", y = "Mean difference in lifetime infections") +
+  scale_x_discrete(labels = c(Diff_AB = "Annual vs. Biennial",
+                               Diff_AN = "Annual vs. No Vac",
+                               Diff_BN = "Biennial vs. No Vac")) +
+  theme_bw()
+```
+
+## Running a single scenario interactively
+
+For a quick exploratory run without generating output files, call `run_sim_2()` directly. The three strategies are independent and can be run in parallel:
+
+```{r single}
+library(parallel)
+
+years   <- 1918:2028
+betas   <- c(0.4, rep(0.2, length(years) - 1))
+max_age <- 80
+vac_cut <- 10
+
+vac_cov <- numeric(max_age)
+vac_cov[3:(vac_cut + 1)] <- 0.44  # ages 2–10 vaccinated at 44% coverage
+
+common_args <- list(
+  sim         = 50,
+  n           = 30000,
+  years       = years,
+  max_age     = max_age,
+  betas       = betas,
+  vac_cov     = vac_cov,
+  wane        = 1,
+  take        = 1,
+  epsilon     = 0,
+  vac_protect = 0.7,
+  rho         = 0.9
+)
+
+# mclapply is Unix/macOS only; on Windows use parLapply() or run sequentially
+sims <- mclapply(0:2, function(strat) {
+  do.call(run_sim_2, c(common_args, list(vac_strategy = strat)))
+}, mc.cores = min(3L, detectCores()))
+
+names(sims) <- c("no_vac", "annual", "biennial")
+```
+
+Each element of `sims` is a list with two data frames: `inf_history` and `vac_history`, one row per individual per simulation.
+
+## References
+
+Ainslie KEC, Riley S (2022). Is annual vaccination best? A modelling study of influenza vaccination strategies in children. *Vaccine*, 40(21), 2940–2948. <https://doi.org/10.1016/j.vaccine.2022.03.065>
